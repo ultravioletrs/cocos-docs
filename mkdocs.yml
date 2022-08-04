@@ -1,0 +1,22 @@
+copyright: Copyright (c) Ultraviolet
+repo_url: https://github.com/ultraviolet/cocos
+site_description: Cocos AI SMPC Platform
+site_name: Cocos
+site_url: https://docs.cocos.ai
+edit_uri: ""
+theme:
+  name: material
+  logo: img/logo.png
+  favicon: img/logo.png
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: "#"
+
+nav:
+  - Overview: index.md
+  - Architecture: architecture.md
+  - Getting Started: getting-started.md
