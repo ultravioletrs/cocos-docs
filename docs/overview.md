@@ -7,6 +7,7 @@ CoCoS.ai is a distributed, microservice-based solution in the cloud that enables
 ## Features
 
 CoCoS.ai is enabling the following features:
+
     - Data Scientist pipelines with UI
     - User and key management
     - Distributed computation orchestration over TEE-enabled machines
@@ -15,4 +16,3 @@ CoCoS.ai is enabling the following features:
     - Providing an API for programmable platform manipulation
 
 ## License
-[Apache-2.0](https://github.com/ultravioletrs/cocos/blob/main/LICENSE)
