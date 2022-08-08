@@ -14,8 +14,8 @@ git clone git@github.com:ultravioletrs/cocos.git
 make dockers
 docker compose -f docker/docker-compose.yml up
 ```
-
-To run the user interface:
+## Step 2 - Access the User Interface
+To access the user interface run the following commands:
 ```
 git clone git@github.com:ultravioletrs/cocos-ui.git
 cd cocos-ui/cmd/ui
