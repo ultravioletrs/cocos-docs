@@ -7,13 +7,14 @@ CoCoS.ai is a distributed, microservice-based solution in the cloud that enables
 ## Features
 
 CoCoS.ai is enabling the following features:
-    - User and Consortium management
-    - Collaborative computation definition (computation roles, datasets, algorithm, ...)
-    - Distributed computation orchestration over TEE-enabled machines
-    - TEE enablement, deployment and monitoring
-    - In-enclave agent, netowrking controller and other system software 
-    - Encrypted asynchronous data transfer and result delivery
-    - API for programmable platform manipulation
+
+- User and Consortium management
+- Collaborative computation definition (computation roles, datasets, algorithm, ...)
+- Distributed computation orchestration over TEE-enabled machines
+- TEE enablement, deployment and monitoring
+- In-enclave agent, netowrking controller and other system software 
+- Encrypted asynchronous data transfer and result delivery
+- API for programmable platform manipulation
 
 ## License
 [Apache-2.0](https://github.com/ultravioletrs/cocos/blob/main/LICENSE)
