@@ -20,3 +20,7 @@ nav:
   - Overview: index.md
   - Architecture: architecture.md
   - Getting Started: getting-started.md
+  - Computations: computations.md
+  - TEE: tee.md
+  - Agent: agent.md
+  - CLI: cli.md
