@@ -25,7 +25,7 @@ cd cocos-ui/cmd/ui
 go run main.go
 ```
 
-The User Interface can now be accesible from `[http://localhost/9090](http://localhost/9090)`.
+The User Interface can now be accesible from [http://localhost/9090](http://localhost/9090).
 
-> `[http://localhost:9090/](http://localhost/9090)` is for internal use only, and is not intended to be used by the end-user.
+> [http://localhost:9090/](http://localhost/9090) is for internal use only, and is not intended to be used by the end-user.
 > Only port `80` is exposed to the outside world via NginX proxy.
