@@ -1,31 +1,102 @@
 ## Getting Started
 
-### Step 1 - Run the System
-Before proceeding, install the following prerequisites:
+### Users
 
-- [Docker](https://docs.docker.com/install/) (version 20.10.17)
-- [Docker compose](https://docs.docker.com/compose/install/) (version 2.9.0)
+For user management, we use Mainflux Clients micorservice. By default, this service will be running on the port `9191`.
 
-Once everything is installed, execute the following command from project root:
-
-To run the backend:
+#### Create User
+In order to create user, we need to provide username and password:
 
 ```bash
-git clone git@github.com:ultravioletrs/cocos.git
-make dockers
-docker compose -f docker/docker-compose.yml up
+curl -sSi -X POST http://localhost:9191/clients -H "Content-Type: application/json" -d @- <<EOF
+{
+    "credentials" : {
+        "identity":"john.doe@email.com",
+        "secret":"12345678"
+    }
+}
+EOF
 ```
 
-### Step 2 - Access the User Interface
-To deploy the user interface run the following commands:
+#### Get All Users
+In order to get all of the users:
 
 ```bash
-git clone git@github.com:ultravioletrs/cocos-ui.git
-cd cocos-ui/cmd/ui
-go run main.go
+curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/json"
 ```
 
-The User Interface can now be accesible from [http://localhost:9090](http://localhost:9090/).
+#### Get Specific User
+Getting one particular user, by ID:
 
-> [http://localhost:9090/](http://localhost/9090) is for internal use only, and is not intended to be used by the end-user.
-> Only port `80` is exposed to the outside world via NginX proxy.
+```bash
+curl -sSi -X GET http://localhost:9191/clients/<client_id> -H "Content-Type: application/json"
+```
+
+#### Login User
+In order to create user, we need to provide username and password:
+
+```bash
+curl -sSi -X POST http://localhost:9191/tokens -H "Content-Type: application/json" -d @- <<EOF
+{
+  "credentials" : {
+    "identity":"john.doe@email.com",
+    "secret":"12345678"
+  }
+}
+EOF
+```
+
+### Computations
+
+For computation management, we use Computations micorservice. By default, this service will be running on the port `9000`.
+
+#### Create Computation
+In order to create computation, we can to provide the following content:
+
+```bash
+curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -d @- <<EOF
+{
+  "name": "string",
+  "description": "string",
+  "datasets": [
+    "string"
+  ],
+  "algorithms": [
+    "string"
+  ],
+  "startTime": 0,
+  "endTime": 0,
+  "status": "string",
+  "owner": "string",
+  "datasetProviders": [
+    "string"
+  ],
+  "algorithmProviders": [
+    "string"
+  ],
+  "ttl": 0,
+  "metadata": {}
+}
+EOF
+```
+
+#### Get All Computations
+In order to create computation, we can to provide the following content:
+
+```bash
+curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json"
+```
+
+#### Get One Computation
+In order to get one pspecific computation, by ID:
+
+```bash
+curl -sSi -X GET http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json"
+```
+
+#### Run Computation
+In order to get one pspecific computation, by ID:
+
+```bash
+curl -sSi -X POST http://localhost:9000/computations/<computation_id>/run -H "Content-Type: application/json"
+```

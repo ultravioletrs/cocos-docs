@@ -19,6 +19,7 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Architecture: architecture.md
+  - Intsall: install.md
   - Getting Started: getting-started.md
   - Computations: computations.md
   - TEE: tee.md
