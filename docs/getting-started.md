@@ -27,6 +27,23 @@ Date: Fri, 21 Oct 2022 08:55:14 GMT
 Content-Length: 0
 ```
 
+#### Get Specific User
+Getting one particular user, by ID:
+
+```bash
+curl -sSi -X GET http://localhost:9191/clients/<client_id> -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 21 Oct 2022 08:57:24 GMT
+Content-Length: 217
+
+{"id":"01GFWW1VAB759Y1VMTG90YHH2S","name":"","credentials":{"identity":"john.doe@email.com","secret":""},"metadata":{},"created_at":"2022-10-21T08:55:13.995922Z","updated_at":"2022-10-21T08:55:13.995922Z","status":1}
+```
+
 #### Get All Users
 In order to get all of the users:
 
@@ -44,21 +61,21 @@ Content-Length: 687
 {"limit":10,"total":3,"level":0,"name":"","clients":[{"id":"01GFWW1VAB759Y1VMTG90YHH2S","name":"","credentials":{"identity":"john.doe@email.com","secret":""},"metadata":{},"created_at":"2022-10-21T08:55:13.995922Z","updated_at":"0001-01-01T00:00:00Z","status":0},{"id":"01GFWW7DEWGSYNMZJKGR1PR1HN","name":"","credentials":{"identity":"john1.doe@email.com","secret":""},"metadata":{},"created_at":"2022-10-21T08:58:16.412029Z","updated_at":"0001-01-01T00:00:00Z","status":0},{"id":"01GFWW7N8W90WFP1G51ER56E7R","name":"","credentials":{"identity":"john2.doe@email.com","secret":""},"metadata":{},"created_at":"2022-10-21T08:58:24.412018Z","updated_at":"0001-01-01T00:00:00Z","status":0}]}
 ```
 
-#### Get Specific User
-Getting one particular user, by ID:
+#### Memberships
+In order to list user's membership:
 
 ```bash
-curl -sSi -X GET http://localhost:9191/clients/<client_id> -H "Content-Type: application/json"
+curl -sSi -X GET http://localhost:9191/clients/01GG5328XV48SRSH7H8KPVDNS2/memberships -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
 ```
 
 Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 21 Oct 2022 08:57:24 GMT
-Content-Length: 217
+Date: Mon, 24 Oct 2022 13:34:13 GMT
+Content-Length: 49
 
-{"id":"01GFWW1VAB759Y1VMTG90YHH2S","name":"","credentials":{"identity":"john.doe@email.com","secret":""},"metadata":{},"created_at":"2022-10-21T08:55:13.995922Z","updated_at":"2022-10-21T08:55:13.995922Z","status":1}
+{"total":0,"level":0,"name":"","memberships":[]}
 ```
 
 #### Login User
@@ -216,11 +233,30 @@ curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: applicati
 EOF
 ```
 
+Response:
+```bash
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /computations/0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a
+Date: Mon, 24 Oct 2022 14:41:52 GMT
+Content-Length: 0
+```
+
 #### Get All Computations
-In order to create computation, we can to provide the following content:
+In order to get all computations:
 
 ```bash
 curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 14:42:21 GMT
+Content-Length: 283
+
+{"total":1,"limit":10,"computations":[{"id":"0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a","name":"string","description":"string","status":"string","owner":"string","start_time":"2022-10-24T14:41:52.650971Z","end_time":"0001-01-01T00:00:00Z","datasets":["string"],"algorithms":["string"]}]}
 ```
 
 #### Get One Computation
@@ -230,9 +266,155 @@ In order to get one pspecific computation, by ID:
 curl -sSi -X GET http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json"
 ```
 
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 14:43:07 GMT
+Content-Length: 243
+
+{"id":"0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a","name":"string","description":"string","status":"string","owner":"string","start_time":"2022-10-24T14:41:52.650971Z","end_time":"0001-01-01T00:00:00Z","datasets":["string"],"algorithms":["string"]}
+```
+
+#### Update computation
+In order to update computation:
+
+```bash
+curl -sSi -X PUT http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>" -d @- <<EOF
+{ 
+  "name": "<computation_name>",
+  "description": "<computation_description>",
+  "metadata": {}                             
+}     
+EOF
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 14:46:51 GMT
+Content-Length: 0
+```
+
+#### Delete Computation
+In order to delete computation:
+
+```bash
+curl -sSi -X DELETE http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
+```
+
+Response:
+```bash
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 14:49:13 GMT
+```
+
 #### Run Computation
 In order to get one pspecific computation, by ID:
 
 ```bash
 curl -sSi -X POST http://localhost:9000/computations/<computation_id>/run -H "Content-Type: application/json"
+```
+
+### Datasets
+
+For dataset management, we use Datasets micorservice. By default, this service will be running on the port `9001`.
+
+#### Create Dataset
+In order to create dataset, we can to provide the following content:
+
+```bash
+curl -sSi -X POST http://localhost:9001/datasets -H "Content-Type: application/json" -d @- <<EOF
+{
+  "name": "string",
+  "description": "string",
+  "owner": "string",
+  "createdAt": 0,
+  "updatedAt": 0,
+  "location": "string",
+  "format": "string",
+  "metadata": {}       
+}               
+EOF             
+```
+
+Response:
+```bash
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /datasets/74584111-24fb-4fe2-9722-a3f8f61ad991
+Date: Mon, 24 Oct 2022 15:10:45 GMT
+Content-Length: 0
+```
+
+#### Get All Datasets
+In order to get all datasets:
+
+```bash
+curl -sSi -X GET http://localhost:9001/datasets -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 15:14:21 GMT
+Content-Length: 292
+
+{"total":1,"offset":0,"limit":10,"order":"","direction":"","datasets":[{"id":"74584111-24fb-4fe2-9722-a3f8f61ad991","name":"string","description":"string","owner":"string","created_at":"2022-10-24T15:10:45.554617Z","updated_at":"0001-01-01T00:00:00Z","location":"string","format":"string"}]}
+```
+
+#### Get One Dataset
+In order to get one pspecific computation, by ID:
+
+```bash
+curl -sSi -X GET http://localhost:9001/datasets/<dataset_id> -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 15:15:53 GMT
+Content-Length: 219
+
+{"id":"74584111-24fb-4fe2-9722-a3f8f61ad991","name":"string","description":"string","owner":"string","created_at":"2022-10-24T15:10:45.554617Z","updated_at":"0001-01-01T00:00:00Z","location":"string","format":"string"}
+```
+
+#### Update dataset
+In order to update dataset:
+
+```bash
+curl -sSi -X PUT http://localhost:9001/datasets/<dataset_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>" -d @- <<EOF
+{ 
+  "name": "<dataset_name>",
+  "description": "<dataset_description>",
+  "metadata": {}                             
+}                                                                                   
+EOF
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 15:18:26 GMT
+Content-Length: 0
+
+```
+
+#### Delete Dataset
+In order to delete dataset:
+
+```bash
+curl -sSi -X DELETE http://localhost:9001/datasets/<dataset_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
+```
+
+Response:
+```bash
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 15:21:03 GMT
 ```
