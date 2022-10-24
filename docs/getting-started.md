@@ -11,8 +11,8 @@ In order to create user, we need to provide username and password:
 curl -sSi -X POST http://localhost:9191/clients -H "Content-Type: application/json" -d @- <<EOF
 {
     "credentials" : {
-        "identity":"john.doe@email.com",
-        "secret":"12345678"
+        "identity":"<client_email>",
+        "secret":"<client_password>"
     }
 }
 EOF
@@ -73,6 +73,113 @@ curl -sSi -X POST http://localhost:9191/tokens -H "Content-Type: application/jso
   }
 }
 EOF
+```
+
+### Groups
+
+For groups management, we use Mainflux Clients micorservice. By default, this service will be running on the port `9191`.
+
+#### Create Group
+In order to create group, we need to provide name:
+
+```bash
+curl -sSi -X POST http://localhost:9191/groups -H "Content-Type: application/json" -d @- <<EOF
+{
+  "name": "<group_name>",
+  "description": "<group_description>",
+  "owner_id":"<owner_id>",
+  "parent_id":"<previous_group_id>",
+  "metadata": {}
+}               
+EOF             
+```
+
+Response:
+```bash
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /groups/01GG4RA4GH7MS8WY5DZ6Q372BM
+Date: Mon, 24 Oct 2022 10:23:46 GMT
+Content-Length: 0
+```
+
+#### Get Group
+Getting one particular group, by ID:
+
+```bash
+curl -sSi -X GET http://localhost:9191/groups/<group_id> -H "Content-Type: application/json"
+```
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 10:26:43 GMT
+Content-Length: 258
+
+{"id":"01GG4RA4GH7MS8WY5DZ6Q372BM","owner_id":"","parent_id":"","name":"string","description":"string","metadata":{},"level":1,"path":"01GG4RA4GH7MS8WY5DZ6Q372BM","children":null,"created_at":"2022-10-24T10:23:46.70592Z","updated_at":"0001-01-01T00:00:00Z"}
+```
+
+#### Update Group
+In order to update group entity:
+
+```bash
+curl -sSi -X PUT http://localhost:9191/groups/<group_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>" -d @- <<EOF
+{
+  "name": "<group_name>",
+  "description": "<group_description>",
+  "metadata": {<group_metadata>}
+}               
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 11:46:06 GMT
+Content-Length: 0
+```
+
+#### Delete Group
+In order to delete group entity:
+
+```bash
+curl -sSi -X DELETE http://localhost:9191/groups/<group_id> -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 12:00:22 GMT
+```
+
+#### Members
+In order to list group members:
+
+```bash
+curl -sSi -X GET http://localhost:9191/groups/<group_id>/members -H  "Authorization: Bearer <token>" -H "Content-Type: application/json"
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 24 Oct 2022 12:06:13 GMT
+Content-Length: 56
+
+{"limit":10,"total":0,"level":0,"name":"","members":[]}
+```
+
+#### Get groups
+In order to list groups:
+
+```bash
+curl -sSi -X GET http://localhost:9191/groups
+```
+
+Response:
+```bash
+{"total":3,"level":0,"name":"","groups":[{"id":"01GG4Z7SQMJKX6QE9108XCAB3B","owner_id":"","parent_id":"","name":"group1","description":"string","metadata":{},"level":1,"path":"01GG4Z7SQMJKX6QE9108XCAB3B","children":null,"created_at":"2022-10-24T12:24:50.164476Z","updated_at":"0001-01-01T00:00:00Z"},{"id":"01GG4Z80RCZ5PNJ7YPEX14RGBF","owner_id":"","parent_id":"","name":"group2","description":"string","metadata":{},"level":1,"path":"01GG4Z80RCZ5PNJ7YPEX14RGBF","children":null,"created_at":"2022-10-24T12:24:57.356463Z","updated_at":"0001-01-01T00:00:00Z"},{"id":"01GG4Z88J4BDY1VSDQHTY9HHH5","owner_id":"","parent_id":"","name":"group3","description":"string","metadata":{},"level":1,"path":"01GG4Z88J4BDY1VSDQHTY9HHH5","children":null,"created_at":"2022-10-24T12:25:05.348221Z","updated_at":"0001-01-01T00:00:00Z"}]}
 ```
 
 ### Computations
