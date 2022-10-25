@@ -137,18 +137,92 @@ Content-Length: 49
 }
 ```
 
-### Login User
-In order to create user, we need to provide username and password:
+### Update Client
+In order to update client:
 
 ```bash
-curl -sSi -X POST http://localhost:9191/tokens -H "Content-Type: application/json" -d @- <<EOF
-{
-  "credentials": {
-    "identity": "john.doe@email.com",
-    "secret": "12345678"
-  }
-}
-EOF
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>" -d '{"name": "new_name"}'
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 13:17:43 GMT
+Content-Length: 0
+```
+
+### Update Client Tags
+In order to update client tags:
+
+```bash
+url -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>" -d '{"tags": ["user", "computation"]}'
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 13:35:12 GMT
+Content-Length: 0
+```
+
+### Update Client Identity
+In order to update client identity:
+
+```bash
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/identity -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>" -d '{"identity": "updated_identity@email.com"}'
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 13:40:07 GMT
+Content-Length: 0
+```
+
+### Update Client Secret
+In order to update client secret:
+
+```bash
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/secret -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>" -d '{"secret": "12345678"}'
+```
+
+Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 13:42:27 GMT
+Content-Length: 0
+```
+
+### Enable Client
+In order to enable client:
+
+```bash
+curl -sSi -X POST http://localhost:9191/clients/<client_id>/enable -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>"
+```
+
+Response:
+```bash
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 14:09:24 GMT
+```
+
+### Disable Client
+In order to disable client:
+
+```bash
+curl -sSi -X POST http://localhost:9191/clients/<client_id>/disable -H "Content-Type: application/json" -H  "Authorization: Bearer <client_id>"
+```
+
+Response:
+```bash
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Date: Tue, 25 Oct 2022 14:01:06 GMT
 ```
 
 ## Groups
