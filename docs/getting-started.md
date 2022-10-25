@@ -65,7 +65,7 @@ Content-Length: 687
 In order to list user's membership:
 
 ```bash
-curl -sSi -X GET http://localhost:9191/clients/01GG5328XV48SRSH7H8KPVDNS2/memberships -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
+curl -sSi -X GET http://localhost:9191/clients/0<client_id>/memberships -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
 ```
 
 Response:
