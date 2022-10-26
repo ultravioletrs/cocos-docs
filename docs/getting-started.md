@@ -12,8 +12,9 @@ curl -sSi -X POST http://localhost:9191/clients -H "Content-Type: application/js
 {
     "credentials": {
         "identity": "<client_email>",
-        "secret": <client_password>"
-    }
+        "secret": "<client_password>"
+    },
+    "tags": ["a", "b"]
 }
 EOF
 ```
