@@ -108,7 +108,6 @@ curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/jso
 <br></br>
 
 ## <ins>Update Client Owner</ins>
-Update the owner of a client.
 
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/36c0f1e2-945e-4de1-bcdb-19935c9da449/owner -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK" -d @- <<EOF
@@ -136,7 +135,6 @@ Content-Length: 253
 <br></br>
 
 ## <ins>Update Client Name and Metadata</ins>
-Update the Client's Name and/or Metadata.
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"name": "aryan_new_name"}'
 ```
@@ -154,7 +152,6 @@ Content-Length: 277
 <br></br>
 
 ## <ins>Update Client Tags</ins>
-Update the Client's Tags.
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
@@ -172,7 +169,6 @@ Content-Length: 293
 <br></br>
 
 ## <ins>Update Client Identity</ins>
-Update Client's Identity.
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"identity": "aryan_updated@email.com"}'
 ```
@@ -190,8 +186,9 @@ Content-Length: 260
 <br></br>
 
 ## <ins>Update Client Secret</ins>
-Update the Client's Secret.
+```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"secret": "87654321"}'
+```
 
 Response:
 ```bash
@@ -244,7 +241,6 @@ Content-Length: 261
 <br></br> 
 
 ## <ins>List Client Members</ins>
-List Group Members.
 
 ```bash
 
