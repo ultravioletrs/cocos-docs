@@ -1,7 +1,6 @@
 # Clients
-<br></br>
 
-## <ins>Issue Token</ins>
+## Issue Token
 To issue access and refresh token to provide authorization header to API calls.
 
 ```bash
@@ -29,9 +28,7 @@ Expires after 15 minutes (default).
 Used to refresh the access token once it expires.  
 Expires after 24 hours (default). After that you have to issue the tokens again using this same endpoint.  
 
-<br></br>
-
-## <ins>Refresh Token</ins>
+## Refresh Token
 Refresh the Access Token if/when it expires.  
 Refresh token expires in 24 hours (default).
 
@@ -46,9 +43,7 @@ Response:
 {"access_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4MTY4MTksImlhdCI6MTY4NDc2MjgxOSwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.X3dX8-KKqs1qwFt6piXl6w_utqfHnYa5VB7wOQOf-u4xKbh7NFKEfkIF-j2XY_2C3pVLRgBOHIiiKhsix9PpNQ","refresh_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4NDkyMTksImlhdCI6MTY4NDc2MjgxOSwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJyZWZyZXNoIn0.4SIxRD5CN1NBwl4dM7MD3Gd9jdaywY2kUwRgy4TBjNgpYqEyitqnUMsusYjQD-Z3Sub2bM7TDEw_So5XtJ7sWA","access_type":"Bearer"}
 ```
 
-<br></br>
-
-## <ins>Register Client / Create User</ins>
+## Register Client / Create User
 In order to create user, we need to provide username and password:
 
 ```bash
@@ -74,9 +69,7 @@ Content-Length: 225
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T12:18:50.887148Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>List Client</ins>
+## List Client
 Show a client if it's owned by you.
 ```bash
 curl -sSi -X GET http://localhost:9191/clients/$CLIENT_ID -H "Content-Type: application/json" -H "Authorization: Bearer $REFTOK"
@@ -92,9 +85,7 @@ Content-Length: 313
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":"$2a$10$PckXb4XF5sPoOkGbmdvyvuIJXWNgZdfEQrn6cw4zeOhqfNLtitvjS"},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>List Clients</ins>
+## List Clients
 List all the owned clients.  
 
 ```
@@ -105,9 +96,7 @@ Note: You can only clients owned by you. (Look into update client owner endpoint
 curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK"
 ```
 
-<br></br>
-
-## <ins>Update Client Owner</ins>
+## Update Client Owner
 
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/36c0f1e2-945e-4de1-bcdb-19935c9da449/owner -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK" -d @- <<EOF
@@ -132,9 +121,7 @@ Content-Length: 253
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Update Client Name and Metadata</ins>
+## Update Client Name and Metadata
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"name": "aryan_new_name"}'
 ```
@@ -149,9 +136,7 @@ Content-Length: 277
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:48:32.215129Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Update Client Tags</ins>
+## Update Client Tags
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
@@ -166,9 +151,7 @@ Content-Length: 293
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","tags":["new_tag_1","new_tag_2"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:53:19.833693Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Update Client Identity</ins>
+## Update Client Identity
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"identity": "aryan_updated@email.com"}'
 ```
@@ -183,9 +166,7 @@ Content-Length: 260
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:55:19.882616Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Update Client Secret</ins>
+## Update Client Secret
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"secret": "87654321"}'
 ```
@@ -200,9 +181,7 @@ Content-Length: 260
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Enable Client</ins>
+## Enable Client
 Enable a Disabled Client.
 
 ```bash
@@ -219,9 +198,7 @@ Content-Length: 260
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
 ```
 
-<br></br>
-
-## <ins>Disable Client</ins>
+## Disable Client
 Disable an Enabled Client.
 
 ```bash
@@ -238,16 +215,13 @@ Content-Length: 261
 {"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"disabled"}
 ```
 
-<br></br> 
-
-## <ins>List Client Members</ins>
+## List Client Members
 
 ```bash
-
+curl -X GET "http://localhost:9191/clients/$CLIENT_ID/memberships" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"   ─╯
 ```
 
 Response:
 ```bash
+{"total":0,"level":0,"name":"","memberships":[]}
 ```
-
-<br></br>
