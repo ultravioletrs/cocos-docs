@@ -3,7 +3,7 @@
 ## Create Group
 In order to create a group, we need to provide Group name(required), description, parentId and metadata (all optional):
 ```bash
-curl -X POST 'http://localhost:9191/groups' -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK" -d '{"name": "group01"}'
+curl -X POST 'http://localhost:9191/groups' -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>" -d '{"name": "group01"}'
 ```
 
 Response:
@@ -15,7 +15,7 @@ Response:
 To List all the Groups.
 
 ```bash
-curl -X GET 'http://localhost:9191/groups' -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"
+curl -X GET 'http://localhost:9191/groups' -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -27,7 +27,7 @@ Response:
 To view a specific Group.
 
 ```bash
-curl -X GET "http://localhost:9191/groups/$GROUP_ID" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"
+curl -X GET "http://localhost:9191/groups/<group_id>" -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -39,7 +39,7 @@ Response:
 Update a Group's Data
 
 ```bash
-curl -X PUT "http://localhost:9191/groups/$GROUP_ID" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK" -d '{"name": "New Group Name","metadata": {},"description": "New Description Added"}'
+curl -X PUT "http://localhost:9191/groups/<group_id>" -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>" -d '{"name": "New Group Name","metadata": {},"description": "New Description Added"}'
 ```
 
 Response:
@@ -50,7 +50,7 @@ Response:
 ## Enable Group
 Enable a Disabled Group
 ```bash
-curl -X POST "http://localhost:9191/groups/$GROUP_ID/enable" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"
+curl -X POST "http://localhost:9191/groups/<group_id>/enable" -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -61,7 +61,7 @@ Response:
 ## Disable Group
 Disable an Enabled Group
 ```bash
-curl -X POST "http://localhost:9191/groups/$GROUP_ID/disable" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"
+curl -X POST "http://localhost:9191/groups/<group_id>/disable" -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -73,7 +73,7 @@ Response:
 List Group Members
 
 ```bash
-curl -X GET "http://localhost:9191/groups/$GROUP_ID/members" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"         ─╯
+curl -X GET "http://localhost:9191/groups/<group_id>/members" -H 'Content-Type: application/json' -H "Authorization: Bearer <access_token>"
 ```
 
 Response:

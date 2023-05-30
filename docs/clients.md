@@ -11,7 +11,7 @@ curl -X POST 'http://localhost:9191/clients/tokens/issue' -H 'Content-Type: appl
 }'
 ```
 
-Returns:
+Respone:
 ```bash
 {"access_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ3NTM3ODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.qLt0t_mTN3IWRaawj6S2IfWa62n4LaXK3-6JmrjbcKomWgkvKe34v3vmKyW45kPmCOC0h3FGUFXap-slfj3Hhw","refresh_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4MzkyODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJyZWZyZXNoIn0.nr1q4ECygWHBfTBSr2o3OMQJpbn3z0rzsEDCkkg3LRVTwf7r15o29fwcwbMvburvKbt5NBfV0BrXAn9TMb70RQ","access_type":"Bearer"}
 ```
@@ -33,7 +33,7 @@ Refresh the Access Token if/when it expires.
 Refresh token expires in 24 hours (default).
 
 ```bash
-curl -X POST 'http://localhost:9191/clients/tokens/refresh' -H 'Content-Type: application/json' -H"Authorization: Bearer $REFTOK"
+curl -X POST 'http://localhost:9191/clients/tokens/refresh' -H 'Content-Type: application/json' -H"Authorization: Bearer <refresh_token>"
 ```
 
 Return a new access token, and a new refresh token.
@@ -58,7 +58,7 @@ curl -sSi -X POST http://localhost:9191/clients -H "Content-Type: application/js
 EOF
 ```
 
-Returns:
+Respone:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
@@ -72,7 +72,7 @@ Content-Length: 225
 ## List Client
 Show a client if it's owned by you.
 ```bash
-curl -sSi -X GET http://localhost:9191/clients/$CLIENT_ID -H "Content-Type: application/json" -H "Authorization: Bearer $REFTOK"
+curl -sSi -X GET http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -93,13 +93,13 @@ Note: You can only clients owned by you. (Look into update client owner endpoint
 ```  
 
 ```bash
-curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK"
+curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>"
 ```
 
 ## Update Client Owner
 
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/36c0f1e2-945e-4de1-bcdb-19935c9da449/owner -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK" -d @- <<EOF
+curl -sSi -X PATCH http://localhost:9191/clients/36c0f1e2-945e-4de1-bcdb-19935c9da449/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
 {
     "credentials": {
         "identity": "aryan@gmail.com",
@@ -123,7 +123,7 @@ Content-Length: 253
 
 ## Update Client Name and Metadata
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"name": "aryan_new_name"}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"name": "aryan_new_name"}'
 ```
 
 Response:
@@ -138,7 +138,7 @@ Content-Length: 277
 
 ## Update Client Tags
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
 
 Response:
@@ -153,7 +153,7 @@ Content-Length: 293
 
 ## Update Client Identity
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"identity": "aryan_updated@email.com"}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"identity": "aryan_updated@email.com"}'
 ```
 
 Response:
@@ -168,7 +168,7 @@ Content-Length: 260
 
 ## Update Client Secret
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"secret": "87654321"}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"secret": "87654321"}'
 ```
 
 Response:
@@ -185,7 +185,7 @@ Content-Length: 260
 Enable a Disabled Client.
 
 ```bash
-curl -sSi -X POST http://localhost:9191/clients/$CLIENT_ID/enable -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK"
+curl -sSi -X POST http://localhost:9191/clients/<client_id>/enable -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -202,7 +202,7 @@ Content-Length: 260
 Disable an Enabled Client.
 
 ```bash
-curl -sSi -X POST http://localhost:9191/clients/$CLIENT_ID/disable -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK"
+curl -sSi -X POST http://localhost:9191/clients/<client_id>/disable -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>"
 ```
 
 Response:
@@ -218,7 +218,7 @@ Content-Length: 261
 ## List Client Members
 
 ```bash
-curl -X GET "http://localhost:9191/clients/$CLIENT_ID/memberships" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCTOK"   ─╯
+curl -X GET "http://localhost:9191/clients/<client_id>/memberships" -H 'Content-Type: application/json' -H  "Authorization: Bearer <access_token>"   ─╯
 ```
 
 Response:
