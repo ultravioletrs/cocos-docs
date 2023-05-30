@@ -11,7 +11,7 @@ curl -X POST 'http://localhost:9191/clients/tokens/issue' -H 'Content-Type: appl
 }'
 ```
 
-Respone:
+Response:
 ```bash
 {"access_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ3NTM3ODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.qLt0t_mTN3IWRaawj6S2IfWa62n4LaXK3-6JmrjbcKomWgkvKe34v3vmKyW45kPmCOC0h3FGUFXap-slfj3Hhw","refresh_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4MzkyODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJyZWZyZXNoIn0.nr1q4ECygWHBfTBSr2o3OMQJpbn3z0rzsEDCkkg3LRVTwf7r15o29fwcwbMvburvKbt5NBfV0BrXAn9TMb70RQ","access_type":"Bearer"}
 ```
@@ -58,7 +58,7 @@ curl -sSi -X POST http://localhost:9191/clients -H "Content-Type: application/js
 EOF
 ```
 
-Respone:
+Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
@@ -66,7 +66,7 @@ Location: /clients/36c0f1e2-945e-4de1-bcdb-19935c9da449
 Date: Mon, 22 May 2023 12:18:50 GMT
 Content-Length: 225
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T12:18:50.887148Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T12:18:50.887148Z","status":"enabled"}
 ```
 
 ## List Client
@@ -82,7 +82,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:09:56 GMT
 Content-Length: 313
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":"$2a$10$PckXb4XF5sPoOkGbmdvyvuIJXWNgZdfEQrn6cw4zeOhqfNLtitvjS"},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":"$2a$10$PckXb4XF5sPoOkGbmdvyvuIJXWNgZdfEQrn6cw4zeOhqfNLtitvjS"},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
 ```
 
 ## List Clients
@@ -99,10 +99,10 @@ curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/jso
 ## Update Client Owner
 
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/36c0f1e2-945e-4de1-bcdb-19935c9da449/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>r/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
 {
     "credentials": {
-        "identity": "aryan@gmail.com",
+        "identity": "user@mail.com",
         "secret": "12345678"
     },
     "owner": "admin@example.com",
@@ -118,12 +118,12 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:04:44 GMT
 Content-Length: 253
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:04:44.438547Z","status":"enabled"}
 ```
 
 ## Update Client Name and Metadata
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"name": "aryan_new_name"}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"name": "new_name"}'
 ```
 
 Response:
@@ -133,7 +133,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:48:32 GMT
 Content-Length: 277
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:48:32.215129Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"new_name","tags":["a","b"],"owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:48:32.215129Z","status":"enabled"}
 ```
 
 ## Update Client Tags
@@ -148,12 +148,12 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:53:19 GMT
 Content-Length: 293
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","tags":["new_tag_1","new_tag_2"],"owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:53:19.833693Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"user_new_name","tags":["new_tag_1","new_tag_2"],"owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:53:19.833693Z","status":"enabled"}
 ```
 
 ## Update Client Identity
 ```bash
-curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"identity": "aryan_updated@email.com"}'
+curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"identity": "user_updated@email.com"}'
 ```
 
 Response:
@@ -163,7 +163,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:55:19 GMT
 Content-Length: 260
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:55:19.882616Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"user_new_name","owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:55:19.882616Z","status":"enabled"}
 ```
 
 ## Update Client Secret
@@ -178,7 +178,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:56:27 GMT
 Content-Length: 260
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"user_new_name","owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
 ```
 
 ## Enable Client
@@ -195,7 +195,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 14:00:21 GMT
 Content-Length: 260
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"user_new_name","owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"enabled"}
 ```
 
 ## Disable Client
@@ -212,7 +212,7 @@ Content-Type: application/json
 Date: Mon, 22 May 2023 13:59:47 GMT
 Content-Length: 261
 
-{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"aryan_new_name","owner":"admin@example.com","credentials":{"identity":"aryan@gmail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"disabled"}
+{"id":"36c0f1e2-945e-4de1-bcdb-19935c9da449","name":"user_new_name","owner":"admin@example.com","credentials":{"identity":"user@mail.com","secret":""},"created_at":"2023-05-22T12:18:50.887148Z","updated_at":"2023-05-22T13:56:27.840129Z","status":"disabled"}
 ```
 
 ## List Client Members
