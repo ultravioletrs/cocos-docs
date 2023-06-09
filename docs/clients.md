@@ -1,6 +1,7 @@
 # Clients
 
 ## Issue Token
+
 To issue access and refresh token to provide authorization header to API calls.
 
 ```bash
@@ -12,6 +13,7 @@ curl -X POST 'http://localhost:9191/clients/tokens/issue' -H 'Content-Type: appl
 ```
 
 Response:
+
 ```bash
 {"access_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ3NTM3ODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.qLt0t_mTN3IWRaawj6S2IfWa62n4LaXK3-6JmrjbcKomWgkvKe34v3vmKyW45kPmCOC0h3FGUFXap-slfj3Hhw","refresh_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4MzkyODAsImlhdCI6MTY4NDc1Mjg4MCwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJyZWZyZXNoIn0.nr1q4ECygWHBfTBSr2o3OMQJpbn3z0rzsEDCkkg3LRVTwf7r15o29fwcwbMvburvKbt5NBfV0BrXAn9TMb70RQ","access_type":"Bearer"}
 ```
@@ -19,16 +21,19 @@ Response:
 The two tokens returned are:-
 
 1. Access Token  
-Use it for authorization, with the authorization header.  
-Expires after 15 minutes (default).
+   Use it for authorization, with the authorization header.  
+   Expires after 15 minutes (default).
+
 ```bash
 -H "Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ3NTM2ODUsImlhdCI6MTY4NDc1Mjc4NSwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.QFL2p6LHsXcp3kSQJTz3D3eNzv7nRFR7HMWNMg-LNHIUeK7k3nz6gvKRhC88SDTIoMxsL-2HWSVOotH6b9c6IQ"
 ```
+
 2. Refresh Token  
-Used to refresh the access token once it expires.  
-Expires after 24 hours (default). After that you have to issue the tokens again using this same endpoint.  
+   Used to refresh the access token once it expires.  
+   Expires after 24 hours (default). After that you have to issue the tokens again using this same endpoint.
 
 ## Refresh Token
+
 Refresh the Access Token if/when it expires.  
 Refresh token expires in 24 hours (default).
 
@@ -39,11 +44,13 @@ curl -X POST 'http://localhost:9191/clients/tokens/refresh' -H 'Content-Type: ap
 Return a new access token, and a new refresh token.
 
 Response:
+
 ```bash
 {"access_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4MTY4MTksImlhdCI6MTY4NDc2MjgxOSwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJhY2Nlc3MifQ.X3dX8-KKqs1qwFt6piXl6w_utqfHnYa5VB7wOQOf-u4xKbh7NFKEfkIF-j2XY_2C3pVLRgBOHIiiKhsix9PpNQ","refresh_token":"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODQ4NDkyMTksImlhdCI6MTY4NDc2MjgxOSwiaXNzIjoiY2xpZW50cy5hdXRoIiwicm9sZSI6IiIsInN1YiI6IjVjNjQ4MTg1LTU3NTMtNGVlOS1iYWI2LTkzMjc4ZDdiMDZiNCIsInRhZyI6IiIsInR5cGUiOiJyZWZyZXNoIn0.4SIxRD5CN1NBwl4dM7MD3Gd9jdaywY2kUwRgy4TBjNgpYqEyitqnUMsusYjQD-Z3Sub2bM7TDEw_So5XtJ7sWA","access_type":"Bearer"}
 ```
 
 ## Register Client / Create User
+
 In order to create user, we need to provide username and password:
 
 ```bash
@@ -59,6 +66,7 @@ EOF
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
@@ -70,12 +78,15 @@ Content-Length: 225
 ```
 
 ## List Client
+
 Show a client if it's owned by you.
+
 ```bash
 curl -sSi -X GET http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>"
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -86,11 +97,12 @@ Content-Length: 313
 ```
 
 ## List Clients
-List all the owned clients.  
+
+List all the owned clients.
 
 ```
 Note: You can only clients owned by you. (Look into update client owner endpoint)
-```  
+```
 
 ```bash
 curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>"
@@ -112,6 +124,7 @@ EOF
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -122,11 +135,13 @@ Content-Length: 253
 ```
 
 ## Update Client Name and Metadata
+
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"name": "new_name"}'
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -137,11 +152,13 @@ Content-Length: 277
 ```
 
 ## Update Client Tags
+
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
 
 Response:
+
 ```curl
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -152,11 +169,13 @@ Content-Length: 293
 ```
 
 ## Update Client Identity
+
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"identity": "user_updated@email.com"}'
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -167,11 +186,13 @@ Content-Length: 260
 ```
 
 ## Update Client Secret
+
 ```bash
 curl -sSi -X PATCH http://localhost:9191/clients/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"secret": "87654321"}'
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -182,6 +203,7 @@ Content-Length: 260
 ```
 
 ## Enable Client
+
 Enable a Disabled Client.
 
 ```bash
@@ -189,6 +211,7 @@ curl -sSi -X POST http://localhost:9191/clients/<client_id>/enable -H "Content-T
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -199,6 +222,7 @@ Content-Length: 260
 ```
 
 ## Disable Client
+
 Disable an Enabled Client.
 
 ```bash
@@ -206,6 +230,7 @@ curl -sSi -X POST http://localhost:9191/clients/<client_id>/disable -H "Content-
 ```
 
 Response:
+
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -222,6 +247,7 @@ curl -X GET "http://localhost:9191/clients/<client_id>/memberships" -H 'Content-
 ```
 
 Response:
+
 ```bash
 {"total":0,"level":0,"name":"","memberships":[]}
 ```

@@ -1,6 +1,7 @@
-## Install
+# Install
 
 ## Backend
+
 Before proceeding, install the following prerequisites:
 
 - [Docker](https://docs.docker.com/install/) (version 20.10.17)
@@ -31,6 +32,7 @@ make run
 ```
 
 ### Frontend
+
 To deploy the user interface run the following commands:
 
 ```bash
