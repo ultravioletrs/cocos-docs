@@ -6,10 +6,10 @@ For user management, we use Mainflux Clients micorservice. By default, this serv
 
 ### Create User
 
-In order to create user, we need to provide username and password:
+In order to create user, we need to provide username and password. The `USERTOKEN` is optional and is used for ownership:
 
 ```bash
-curl 'http://localhost:9002/users' -H 'Content-Type: application/json' -H 'Accept: application/json' -H 'Authorization: Bearer {{bearerToken}}' -d '{
+curl 'http://localhost:9002/users' -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Bearer $USERTOKEN" -d '{
   "credentials": {
     "identity": "<string>",
     "secret": "<string>"
@@ -89,7 +89,7 @@ curl -sSi -X GET 'http://localhost:9002/users/<user_id>' -H 'Accept: application
 Example:
 
 ```bash
-curl -sSi -X GET 'http://localhost:9002/users/26913727-56df-4426-ae66-5578d00b4820' -H 'Accept: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODU0NDQwNjMsImlhdCI6MTY4NTQ0MzE2MywiaWRlbnRpdHkiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6ImI5MjZlZGZlLWM1YTgtNGUwOS1hNmQ0LWYzNGFhNDQ4YTI0NCIsInR5cGUiOiJhY2Nlc3MifQ.a3jCB6pomMIn5B2Rr4vQI3oWZWuICfr_HMxoedWXLPTWab4GQTdbRm5TXAH6i8R54v5Wdv6P7E-fXpkys-XWxA'
+curl -sSi -X GET 'http://localhost:9002/users/26913727-56df-4426-ae66-5578d00b4820' -H 'Accept: application/json' -H "Authorization: Bearer $USERTOKEN"
 ```
 
 Response:
@@ -123,7 +123,7 @@ curl -sSi -X GET http://localhost:9191/clients -H "Content-Type: application/jso
 Example:
 
 ```bash
-curl -sSi -X GET 'http://localhost:9002/users' -H 'Accept: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODU0NDQwNjMsImlhdCI6MTY4NTQ0MzE2MywiaWRlbnRpdHkiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6ImI5MjZlZGZlLWM1YTgtNGUwOS1hNmQ0LWYzNGFhNDQ4YTI0NCIsInR5cGUiOiJhY2Nlc3MifQ.a3jCB6pomMIn5B2Rr4vQI3oWZWuICfr_HMxoedWXLPTWab4GQTdbRm5TXAH6i8R54v5Wdv6P7E-fXpkys-XWxA'
+curl -sSi -X GET 'http://localhost:9002/users' -H 'Accept: application/json' -H "Authorization: Bearer $USERTOKEN"
 ```
 
 Response:
@@ -174,7 +174,7 @@ For computation management, we use Computations micorservice. By default, this s
 In order to create computation, we can to provide the following content:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>' -d @- <<EOF
+curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>' -d @- << EOF
 {
   "name": "string",
   "description": "string",
@@ -200,6 +200,36 @@ curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: applicati
 EOF
 ```
 
+Example:
+
+```bash
+curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN" -d @- << EOF
+{
+  "name": "computation",
+  "description": "computations description",
+  "datasets": [
+    "dataset1",
+    "dataset2"
+  ],
+  "algorithms": [
+    "algorithm1",
+    "algorithm2"
+  ],
+  "status": "status",
+  "datasetProviders": [
+    "datasetProvider1",
+    "datasetProvider2"
+  ],
+  "algorithmProviders": [
+    "algorithmProvider1",
+    "algorithmProvider2"
+  ],
+  "ttl": 3600,
+  "metadata": {}
+}
+EOF
+```
+
 Response:
 
 ```bash
@@ -216,6 +246,12 @@ In order to get all computations:
 
 ```bash
 curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>'
+```
+
+Example:
+
+```bash
+curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
 ```
 
 Response:
@@ -257,6 +293,12 @@ In order to get one pspecific computation, by ID:
 curl -sSi -X GET http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>'
 ```
 
+Example:
+
+```bash
+curl -sSi -X GET http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+```
+
 Response:
 
 ```bash
@@ -266,20 +308,18 @@ Date: Mon, 24 Oct 2022 14:43:07 GMT
 Content-Length: 243
 
 {
-    "id": "0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a",
-    "name": "string",
-    "description": "string",
-    "status": "string",
-    "owner": "string",
-    "start_time": "2022-10-24T14:41:52.650971Z",
-    "end_time": "0001-01-01T00:00:00Z",
-    "datasets": [
-        "string"
-    ],
-    "algorithms": [
-        "string"
-    ]
+  "id": "31b0dd3f-9f05-4000-9330-c6da0c33bf2a",
+  "name": "computation",
+  "description": "computations description",
+  "status": "status",
+  "owner": "db5e92c6-e003-4945-a096-4b9c2471fe3d",
+  "start_time": "2023-06-09T14:54:37.16522Z",
+  "end_time": "2023-06-09T15:54:37.16522Z",
+  "datasets": ["dataset1", "dataset2"],
+  "algorithms": ["algorithm1", "algorithm2"],
+  "ttl": 3600
 }
+
 ```
 
 ### Update computation
@@ -288,6 +328,18 @@ In order to update computation:
 
 ```bash
 curl -sSi -X PUT http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "name": "<computation_name>",
+  "description": "<computation_description>",
+  "metadata": {}
+}
+EOF
+```
+
+Example:
+
+```bash
+curl -sSi -X PUT http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN" -d @- <<EOF
 {
   "name": "<computation_name>",
   "description": "<computation_description>",
@@ -311,6 +363,12 @@ In order to delete computation:
 
 ```bash
 curl -sSi -X DELETE http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+```
+
+Example:
+
+```bash
+curl -sSi -X DELETE http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
 ```
 
 Response:
