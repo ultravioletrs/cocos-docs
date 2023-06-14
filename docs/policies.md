@@ -17,7 +17,7 @@ Respone:
 Add a new Policy.
 
 ```bash
-curl -X POST 'http://localhost:9191/authorize' -H 'Content-Type: application/json' -H  "Authorization: Bearer <access_token>" -d '{"owner":"<client_id>", "subect":"sub", "object":"obj"}'
+curl -X POST 'http://localhost:9191/authorize' -H 'Content-Type: application/json' -H  "Authorization: Bearer <access_token>" -d '{"subect":"<user_id>", "object":"<>"}'
 ```
 
 ## Update Policy

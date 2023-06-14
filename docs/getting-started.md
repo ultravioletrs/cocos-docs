@@ -353,7 +353,7 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 24 Oct 2022 14:46:51 GMT
+Date: Fri, 09 Jun 2023 15:07:22 GMT
 Content-Length: 0
 ```
 
@@ -385,6 +385,17 @@ In order to get one pspecific computation, by ID:
 
 ```bash
 curl -sSi -X POST http://localhost:9000/computations/<computation_id>/run -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+```
+
+Example:
+
+```bash
+curl -sSi -X POST http://localhost:9000/computations/$computation_id/run -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+```
+
+Response:
+
+```bash
 ```
 
 ## Datasets

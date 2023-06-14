@@ -97,3 +97,5 @@ Response:
 ```bash
 {"limit":10,"total":0,"level":0,"name":"","members":[]}
 ```
+
+For more information, please refer to [Groups API](https://github.com/mainflux/docs/pull/138).
