@@ -49,7 +49,7 @@ curl -X POST 'http://localhost:9002/users/tokens/refresh' -H 'Content-Type: appl
 Example:
 
 ```bash
-curl -X POST 'http://localhost:9002/users/tokens/refresh' -H 'Content-Type: application/json' -H"Authorization: Bearer $REFTOK"
+curl -X POST 'http://localhost:9002/users/tokens/refresh' -H 'Content-Type: application/json' -H"Authorization: Bearer $REFRESH_TOKEN"
 ```
 
 Return a new access token, and a new refresh token.
@@ -110,7 +110,7 @@ curl -sSi -X GET http://localhost:9002/users/<client_id> -H "Content-Type: appli
 Example:
 
 ```bash
-curl -sSi -X "GET http://localhost:9002/users/$CLIENT_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK"
+curl -sSi -X "GET http://localhost:9002/users/$CLIENT_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Response:
@@ -134,7 +134,7 @@ curl -sSi -X GET http://localhost:9002/users -H "Content-Type: application/json"
 
 Example:
 ```bash
-curl -sSi -X GET http://localhost:9002/users -H "Content-Type: application/json" -H "Authorization: Bearer $ACCTOK"
+curl -sSi -X GET http://localhost:9002/users -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Response:
@@ -235,7 +235,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"identity": "user_updated@email.com"}'
+curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"identity": "user_updated@email.com"}'
 ```
 
 Response:
@@ -254,7 +254,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type
 ```
 
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCTOK" -d '{"secret": "87654321"}'
+curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"secret": "87654321"}'
 ```
 
 Response:
