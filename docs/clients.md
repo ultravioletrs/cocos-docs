@@ -164,7 +164,7 @@ EOF
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/<client_id>r/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
+curl -sSi -X PATCH http://localhost:9002/users/<client_id>r/owner -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d @- <<EOF
 {
     "credentials": {
         "identity": "user@mail.com",
@@ -194,7 +194,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id> -H "Content-Type: app
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/<client_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '
+curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '
 {
     "name": "new_name",
     "metadata": {"insert":"metadata"}
@@ -214,7 +214,12 @@ Content-Length: 277
 ## Update Client Tags
 
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
+curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>" -d '{"tags": ["updated_tag_1", "updated_tag_2"]}'
+```
+
+Example
+```bash
+curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
 
 Response:
@@ -274,6 +279,11 @@ Enable a Disabled Client.
 curl -sSi -X POST http://localhost:9002/users/<client_id>/enable -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>"
 ```
 
+Example:
+```bash
+curl -sSi -X POST http://localhost:9002/users/$CLIENT_ID/enable -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN"
+```
+
 Response:
 ```bash
 HTTP/1.1 200 OK
@@ -289,6 +299,11 @@ Disable an Enabled Client.
 
 ```bash
 curl -sSi -X POST http://localhost:9002/users/<client_id>/disable -H "Content-Type: application/json" -H  "Authorization: Bearer <access_token>"
+```
+
+Example:
+```bash
+curl -sSi -X POST http://localhost:9002/users/$CLIENT_ID/disable -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Response:
