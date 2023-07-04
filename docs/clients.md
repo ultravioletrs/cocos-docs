@@ -110,7 +110,7 @@ curl -sSi -X GET http://localhost:9002/users/<client_id> -H "Content-Type: appli
 Example:
 
 ```bash
-curl -sSi -X "GET http://localhost:9002/users/$CLIENT_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
+curl -sSi -X GET "http://localhost:9002/users/$CLIENT_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Response:
@@ -150,7 +150,7 @@ Content-Length: 465
 ## Update Client Owner
 
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/<client_id>r/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
+curl -sSi -X PATCH http://localhost:9002/users/<client_id>/owner -H "Content-Type: application/json" -H "Authorization: Bearer <access_token>" -d @- <<EOF
 {
     "credentials": {
         "identity": "<client_email>",
@@ -164,7 +164,7 @@ EOF
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/<client_id>r/owner -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d @- <<EOF
+curl -sSi -X PATCH "http://localhost:9002/users/$CLIENT_ID/owner" -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d @- <<EOF
 {
     "credentials": {
         "identity": "user@mail.com",
@@ -194,7 +194,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id> -H "Content-Type: app
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '
+curl -sSi -X PATCH "http://localhost:9002/users/$CLIENT_ID" -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '
 {
     "name": "new_name",
     "metadata": {"insert":"metadata"}
@@ -219,7 +219,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type
 
 Example
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
+curl -sSi -X PATCH "http://localhost:9002/users/$CLIENT_ID/tags" -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"tags": ["new_tag_1", "new_tag_2"]}'
 ```
 
 Response:
@@ -240,7 +240,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type
 
 Example:
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"identity": "user_updated@email.com"}'
+curl -sSi -X PATCH "http://localhost:9002/users/$CLIENT_ID/tags" -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"identity": "user_updated@email.com"}'
 ```
 
 Response:
@@ -259,7 +259,7 @@ curl -sSi -X PATCH http://localhost:9002/users/<client_id>/tags -H "Content-Type
 ```
 
 ```bash
-curl -sSi -X PATCH http://localhost:9002/users/$CLIENT_ID/tags -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"secret": "87654321"}'
+curl -sSi -X PATCH "http://localhost:9002/users/$CLIENT_ID/tags" -H "Content-Type: application/json" -H  "Authorization: Bearer $ACCESS_TOKEN" -d '{"secret": "87654321"}'
 ```
 
 Response:
@@ -320,6 +320,11 @@ Content-Length: 261
 
 ```bash
 curl -X GET "http://localhost:9002/users/<client_id>/memberships" -H 'Content-Type: application/json' -H  "Authorization: Bearer <access_token>"
+```
+
+Example:
+```bash
+curl -X GET "http://localhost:9003/users/$CLIENT_ID/memberships" -H 'Content-Type: application/json' -H  "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 Response:
