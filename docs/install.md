@@ -9,20 +9,12 @@ Before proceeding, install the following prerequisites:
 
 Once everything is installed, execute the following command from project root:
 
-To run the backend, first download Mainflux Clients service and create Docker image:
-
-```bash
-git clone git@github.com:ultravioletrs/clients.git
-cd clients
-make -j 16 && make -j 16 docker_dev
-```
-
-Then to the similar for Cocos AI backend:
+To run the backend, first download Cocos AI backend:
 
 ```bash
 git clone git@github.com:ultravioletrs/cocos.git
 cd cocos
-make -j 16 && make -j 16 dockers_dev
+make -j 2 && make -j 2 dockers_dev
 ```
 
 Finaly - you can run the backned (within `cocos` directory):
@@ -31,14 +23,15 @@ Finaly - you can run the backned (within `cocos` directory):
 make run
 ```
 
-### Frontend
+## Frontend
 
 To deploy the user interface run the following commands:
 
 ```bash
 git clone git@github.com:ultravioletrs/cocos-ui.git
 cd cocos-ui/cmd/ui
-go run main.go
+make -j 1
+make run
 ```
 
 The User Interface can now be accesible from [http://localhost:9090](http://localhost:9090/).
