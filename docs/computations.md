@@ -5,7 +5,7 @@
 In order to create computation, we can to provide the following content:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>' -d @- << EOF
+curl -sSi -X POST "http://localhost:9000/computations" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "name": "string",
   "description": "string",
@@ -34,7 +34,7 @@ EOF
 Example:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN" -d @- << EOF
+curl -sSi -X POST "http://localhost:9000/computations" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- << EOF
 {
   "name": "computation",
   "description": "computations description",
@@ -76,13 +76,13 @@ Content-Length: 0
 In order to get all computations:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>'
+curl -sSi -X GET "http://localhost:9000/computations" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+curl -sSi -X GET "http://localhost:9000/computations" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
@@ -121,13 +121,13 @@ Content-Length: 283
 In order to get one pspecific computation, by ID:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>'
+curl -sSi -X GET "http://localhost:9000/computations/<computation_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+curl -sSi -X GET "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
@@ -158,7 +158,7 @@ Content-Length: 243
 In order to update computation:
 
 ```bash
-curl -sSi -X PUT http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+curl -sSi -X PUT "http://localhost:9000/computations/<computation_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
 {
   "name": "<computation_name>",
   "description": "<computation_description>",
@@ -170,7 +170,7 @@ EOF
 Example:
 
 ```bash
-curl -sSi -X PUT http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN" -d @- <<EOF
+curl -sSi -X PUT "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- <<EOF
 {
   "name": "<computation_name>",
   "description": "<computation_description>",
@@ -193,13 +193,13 @@ Content-Length: 0
 In order to delete computation:
 
 ```bash
-curl -sSi -X DELETE http://localhost:9000/computations/<computation_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSi -X DELETE "http://localhost:9000/computations/<computation_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X DELETE http://localhost:9000/computations/$computation_id -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+curl -sSi -X DELETE "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
@@ -215,13 +215,13 @@ Date: Mon, 24 Oct 2022 14:49:13 GMT
 In order to get one pspecific computation, by ID:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations/<computation_id>/run -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSi -X POST "http://localhost:9000/computations/<computation_id>/run" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations/$computation_id/run -H "Content-Type: application/json" -H "Authorization: Bearer $USERTOKEN"
+curl -sSi -X POST "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a/run" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
