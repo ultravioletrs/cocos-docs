@@ -34,29 +34,32 @@ EOF
 Example:
 
 ```bash
-curl -sSi -X POST "http://localhost:9000/computations" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- << EOF
+curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- << EOF
 {
-  "name": "computation",
-  "description": "computations description",
+  "name": "Machine Diagnostics Analysis",
+  "description": "Performing diagnostics analysis on machine data",
   "datasets": [
-    "dataset1",
-    "dataset2"
+    "Sensor Data Logs", "Machine Health Records", "Maintenance Reports"
   ],
   "algorithms": [
-    "algorithm1",
-    "algorithm2"
+    "Support Vector Machines"
   ],
-  "status": "status",
-  "datasetProviders": [
-    "datasetProvider1",
-    "datasetProvider2"
+  "dataset_providers": [
+    "SensorTech Solutions", "Machinery Data Systems"
   ],
-  "algorithmProviders": [
-    "algorithmProvider1",
-    "algorithmProvider2"
+  "algorithm_providers": [
+    "AlgoAI Research Labs", "TechBots Innovations", "IntelliCompute Technologies"
   ],
-  "ttl": 3600,
-  "metadata": {}
+  "result_consumers": [
+    "Machine Maintenance Department", "Predictive Analytics Team", "Industrial Automation Division"
+  ],
+  "ttl": 48,
+  "metadata": {
+    "machine_type": "Automated Assembly Line",
+    "industry": "Manufacturing",
+    "data_frequency": "Hourly",
+    "analysis_purpose": "Optimize machine performance and prevent downtime"
+  }
 }
 EOF
 ```
@@ -66,8 +69,8 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /computations/0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a
-Date: Mon, 24 Oct 2022 14:41:52 GMT
+Location: /computations/97f22205-4f2d-4bf5-894c-1c7f649d158e
+Date: Tue, 18 Jul 2023 12:50:48 GMT
 Content-Length: 0
 ```
 
@@ -90,29 +93,47 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 24 Oct 2022 14:42:21 GMT
-Content-Length: 283
+Date: Tue, 18 Jul 2023 12:50:53 GMT
+Content-Length: 926
 
 {
-    "total": 1,
-    "limit": 10,
-    "computations": [
-        {
-            "id": "0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a",
-            "name": "string",
-            "description": "string",
-            "status": "string",
-            "owner": "string",
-            "start_time": "2022-10-24T14:41:52.650971Z",
-            "end_time": "0001-01-01T00:00:00Z",
-            "datasets": [
-                "string"
-            ],
-            "algorithms": [
-                "string"
-            ]
-        }
-    ]
+  "total": 1,
+  "limit": 10,
+  "computations": [
+    {
+      "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+      "name": "Machine Diagnostics Analysis",
+      "description": "Performing diagnostics analysis on machine data",
+      "status": "executable",
+      "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
+      "start_time": "2023-07-18T12:50:48.380058Z",
+      "end_time": "0001-01-01T00:00:00Z",
+      "datasets": [
+        "Sensor Data Logs",
+        "Machine Health Records",
+        "Maintenance Reports"
+      ],
+      "algorithms": ["Support Vector Machines"],
+      "dataset_providers": ["SensorTech Solutions", "Machinery Data Systems"],
+      "algorithm_providers": [
+        "AlgoAI Research Labs",
+        "TechBots Innovations",
+        "IntelliCompute Technologies"
+      ],
+      "result_consumers": [
+        "Machine Maintenance Department",
+        "Predictive Analytics Team",
+        "Industrial Automation Division"
+      ],
+      "ttl": 48,
+      "metadata": {
+        "analysis_purpose": "Optimize machine performance and prevent downtime",
+        "data_frequency": "Hourly",
+        "industry": "Manufacturing",
+        "machine_type": "Automated Assembly Line"
+      }
+    }
+  ]
 }
 ```
 
@@ -127,7 +148,7 @@ curl -sSi -X GET "http://localhost:9000/computations/<computation_id>" -H "Conte
 Example:
 
 ```bash
-curl -sSi -X GET "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSi -X GET "http://localhost:9000/computations/97f22205-4f2d-4bf5-894c-1c7f649d158e" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
@@ -135,22 +156,42 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 24 Oct 2022 14:43:07 GMT
-Content-Length: 243
+Date: Tue, 18 Jul 2023 12:51:43 GMT
+Content-Length: 886
 
 {
-  "id": "31b0dd3f-9f05-4000-9330-c6da0c33bf2a",
-  "name": "computation",
-  "description": "computations description",
-  "status": "status",
-  "owner": "db5e92c6-e003-4945-a096-4b9c2471fe3d",
-  "start_time": "2023-06-09T14:54:37.16522Z",
-  "end_time": "2023-06-09T15:54:37.16522Z",
-  "datasets": ["dataset1", "dataset2"],
-  "algorithms": ["algorithm1", "algorithm2"],
-  "ttl": 3600
+  "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+  "name": "Machine Diagnostics Analysis",
+  "description": "Performing diagnostics analysis on machine data",
+  "status": "executable",
+  "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
+  "start_time": "2023-07-18T12:50:48.380058Z",
+  "end_time": "0001-01-01T00:00:00Z",
+  "datasets": [
+    "Sensor Data Logs",
+    "Machine Health Records",
+    "Maintenance Reports"
+  ],
+  "algorithms": ["Support Vector Machines"],
+  "dataset_providers": ["SensorTech Solutions", "Machinery Data Systems"],
+  "algorithm_providers": [
+    "AlgoAI Research Labs",
+    "TechBots Innovations",
+    "IntelliCompute Technologies"
+  ],
+  "result_consumers": [
+    "Machine Maintenance Department",
+    "Predictive Analytics Team",
+    "Industrial Automation Division"
+  ],
+  "ttl": 48,
+  "metadata": {
+    "analysis_purpose": "Optimize machine performance and prevent downtime",
+    "data_frequency": "Hourly",
+    "industry": "Manufacturing",
+    "machine_type": "Automated Assembly Line"
+  }
 }
-
 ```
 
 ## Update Computations Information
@@ -170,7 +211,7 @@ EOF
 Example:
 
 ```bash
-curl -sSi -X PUT "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- <<EOF
+curl -sSi -X PUT "http://localhost:9000/computations/97f22205-4f2d-4bf5-894c-1c7f649d158e" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- <<EOF
 {
   "name": "<computation_name>",
   "description": "<computation_description>",
@@ -199,7 +240,7 @@ curl -sSi -X DELETE "http://localhost:9000/computations/<computation_id>" -H "Co
 Example:
 
 ```bash
-curl -sSi -X DELETE "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSi -X DELETE "http://localhost:9000/computations/97f22205-4f2d-4bf5-894c-1c7f649d158e" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:
@@ -221,7 +262,7 @@ curl -sSi -X POST "http://localhost:9000/computations/<computation_id>/run" -H "
 Example:
 
 ```bash
-curl -sSi -X POST "http://localhost:9000/computations/31b0dd3f-9f05-4000-9330-c6da0c33bf2a/run" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSi -X POST "http://localhost:9000/computations/97f22205-4f2d-4bf5-894c-1c7f649d158e/run" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
 ```
 
 Response:

@@ -220,27 +220,30 @@ Example:
 ```bash
 curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- << EOF
 {
-  "name": "computation",
-  "description": "computations description",
+  "name": "Machine Diagnostics Analysis",
+  "description": "Performing diagnostics analysis on machine data",
   "datasets": [
-    "dataset1",
-    "dataset2"
+    "Sensor Data Logs", "Machine Health Records", "Maintenance Reports"
   ],
   "algorithms": [
-    "algorithm1",
-    "algorithm2"
+    "Support Vector Machines"
   ],
-  "status": "status",
-  "datasetProviders": [
-    "datasetProvider1",
-    "datasetProvider2"
+  "dataset_providers": [
+    "SensorTech Solutions", "Machinery Data Systems"
   ],
-  "algorithmProviders": [
-    "algorithmProvider1",
-    "algorithmProvider2"
+  "algorithm_providers": [
+    "AlgoAI Research Labs", "TechBots Innovations", "IntelliCompute Technologies"
   ],
-  "ttl": 3600,
-  "metadata": {}
+  "result_consumers": [
+    "Machine Maintenance Department", "Predictive Analytics Team", "Industrial Automation Division"
+  ],
+  "ttl": 48,
+  "metadata": {
+    "machine_type": "Automated Assembly Line",
+    "industry": "Manufacturing",
+    "data_frequency": "Hourly",
+    "analysis_purpose": "Optimize machine performance and prevent downtime"
+  }
 }
 EOF
 ```
@@ -250,8 +253,8 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /computations/0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a
-Date: Mon, 24 Oct 2022 14:41:52 GMT
+Location: /computations/97f22205-4f2d-4bf5-894c-1c7f649d158e
+Date: Tue, 18 Jul 2023 12:50:48 GMT
 Content-Length: 0
 ```
 
@@ -274,29 +277,47 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 24 Oct 2022 14:42:21 GMT
-Content-Length: 283
+Date: Tue, 18 Jul 2023 12:50:53 GMT
+Content-Length: 926
 
 {
-    "total": 1,
-    "limit": 10,
-    "computations": [
-        {
-            "id": "0cc5a6aa-0fba-479c-a8e9-98fe6338ff6a",
-            "name": "string",
-            "description": "string",
-            "status": "string",
-            "owner": "string",
-            "start_time": "2022-10-24T14:41:52.650971Z",
-            "end_time": "0001-01-01T00:00:00Z",
-            "datasets": [
-                "string"
-            ],
-            "algorithms": [
-                "string"
-            ]
-        }
-    ]
+  "total": 1,
+  "limit": 10,
+  "computations": [
+    {
+      "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+      "name": "Machine Diagnostics Analysis",
+      "description": "Performing diagnostics analysis on machine data",
+      "status": "executable",
+      "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
+      "start_time": "2023-07-18T12:50:48.380058Z",
+      "end_time": "0001-01-01T00:00:00Z",
+      "datasets": [
+        "Sensor Data Logs",
+        "Machine Health Records",
+        "Maintenance Reports"
+      ],
+      "algorithms": ["Support Vector Machines"],
+      "dataset_providers": ["SensorTech Solutions", "Machinery Data Systems"],
+      "algorithm_providers": [
+        "AlgoAI Research Labs",
+        "TechBots Innovations",
+        "IntelliCompute Technologies"
+      ],
+      "result_consumers": [
+        "Machine Maintenance Department",
+        "Predictive Analytics Team",
+        "Industrial Automation Division"
+      ],
+      "ttl": 48,
+      "metadata": {
+        "analysis_purpose": "Optimize machine performance and prevent downtime",
+        "data_frequency": "Hourly",
+        "industry": "Manufacturing",
+        "machine_type": "Automated Assembly Line"
+      }
+    }
+  ]
 }
 ```
 
@@ -311,7 +332,7 @@ COMPUTATION_ID=
 For example:
 
 ```bash
-COMPUTATION_ID=894fac83-723e-4e19-8821-734455d68bd2
+COMPUTATION_ID=97f22205-4f2d-4bf5-894c-1c7f649d158e
 ```
 
 ### Get One Computation
@@ -333,20 +354,41 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:34:21 GMT
-Content-Length: 341
+Date: Tue, 18 Jul 2023 12:51:43 GMT
+Content-Length: 886
 
 {
-  "id": "894fac83-723e-4e19-8821-734455d68bd2",
-  "name": "computation",
-  "description": "computations description",
+  "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+  "name": "Machine Diagnostics Analysis",
+  "description": "Performing diagnostics analysis on machine data",
   "status": "executable",
-  "owner": "50569d27-060d-42aa-87a8-11b596ef0e68",
-  "start_time": "2023-07-17T14:30:18.460839Z",
+  "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
+  "start_time": "2023-07-18T12:50:48.380058Z",
   "end_time": "0001-01-01T00:00:00Z",
-  "datasets": ["dataset1", "dataset2"],
-  "algorithms": ["algorithm1", "algorithm2"],
-  "ttl": 3600
+  "datasets": [
+    "Sensor Data Logs",
+    "Machine Health Records",
+    "Maintenance Reports"
+  ],
+  "algorithms": ["Support Vector Machines"],
+  "dataset_providers": ["SensorTech Solutions", "Machinery Data Systems"],
+  "algorithm_providers": [
+    "AlgoAI Research Labs",
+    "TechBots Innovations",
+    "IntelliCompute Technologies"
+  ],
+  "result_consumers": [
+    "Machine Maintenance Department",
+    "Predictive Analytics Team",
+    "Industrial Automation Division"
+  ],
+  "ttl": 48,
+  "metadata": {
+    "analysis_purpose": "Optimize machine performance and prevent downtime",
+    "data_frequency": "Hourly",
+    "industry": "Manufacturing",
+    "machine_type": "Automated Assembly Line"
+  }
 }
 ```
 
