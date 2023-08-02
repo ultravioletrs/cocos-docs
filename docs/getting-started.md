@@ -6,29 +6,38 @@ For user management, we use Mainflux Users micorservice. By default, this servic
 
 ### Create User
 
-In order to create user, we need to provide username and password. The `USER_TOKEN` is optional and is used for ownership:
+In order to create user, we need to provide identity and secret. The `USER_TOKEN` is optional and is used for ownership:
 
 ```bash
-curl "http://localhost:9003/users" -H "Content-Type: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d '{
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer [user_token]" -d @- <<EOF
+{
+  "name": "[name]",
   "credentials": {
-    "identity": "<string>",
-    "secret": "<string>"
+    "identity": "<identity>",
+    "secret": "<secret>"
   },
-  "name": "<string>",
   "tags": [
-    "<string>",
-    "<string>"
+    "[tag_1]", ..., "[tag_N]"
   ],
-  "owner": "<uuid>",
+  "owner": "[owner_id]",
   "metadata": {},
-  "status": "<string>"
-}'
+  "status": "[status]"
+}
+EOF
 ```
 
 Example:
 
 ```bash
-curl -sSi "http://localhost:9003/users" -H "Content-Type: application/json" --data-raw '{"name": "example user", "credentials": {"identity": "example@cocos.com","secret": "12345678"}}'
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -d @- <<EOF
+{
+  "name": "example user 1",
+  "credentials": {
+    "identity": "example1@cocos.com",
+    "secret": "12345678"
+  }
+}
+EOF
 ```
 
 Response:
@@ -36,15 +45,15 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /users/50569d27-060d-42aa-87a8-11b596ef0e68
-Date: Mon, 17 Jul 2023 14:23:42 GMT
-Content-Length: 225
+Location: /users/55543d34-77fc-48e7-b6c4-6acfca6e5c86
+Date: Tue, 01 Aug 2023 11:12:13 GMT
+Content-Length: 228
 
 {
-  "id": "50569d27-060d-42aa-87a8-11b596ef0e68",
-  "name": "example user",
-  "credentials": { "identity": "example@cocos.com", "secret": "" },
-  "created_at": "2023-07-17T14:23:42.061947Z",
+  "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+  "name": "example user 1",
+  "credentials": { "identity": "example1@cocos.com", "secret": "" },
+  "created_at": "2023-08-01T11:12:13.694759Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -55,13 +64,23 @@ Content-Length: 225
 In order to login user, we need to provide username and password:
 
 ```bash
-curl -sSi "http://localhost:9003/users/tokens/issue" -H "Content-Type: application/json" -H "Content-Type: application/json" --data-raw '{"identity": "<user_identity>","secret": "<user_password>"}'
+curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+{
+  "identity": "<identity>",
+  "secret": "<secret>"
+}
+EOF
 ```
 
 Example:
 
 ```bash
-curl -sSi "http://localhost:9003/users/tokens/issue" -H "Content-Type: application/json" -H "Content-Type: application/json" --data-raw '{"identity": "example@cocos.com","secret": "12345678"}'
+curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+{
+  "identity": "example1@cocos.com",
+  "secret": "12345678"
+}
+EOF
 ```
 
 Response:
@@ -69,30 +88,14 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:24:32 GMT
-Content-Length: 707
+Date: Tue, 01 Aug 2023 11:12:52 GMT
+Content-Length: 709
 
 {
-  "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODk2MDU2NzIsImlhdCI6MTY4OTYwMzg3MiwiaWRlbnRpdHkiOiJleGFtcGxlQGNvY29zLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjUwNTY5ZDI3LTA2MGQtNDJhYS04N2E4LTExYjU5NmVmMGU2OCIsInR5cGUiOiJhY2Nlc3MifQ.jrrrzCT-sL3Y_UBK-cnPAlKNdlyolDajuRPSAlAKEO3WBsJtK6E-dKqy1-kIXx_C0j_FyfWIDFnLZ-LPR8ROXw",
-  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODk2OTAyNzIsImlhdCI6MTY4OTYwMzg3MiwiaWRlbnRpdHkiOiJleGFtcGxlQGNvY29zLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjUwNTY5ZDI3LTA2MGQtNDJhYS04N2E4LTExYjU5NmVmMGU2OCIsInR5cGUiOiJyZWZyZXNoIn0.68vHJClMJvRYpc2jdwdllmcsCi-yG9c9c2CdJgm3H3TEXq4UnOY_LOqonQAJF3zvNEf4GSiCx0e0Op4Lv7JOfQ",
+  "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTA4OTAxNzIsImlhdCI6MTY5MDg4ODM3MiwiaWRlbnRpdHkiOiJleGFtcGxlMUBjb2Nvcy5jb20iLCJpc3MiOiJjbGllbnRzLmF1dGgiLCJzdWIiOiI1NTU0M2QzNC03N2ZjLTQ4ZTctYjZjNC02YWNmY2E2ZTVjODYiLCJ0eXBlIjoiYWNjZXNzIn0.hOH6b4FU73Odz8MK5_OqkmbY4twgUobMp68oYPwm_JPb5-91Wkclqmf6-bkxoW8TlU3TYI5ay_ORjNhhCkUxBQ",
+  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTA5NzQ3NzIsImlhdCI6MTY5MDg4ODM3MiwiaWRlbnRpdHkiOiJleGFtcGxlMUBjb2Nvcy5jb20iLCJpc3MiOiJjbGllbnRzLmF1dGgiLCJzdWIiOiI1NTU0M2QzNC03N2ZjLTQ4ZTctYjZjNC02YWNmY2E2ZTVjODYiLCJ0eXBlIjoicmVmcmVzaCJ9.Cmc1kLdrjEgY1jPXYxYSOWc47Tdm2-XCp1R9rhcvKJrg9xc5OdsSWdvLEYCx_SLF3qGPuZox5D6shOvmHsqIgA",
   "access_type": "Bearer"
 }
-```
-
-### Setting Users ENV Vars
-
-We set the `USERID` and `USER_TOKEN` environment variables for later use:
-
-```bash
-USERID=
-USER_TOKEN=
-```
-
-For example:
-
-```bash
-USERID=50569d27-060d-42aa-87a8-11b596ef0e68
-USER_TOKEN=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODk2MDU2NzIsImlhdCI6MTY4OTYwMzg3MiwiaWRlbnRpdHkiOiJleGFtcGxlQGNvY29zLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjUwNTY5ZDI3LTA2MGQtNDJhYS04N2E4LTExYjU5NmVmMGU2OCIsInR5cGUiOiJhY2Nlc3MifQ.jrrrzCT-sL3Y_UBK-cnPAlKNdlyolDajuRPSAlAKEO3WBsJtK6E-dKqy1-kIXx_C0j_FyfWIDFnLZ-LPR8ROXw
 ```
 
 ### Get All Users
@@ -100,13 +103,13 @@ USER_TOKEN=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODk2MDU2NzIsImlhdCI6
 In order to get all of the users:
 
 ```bash
-curl -sSi -X GET "http://localhost:9003/users" -H "Content-Type: application/json" -H 'Authorization: Bearer <user_token>
+curl -sSiX GET http://localhost:9003/users -H 'Authorization: Bearer <user_token>
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET "http://localhost:9003/users" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <admin_token>"
 ```
 
 Response:
@@ -114,28 +117,18 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:28:56 GMT
-Content-Length: 579
+Date: Tue, 01 Aug 2023 11:14:41 GMT
+Content-Length: 261
 
 {
   "limit": 10,
-  "total": 2,
+  "total": 1,
   "users": [
     {
-      "id": "05ac40cb-7304-48e4-8a2e-5c7cc1c097f7",
-      "name": "example user",
-      "owner": "50569d27-060d-42aa-87a8-11b596ef0e68",
+      "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+      "name": "example user 1",
       "credentials": { "identity": "example1@cocos.com", "secret": "" },
-      "created_at": "2023-07-17T14:28:41.743212Z",
-      "updated_at": "0001-01-01T00:00:00Z",
-      "status": "enabled"
-    },
-    {
-      "id": "fcdfc671-1a2c-4721-bc7d-808ffb06cc56",
-      "name": "example user",
-      "owner": "50569d27-060d-42aa-87a8-11b596ef0e68",
-      "credentials": { "identity": "example2@cocos.com", "secret": "" },
-      "created_at": "2023-07-17T14:28:53.917506Z",
+      "created_at": "2023-08-01T11:12:13.694759Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
@@ -148,13 +141,13 @@ Content-Length: 579
 Getting one particular user, by ID:
 
 ```bash
-curl -sSi -X GET "http://localhost:9003/users/<user_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost:9003/users/<user_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET "http://localhost:9003/users/$USERID" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9003/users/55543d34-77fc-48e7-b6c4-6acfca6e5c86 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -162,17 +155,17 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:27:08 GMT
-Content-Length: 285
+Date: Tue, 01 Aug 2023 11:16:10 GMT
+Content-Length: 288
 
 {
-  "id": "50569d27-060d-42aa-87a8-11b596ef0e68",
-  "name": "example user",
+  "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+  "name": "example user 1",
   "credentials": {
-    "identity": "example@cocos.com",
-    "secret": "$2a$10$tqnnI3LHAl.gHsi5nebrM.iX0V4ZVNTpHFIneRdilK5/bk2UNNv8q"
+    "identity": "example1@cocos.com",
+    "secret": "$2a$10$5.0wXH15jr9Lp9LBrQSDEOmyuvLstXMv68LHjw2OSFSdfzHh6Lg/i"
   },
-  "created_at": "2023-07-17T14:23:42.061947Z",
+  "created_at": "2023-08-01T11:12:13.694759Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -189,27 +182,26 @@ For computation management, we use Computations micorservice. By default, this s
 In order to create computation, we can to provide the following content:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
-  "name": "string",
-  "description": "string",
+  "name": "[name]",
+  "description": "[description]",
   "datasets": [
-    "string"
+    "[dataset_1]", ..., "[dataset_n]"
   ],
   "algorithms": [
-    "string"
+    "[algorithm_1]", ..., "[algorithm_n]"
   ],
-  "startTime": 0,
-  "endTime": 0,
-  "status": "string",
-  "owner": "string",
+  "startTime": [start_time],
+  "endTime": [end_time],
+  "status": "[status]",
   "datasetProviders": [
-    "string"
+    "[dataset_provider_1]", ..., "[dataset_provider_n]"
   ],
   "algorithmProviders": [
-    "string"
+    "[algorithm_provider_1]", ..., "[algorithm_provider_n]"
   ],
-  "ttl": 0,
+  "ttl": [ttl],
   "metadata": {}
 }
 EOF
@@ -218,7 +210,7 @@ EOF
 Example:
 
 ```bash
-curl -sSi -X POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- << EOF
+curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "name": "Machine Diagnostics Analysis",
   "description": "Performing diagnostics analysis on machine data",
@@ -253,8 +245,8 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /computations/97f22205-4f2d-4bf5-894c-1c7f649d158e
-Date: Tue, 18 Jul 2023 12:50:48 GMT
+Location: /computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58
+Date: Tue, 01 Aug 2023 11:18:46 GMT
 Content-Length: 0
 ```
 
@@ -263,13 +255,13 @@ Content-Length: 0
 In order to get all computations:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost:9000/computations -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9000/computations -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -277,7 +269,7 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Tue, 18 Jul 2023 12:50:53 GMT
+Date: Tue, 01 Aug 2023 11:20:05 GMT
 Content-Length: 926
 
 {
@@ -285,12 +277,12 @@ Content-Length: 926
   "limit": 10,
   "computations": [
     {
-      "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+      "id": "1ca3b356-98dd-48ee-beb0-5c6c90cc1c58",
       "name": "Machine Diagnostics Analysis",
       "description": "Performing diagnostics analysis on machine data",
       "status": "executable",
-      "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
-      "start_time": "2023-07-18T12:50:48.380058Z",
+      "owner": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+      "start_time": "2023-08-01T11:18:46.858077Z",
       "end_time": "0001-01-01T00:00:00Z",
       "datasets": [
         "Sensor Data Logs",
@@ -321,32 +313,18 @@ Content-Length: 926
 }
 ```
 
-### Setting Computations ENV Vars
-
-We set the `COMPUTATION_ID` environment variables for later use:
-
-```bash
-COMPUTATION_ID=
-```
-
-For example:
-
-```bash
-COMPUTATION_ID=97f22205-4f2d-4bf5-894c-1c7f649d158e
-```
-
 ### Get One Computation
 
-In order to get one pspecific computation, by ID:
+In order to get one specific computation, by ID:
 
 ```bash
-curl -sSi -X GET "http://localhost:9000/computations/<computation_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost:9000/computations/<computation_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X GET "http://localhost:9000/computations/$COMPUTATION_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9000/computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -354,16 +332,16 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Tue, 18 Jul 2023 12:51:43 GMT
+Date: Tue, 01 Aug 2023 11:21:22 GMT
 Content-Length: 886
 
 {
-  "id": "97f22205-4f2d-4bf5-894c-1c7f649d158e",
+  "id": "1ca3b356-98dd-48ee-beb0-5c6c90cc1c58",
   "name": "Machine Diagnostics Analysis",
   "description": "Performing diagnostics analysis on machine data",
   "status": "executable",
-  "owner": "59bb1958-3452-418a-a7b8-6412712e082d",
-  "start_time": "2023-07-18T12:50:48.380058Z",
+  "owner": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+  "start_time": "2023-08-01T11:18:46.858077Z",
   "end_time": "0001-01-01T00:00:00Z",
   "datasets": [
     "Sensor Data Logs",
@@ -397,13 +375,13 @@ Content-Length: 886
 In order to delete computation:
 
 ```bash
-curl -sSi -X DELETE "http://localhost:9000/computations/<computation_id>" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX DELETE http://localhost:9000/computations/<computation_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSi -X DELETE "http://localhost:9000/computations/$COMPUTATION_ID" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX DELETE http://localhost:9000/computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -411,7 +389,7 @@ Response:
 ```bash
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:35:01 GMT
+Date: Tue, 01 Aug 2023 11:22:29 GMT
 ```
 
 For more information, please refer to [Computations Docs](./computations.md).
@@ -425,15 +403,12 @@ For dataset management, we use Datasets micorservice. By default, this service w
 In order to create dataset, we can to provide the following content:
 
 ```bash
-curl -sSi -X POST http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+curl -sSiX POST http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
 {
-  "name": "string",
-  "description": "string",
-  "owner": "string",
-  "createdAt": 0,
-  "updatedAt": 0,
-  "location": "string",
-  "format": "string",
+  "name": "[name]",
+  "description": "[description]",
+  "location": "[location]",
+  "format": "[format]",
   "metadata": {}
 }
 EOF
@@ -442,13 +417,17 @@ EOF
 For example:
 
 ```bash
-curl -sSi -X POST http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d @- <<EOF
+curl -sSiX POST http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
 {
-  "name": "dataset",
-  "description": "dataset description",
-  "location": "http://localhost:9001/datasets/74584111-24fb-4fe2-9722-a3f8f61ad991",
+  "name": "Machine Data Logs",
+  "description": "Machine data logs for diagnostics analysis",
+  "location": "s3://bucket-name/path/to/file",
   "format": "csv",
-  "metadata": {}
+  "metadata": {
+    "data_frequency": "Hourly",
+    "industry": "Manufacturing",
+    "machine_type": "Automated Assembly Line"
+  }
 }
 EOF
 ```
@@ -458,8 +437,8 @@ Response:
 ```bash
 HTTP/1.1 201 Created
 Content-Type: application/json
-Location: /datasets/2ed996a6-4e7d-47e1-b16e-4be92b68f544
-Date: Mon, 17 Jul 2023 14:39:43 GMT
+Location: /datasets/110f3886-62c6-45dc-95ef-e5e6fe227c23
+Date: Tue, 01 Aug 2023 11:26:05 GMT
 Content-Length: 0
 ```
 
@@ -468,13 +447,13 @@ Content-Length: 0
 In order to get all datasets:
 
 ```bash
-curl -sSi -X GET http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -sSi -X GET http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9001/datasets -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -482,8 +461,8 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:40:49 GMT
-Content-Length: 346
+Date: Tue, 01 Aug 2023 11:26:35 GMT
+Content-Length: 449
 
 {
   "total": 1,
@@ -493,30 +472,21 @@ Content-Length: 346
   "direction": "",
   "datasets": [
     {
-      "id": "2ed996a6-4e7d-47e1-b16e-4be92b68f544",
-      "name": "dataset",
-      "description": "dataset description",
-      "created_at": "2023-07-17T14:39:43.25271Z",
+      "id": "110f3886-62c6-45dc-95ef-e5e6fe227c23",
+      "name": "Machine Data Logs",
+      "description": "Machine data logs for diagnostics analysis",
+      "created_at": "2023-08-01T11:26:05.760675Z",
       "updated_at": "0001-01-01T00:00:00Z",
-      "location": "http://localhost:9001/datasets/74584111-24fb-4fe2-9722-a3f8f61ad991",
-      "format": "csv"
+      "location": "s3://bucket-name/path/to/file",
+      "format": "csv",
+      "metadata": {
+        "data_frequency": "Hourly",
+        "industry": "Manufacturing",
+        "machine_type": "Automated Assembly Line"
+      }
     }
   ]
 }
-```
-
-### Setting Datatset ENV Vars
-
-We set the `DATASET_ID` environment variables for later use:
-
-```bash
-DATASET_ID=
-```
-
-For example:
-
-```bash
-DATASET_ID=2ed996a6-4e7d-47e1-b16e-4be92b68f544
 ```
 
 ### Get One Dataset
@@ -524,13 +494,13 @@ DATASET_ID=2ed996a6-4e7d-47e1-b16e-4be92b68f544
 In order to get one pspecific computation, by ID:
 
 ```bash
-curl -sSi -X GET http://localhost:9001/datasets/<dataset_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost:9001/datasets/<dataset_id> -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -sSi -X GET http://localhost:9001/datasets/$DATASET_ID -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -sSiX GET http://localhost:9001/datasets/110f3886-62c6-45dc-95ef-e5e6fe227c23 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -538,17 +508,22 @@ Response:
 ```bash
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:43:56 GMT
-Content-Length: 273
+Date: Tue, 01 Aug 2023 11:29:46 GMT
+Content-Length: 376
 
 {
-  "id": "2ed996a6-4e7d-47e1-b16e-4be92b68f544",
-  "name": "dataset",
-  "description": "dataset description",
-  "created_at": "2023-07-17T14:39:43.25271Z",
+  "id": "110f3886-62c6-45dc-95ef-e5e6fe227c23",
+  "name": "Machine Data Logs",
+  "description": "Machine data logs for diagnostics analysis",
+  "created_at": "2023-08-01T11:26:05.760675Z",
   "updated_at": "0001-01-01T00:00:00Z",
-  "location": "http://localhost:9001/datasets/74584111-24fb-4fe2-9722-a3f8f61ad991",
-  "format": "csv"
+  "location": "s3://bucket-name/path/to/file",
+  "format": "csv",
+  "metadata": {
+    "data_frequency": "Hourly",
+    "industry": "Manufacturing",
+    "machine_type": "Automated Assembly Line"
+  }
 }
 ```
 
@@ -557,13 +532,13 @@ Content-Length: 273
 In order to delete dataset:
 
 ```bash
-curl -sSi -X DELETE http://localhost:9001/datasets/<dataset_id> -H "Content-Type: application/json" -H  "Authorization: Bearer <token>"
+curl -sSiX DELETE http://localhost:9001/datasets/<dataset_id> -H  "Authorization: Bearer <token>"
 ```
 
 For example:
 
 ```bash
-curl -sSi -X DELETE http://localhost:9001/datasets/$DATASET_ID -H "Content-Type: application/json" -H  "Authorization: Bearer $USER_TOKEN"
+curl -sSiX DELETE http://localhost:9001/datasets/110f3886-62c6-45dc-95ef-e5e6fe227c23 -H  "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -571,7 +546,7 @@ Response:
 ```bash
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 14:45:16 GMT
+Date: Tue, 01 Aug 2023 11:30:28 GMT
 ```
 
 For more information, please refer to [Datasets Docs](./datasets.md).
