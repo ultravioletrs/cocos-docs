@@ -2,36 +2,48 @@
 
 ## Create group
 
-To create a group, you need the group name and a `user_token`
-
-> Must-have: `user_token`, `name`
->
-> Nice-to-have: `parent_id`, `metadata`, `owner_id`, `description` and `status`
-
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups -d '{"name": "<group_name>", "description": "<group_description>"}'
+curl -sSiX POST http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "<group_name>",
+  "description": "[group_description]",
+  "parent_id": "[parent_id]",
+  "metadata": {
+    "key": "value"
+  },
+  "owner_id": "[owner_id]",
+  "status": "[status]"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups -d '{"name": "testgroup", "description": "test group description"}'
+curl -sSiX POST http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "confidential computing",
+  "description": "confidential computing group",
+  "metadata": {
+    "meeting": "every monday",
+    "location": "room 101"
+  }
+}
+EOF
 
 HTTP/1.1 201 Created
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 09:41:42 GMT
 Content-Type: application/json
-Content-Length: 252
-Connection: keep-alive
-Location: /groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e
-Access-Control-Expose-Headers: Location
+Location: /groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95
+Date: Wed, 02 Aug 2023 08:27:48 GMT
+Content-Length: 331
 
 {
-  "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "name": "testgroup",
-  "description": "test group description",
-  "created_at": "2023-06-15T09:41:42.860481Z",
+  "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "name": "confidential computing",
+  "description": "confidential computing group",
+  "metadata": { "location": "room 101", "meeting": "every monday" },
+  "created_at": "2023-08-02T08:27:48.593109Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -39,31 +51,35 @@ Access-Control-Expose-Headers: Location
 
 When you use `parent_id` make sure the parent is an already exisiting group
 
-```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups -d '{"name": "<group_name>", "description": "<group_description>", "parent_id": "<parent_id>"}'
-```
-
 For example:
 
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups -d '{"name": "testgroup2", "description": "test group 2 description", "parent_id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e"}'
+curl -sSiX POST http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "EU confidential computing",
+  "description": "confidential computing group for EU",
+  "parent_id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "metadata": {
+    "meeting": "every tuesday",
+    "location": "room 102"
+  }
+}
+EOF
 
 HTTP/1.1 201 Created
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 09:42:34 GMT
 Content-Type: application/json
-Content-Length: 306
-Connection: keep-alive
-Location: /groups/dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a
-Access-Control-Expose-Headers: Location
+Location: /groups/eaf548b0-edf9-42da-98b5-28155ebac565
+Date: Wed, 02 Aug 2023 08:28:44 GMT
+Content-Length: 393
 
 {
-  "id": "dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "parent_id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "name": "testgroup2",
-  "description": "test group 2 description",
-  "created_at": "2023-06-15T09:42:34.063997Z",
+  "id": "eaf548b0-edf9-42da-98b5-28155ebac565",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "parent_id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "name": "EU confidential computing",
+  "description": "confidential computing group for EU",
+  "metadata": { "location": "room 102", "meeting": "every tuesday" },
+  "created_at": "2023-08-02T08:28:44.576817Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -73,31 +89,27 @@ Access-Control-Expose-Headers: Location
 
 Get a group entity for a logged in user
 
-> Must-have: `user_token` and `group_id`
-
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>
+curl -isS -X GET http://localhost:9003/groups/<group_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e
+curl -isS -X GET http://localhost:9003/groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95 -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:00:52 GMT
 Content-Type: application/json
-Content-Length: 252
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:29:07 GMT
+Content-Length: 331
 
 {
-  "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "name": "testgroup",
-  "description": "test group description",
-  "created_at": "2023-06-15T09:41:42.860481Z",
+  "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "name": "confidential computing",
+  "description": "confidential computing group",
+  "metadata": { "location": "room 101", "meeting": "every monday" },
+  "created_at": "2023-08-02T08:27:48.593109Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -109,54 +121,43 @@ You can get all groups for a logged in user.
 
 If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
 
-> Must-have: `user_token`
-
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups
+curl -isS -X GET http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups
+curl -isS -X GET http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:13:50 GMT
 Content-Type: application/json
-Content-Length: 807
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:29:24 GMT
+Content-Length: 768
 
 {
   "limit": 0,
   "offset": 0,
-  "total": 3,
+  "total": 2,
   "groups": [
     {
-      "id": "0a4a2c33-2d0e-43df-b51c-d905aba99e17",
-      "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-      "name": "a",
-      "created_at": "2023-06-14T13:33:52.249784Z",
+      "id": "eaf548b0-edf9-42da-98b5-28155ebac565",
+      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "parent_id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "name": "EU confidential computing",
+      "description": "confidential computing group for EU",
+      "metadata": { "location": "room 102", "meeting": "every tuesday" },
+      "created_at": "2023-08-02T08:28:44.576817Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     },
     {
-      "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-      "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-      "name": "testgroup",
-      "description": "test group description",
-      "created_at": "2023-06-15T09:41:42.860481Z",
-      "updated_at": "0001-01-01T00:00:00Z",
-      "status": "enabled"
-    },
-    {
-      "id": "dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a",
-      "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-      "parent_id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-      "name": "testgroup2",
-      "description": "test group 2 description",
-      "created_at": "2023-06-15T09:42:34.063997Z",
+      "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "name": "confidential computing",
+      "description": "confidential computing group",
+      "metadata": { "location": "room 101", "meeting": "every monday" },
+      "created_at": "2023-08-02T08:27:48.593109Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
@@ -170,49 +171,46 @@ You can get all groups that are parents of a group for a logged in user.
 
 If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
 
-> Must-have: `user_token` and `group_id`
-
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>/parents
+curl -isS -X GET http://localhost:9003/groups/<group_id>/parents  -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a/parents?tree=true
+curl -isS -X GET http://localhost:9003/groups/eaf548b0-edf9-42da-98b5-28155ebac565/parents?tree=true  -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:16:03 GMT
 Content-Type: application/json
-Content-Length: 627
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:30:04 GMT
+Content-Length: 793
 
 {
   "limit": 10,
   "offset": 0,
-  "total": 3,
+  "total": 2,
   "groups": [
     {
-      "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-      "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-      "name": "testgroup",
-      "description": "test group description",
+      "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "name": "confidential computing",
+      "description": "confidential computing group",
+      "metadata": { "location": "room 101", "meeting": "every monday" },
       "level": -1,
       "children": [
         {
-          "id": "dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a",
-          "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-          "parent_id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-          "name": "testgroup2",
-          "description": "test group 2 description",
-          "created_at": "2023-06-15T09:42:34.063997Z",
+          "id": "eaf548b0-edf9-42da-98b5-28155ebac565",
+          "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+          "parent_id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+          "name": "EU confidential computing",
+          "description": "confidential computing group for EU",
+          "metadata": { "location": "room 102", "meeting": "every tuesday" },
+          "created_at": "2023-08-02T08:28:44.576817Z",
           "updated_at": "0001-01-01T00:00:00Z",
           "status": "enabled"
         }
       ],
-      "created_at": "2023-06-15T09:41:42.860481Z",
+      "created_at": "2023-08-02T08:27:48.593109Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
@@ -226,51 +224,46 @@ You can get all groups that are children of a group for a logged in user.
 
 If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
 
-> Must-have: `user_token`
-
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>/children
+curl -isS -X GET http://localhost:9003/groups/<group_id>/children -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e/children?tree=true
-
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:17:13 GMT
 Content-Type: application/json
-Content-Length: 755
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:30:28 GMT
+Content-Length: 921
 
 {
   "limit": 10,
   "offset": 0,
-  "total": 3,
+  "total": 2,
   "groups": [
     {
-      "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-      "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-      "name": "testgroup",
-      "description": "test group description",
-      "path": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
+      "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "name": "confidential computing",
+      "description": "confidential computing group",
+      "metadata": { "location": "room 101", "meeting": "every monday" },
+      "path": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
       "children": [
         {
-          "id": "dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a",
-          "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-          "parent_id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-          "name": "testgroup2",
-          "description": "test group 2 description",
+          "id": "eaf548b0-edf9-42da-98b5-28155ebac565",
+          "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+          "parent_id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+          "name": "EU confidential computing",
+          "description": "confidential computing group for EU",
+          "metadata": { "location": "room 102", "meeting": "every tuesday" },
           "level": 1,
-          "path": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e.dd2dc8d4-f7cf-42f9-832b-81cae9a8e90a",
-          "created_at": "2023-06-15T09:42:34.063997Z",
+          "path": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95.eaf548b0-edf9-42da-98b5-28155ebac565",
+          "created_at": "2023-08-02T08:28:44.576817Z",
           "updated_at": "0001-01-01T00:00:00Z",
           "status": "enabled"
         }
       ],
-      "created_at": "2023-06-15T09:41:42.860481Z",
+      "created_at": "2023-08-02T08:27:48.593109Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
@@ -282,34 +275,46 @@ Access-Control-Expose-Headers: Location
 
 Update group entity
 
-> Must-have: `user_token` and `group_id`
-
 ```bash
-curl -isS -X PUT -H "Content-Type: application/json" -H  "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id> -d '{"name": "<group_name>"}'
+curl -sSiX PUT http://localhost:9003/groups/<group_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "<group_name>",
+  "description": "<group_description>",
+  "metadata": {
+    "<key>": "<value>"
+  }
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isS -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e -d '{"name": "new name", "description": "new description", "metadata": {"foo":"bar"}}'
+curl -sSiX PUT http://localhost:9003/groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95 -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "updated confidential computing",
+  "description": "updated confidential computing group",
+  "metadata": {
+    "meeting": "every friday",
+    "location": "room 809"
+  }
+}
+EOF
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:17:56 GMT
 Content-Type: application/json
-Content-Length: 328
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:30:51 GMT
+Content-Length: 406
 
 {
-  "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "name": "new name",
-  "description": "new description",
-  "metadata": { "foo": "bar" },
-  "created_at": "2023-06-15T09:41:42.860481Z",
-  "updated_at": "2023-06-15T10:17:56.475241Z",
-  "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
+  "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "name": "updated confidential computing",
+  "description": "updated confidential computing group",
+  "metadata": { "location": "room 809", "meeting": "every friday" },
+  "created_at": "2023-08-02T08:27:48.593109Z",
+  "updated_at": "2023-08-02T08:30:51.399697Z",
+  "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
   "status": "enabled"
 }
 ```
@@ -318,34 +323,29 @@ Access-Control-Expose-Headers: Location
 
 Disable a group entity
 
-> Must-have: `user_token` and `group_id`
-
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>/disable
+curl -isS -X POST http://localhost:9003/groups/<group_id>/disable -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e/disable
+curl -isS -X POST http://localhost:9003/groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95/disable -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:18:28 GMT
 Content-Type: application/json
-Content-Length: 329
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:31:13 GMT
+Content-Length: 407
 
 {
-  "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "name": "new name",
-  "description": "new description",
-  "metadata": { "foo": "bar" },
-  "created_at": "2023-06-15T09:41:42.860481Z",
-  "updated_at": "2023-06-15T10:17:56.475241Z",
-  "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
+  "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "name": "updated confidential computing",
+  "description": "updated confidential computing group",
+  "metadata": { "location": "room 809", "meeting": "every friday" },
+  "created_at": "2023-08-02T08:27:48.593109Z",
+  "updated_at": "2023-08-02T08:30:51.399697Z",
+  "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
   "status": "disabled"
 }
 ```
@@ -354,34 +354,29 @@ Access-Control-Expose-Headers: Location
 
 Enable a group entity
 
-> Must-have: `user_token` and `group_id`
-
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>/enable
+curl -isS -X POST http://localhost:9003/groups/<group_id>/enable -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e/enable
+curl -isS -X POST http://localhost:9003/groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95/enable -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:18:55 GMT
 Content-Type: application/json
-Content-Length: 328
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:31:29 GMT
+Content-Length: 406
 
 {
-  "id": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e",
-  "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
-  "name": "new name",
-  "description": "new description",
-  "metadata": { "foo": "bar" },
-  "created_at": "2023-06-15T09:41:42.860481Z",
-  "updated_at": "2023-06-15T10:17:56.475241Z",
-  "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
+  "id": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+  "name": "updated confidential computing",
+  "description": "updated confidential computing group",
+  "metadata": { "location": "room 809", "meeting": "every friday" },
+  "created_at": "2023-08-02T08:27:48.593109Z",
+  "updated_at": "2023-08-02T08:30:51.399697Z",
+  "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
   "status": "enabled"
 }
 ```
@@ -390,24 +385,31 @@ Access-Control-Expose-Headers: Location
 
 Assign user to a group
 
-> Must-have: `user_token`, `group_id`, `member_id` and `member_action`
-
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost/users/policies -d '{"subject": "<user_id>", "object": "<group_id>", "actions":["<member_action>"]}'
+curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "<user_id>",
+  "object": "<group_id>",
+  "actions": ["<member_action>"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost/users/policies -d '{"subject": "1890c034-7ef9-4cde-83df-d78ea1d4d281", "object": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e", "actions":["g_list", "c_list"]}'
+curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+  "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "actions": ["g_list", "c_list"]
+}
+EOF
 
 HTTP/1.1 201 Created
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 10:19:59 GMT
 Content-Type: application/json
+Date: Wed, 02 Aug 2023 08:32:40 GMT
 Content-Length: 0
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
 ```
 
 ## Members
@@ -416,39 +418,32 @@ You can get all users assigned to a group.
 
 If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `identity`, and `tag` query parameters.
 
-> Must-have: `user_token` and `group_id`
->
 > Must take into consideration the user identified by the `user_token` needs to be assigned to the same group with `g_list` action or be the owner of the group.
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/groups/<group_id>/members
+curl -isS -X GET http://localhost:9003/groups/<group_id>/members -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/groups/2766ae94-9a08-4418-82ce-3b91cf2ccd3e/members
+curl -isS -X GET http://localhost:9003/groups/0c5bb86a-5545-4e5f-9169-d9a0bff92c95/members -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 11:21:29 GMT
 Content-Type: application/json
-Content-Length: 318
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:32:59 GMT
+Content-Length: 263
 
 {
   "limit": 10,
   "total": 1,
   "members": [
     {
-      "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
-      "name": "new name",
-      "tags": ["foo", "bar"],
-      "credentials": { "identity": "updated.john.doe@email.com", "secret": "" },
-      "metadata": { "foo": "bar" },
-      "created_at": "2023-06-14T13:46:47.322648Z",
-      "updated_at": "2023-06-14T13:59:53.422595Z",
+      "id": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+      "name": "example user 2",
+      "credentials": { "identity": "example2@cocos.com", "secret": "" },
+      "created_at": "2023-08-02T08:27:19.465767Z",
+      "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
   ]
@@ -459,21 +454,16 @@ Access-Control-Expose-Headers: Location
 
 Unassign user from group
 
-> Must-have: `user_token`, `group_id` and `user_id`
-
 ```bash
-curl -isS -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost/users/policies -d '{"subject": "<user_id>", "object": "<group_id>"}'
+curl -sSiX DELETE http://localhost:9003/policies/<user_id>/<group_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isS -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost/users/policies -d '{"subject": "1890c034-7ef9-4cde-83df-d78ea1d4d281", "object": "2766ae94-9a08-4418-82ce-3b91cf2ccd3e"}'
+curl -sSiX DELETE http://localhost:9003/policies/55bdf567-3595-42c6-8aa6-4091fdcc88da/0c5bb86a-5545-4e5f-9169-d9a0bff92c95 -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 204 No Content
-Server: nginx/1.23.3
-Date: Thu, 15 Jun 2023 11:25:27 GMT
 Content-Type: application/json
-Connection: keep-alive
-Access-Control-Expose-Headers: Location
+Date: Wed, 02 Aug 2023 08:34:13 GMT
 ```
