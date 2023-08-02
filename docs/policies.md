@@ -4,62 +4,78 @@
 
 ### Add User Policies
 
-You can add policies as well through an HTTP endpoint. _Only_ admin or member with `g_add` policy to the object can use this endpoint. Therefore, you need an authentication token.
-
-_user_token_ must belong to the user.
-
-> Must-have: user_token, group_id, user_id and policy_actions
+You can add policies through a HTTP endpoint. _Only_ admin or a member with `g_add` policy in relation to the group can use this endpoint. Therefore, you need an authentication token.
 
 ```bash
-curl -isSX POST "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d '{"subject": "<user_id>", "object": "<group_id>", "actions": ["<action_1>", ..., "<action_N>"]}'
+curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "<user_id>",
+  "object": "<group_id>",
+  "actions": ["<action_1>", ..., "<action_N>"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isSX POST "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d '{"subject": "3187a78e-e06d-4109-8f52-f0f1ea661c33", "object": "f0ac0d64-e7af-464c-b717-a00b24118c0e", "actions": ["c_list", "g_list"]}'
+curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+  "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "actions": ["c_list", "g_list"]
+}
+EOF
 
 HTTP/1.1 201 Created
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:20:13 GMT
+Date: Wed, 02 Aug 2023 08:46:53 GMT
 Content-Length: 0
 ```
 
 ### Updating User Policies
 
-> Must-have: user_token, group_id, user_id and policy_actions
-
 ```bash
-curl -isSX PUT "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d '{"subject": "<user_id>", "object": "<group_id>", "actions": ["<action_1>", ..., "<action_N>"]}'
+curl -sSiX PUT http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "<user_id>",
+  "object": "<group_id>",
+  "actions": ["<action_1>", ..., "<action_N>"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isSX PUT "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d '{"subject": "3187a78e-e06d-4109-8f52-f0f1ea661c33", "object": "f0ac0d64-e7af-464c-b717-a00b24118c0e", "actions": ["c_delete"]}'
+curl -sSiX PUT http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+  "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "actions": ["c_delete", "g_add"]
+}
+EOF
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:20:44 GMT
+Date: Wed, 02 Aug 2023 08:47:07 GMT
 ```
 
 ### Lisiting User Policies
 
-> Must-have: user_token
-
 ```bash
-curl -isSX GET "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX GET "http://localhost:9003/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -isSX GET http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:20:58 GMT
-Content-Length: 305
+Date: Wed, 02 Aug 2023 08:47:20 GMT
+Content-Length: 365
 
 {
   "limit": 10,
@@ -67,12 +83,13 @@ Content-Length: 305
   "total": 1,
   "policies": [
     {
-      "owner_id": "50569d27-060d-42aa-87a8-11b596ef0e68",
-      "subject": "3187a78e-e06d-4109-8f52-f0f1ea661c33",
-      "object": "f0ac0d64-e7af-464c-b717-a00b24118c0e",
-      "actions": ["c_delete"],
-      "created_at": "2023-07-17T15:20:13.466463Z",
-      "updated_at": "2023-07-17T15:20:44.004903Z"
+      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+      "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "actions": ["c_delete", "g_add"],
+      "created_at": "2023-08-02T08:46:53.834944Z",
+      "updated_at": "2023-08-02T08:47:07.248309Z",
+      "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a"
     }
   ]
 }
@@ -82,8 +99,6 @@ Content-Length: 305
 
 The admin can delete policies. _Only_ admin or owner of the policy can delete a policy.
 
-> Must-have: user_token, object, subjects_ids and policies
-
 ```bash
 curl -isSX DELETE -H "Accept: application/json" -H "Authorization: Bearer <user_token>" "http://localhost:9003/policies/<user_id>/<group_id>"
 ```
@@ -91,11 +106,11 @@ curl -isSX DELETE -H "Accept: application/json" -H "Authorization: Bearer <user_
 For example:
 
 ```bash
-curl -isSX DELETE -H 'Accept: application/json' -H "Authorization: Bearer $USER_TOKEN" "http://localhost:9003/policies/3187a78e-e06d-4109-8f52-f0f1ea661c33/f0ac0d64-e7af-464c-b717-a00b24118c0e"
+curl -isSX DELETE -H 'Accept: application/json' -H "Authorization: Bearer <user_token>" "http://localhost:9003/policies/55bdf567-3595-42c6-8aa6-4091fdcc88da/0c5bb86a-5545-4e5f-9169-d9a0bff92c95"
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:21:44 GMT
+Date: Wed, 02 Aug 2023 08:47:48 GMT
 ```
 
 If you delete policies, the policy will be removed from the policy storage. Further authorization checks related to that policy will fail.
@@ -106,74 +121,94 @@ If you delete policies, the policy will be removed from the policy storage. Furt
 
 You can add policies as well through an HTTP endpoint. _Only_ admin or the owner of the computation can use this endpoint. Therefore, you need an authentication token.
 
-_user_token_ must belong to the user.
-
-> Must-have: user_token, computation_id, user_id and roles
-
 ```bash
-curl -isSX POST "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d '{"user": "<user_id>", "computation": "<computation_id>", "role": ["<role_1>", ..., "<role_N>"]}'
+curl -sSiX POST http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "user": "<user_id>",
+  "computation": "<computation_id>",
+  "role": ["<role_1>", ..., "<role_N>"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isSX POST "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d '{"user": "50569d27-060d-42aa-87a8-11b596ef0e68", "computation": "fbb39123-9e82-44b2-a7d1-eb20c0c73c60", "role": ["view", "edit"]}'
+curl -sSiX POST http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+  "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+  "role": ["view"]
+}
+EOF
 
 HTTP/1.1 201 Created
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:24:48 GMT
+Date: Wed, 02 Aug 2023 08:51:42 GMT
 Content-Length: 0
 ```
 
 ### Updating Computation Policies
 
-> Must-have: user_token, computation_id, user_id and role
+The admin or the owner of the computation can update the policy.
 
 ```bash
-curl -isSX PUT "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d '{"user": "<user_id>", "computation": "<computation_id>", "role": ["<role_1>", ..., "<role_N>"]}'
+curl -sSiX PUT http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "user": "<user_id>",
+  "computation": "<computation_id>",
+  "role": ["<role_1>", ..., "<role_N>"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -isSX PUT "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" -d '{"user": "50569d27-060d-42aa-87a8-11b596ef0e68", "computation": "fbb39123-9e82-44b2-a7d1-eb20c0c73c60", "role": ["run"]}'
+curl -sSiX PUT http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+  "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+  "role": ["view", "run"]
+}
+EOF
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:25:15 GMT
+Date: Wed, 02 Aug 2023 08:52:40 GMT
 Content-Length: 0
 ```
 
 ### Lisiting Computation Policies
 
-> Must-have: user_token
+As an admin, you can list all the policies, while as a user you can only list your own policies.
 
 ```bash
-curl -isSX GET "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost:9000/policies -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX GET "http://localhost:9000/policies" -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN"
+curl -isSX GET http://localhost:9000/policies -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:25:29 GMT
-Content-Length: 338
+Date: Wed, 02 Aug 2023 08:52:55 GMT
+Content-Length: 345
 
 {
   "limit": 10,
   "total": 1,
   "policies": [
     {
-      "owner": "50569d27-060d-42aa-87a8-11b596ef0e68",
-      "user": "50569d27-060d-42aa-87a8-11b596ef0e68",
-      "computation": "fbb39123-9e82-44b2-a7d1-eb20c0c73c60",
-      "roles": ["run"],
-      "created_at": "2023-07-17T15:24:48.915877Z",
-      "updated_at": "2023-07-17T15:25:15.113692Z",
-      "updated_by": "50569d27-060d-42aa-87a8-11b596ef0e68"
+      "owner": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
+      "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
+      "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+      "roles": ["view", "run"],
+      "created_at": "2023-08-02T08:51:42.844285Z",
+      "updated_at": "2023-08-02T08:52:40.327864Z",
+      "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a"
     }
   ]
 }
@@ -181,22 +216,20 @@ Content-Length: 338
 
 ### Delete Computation Policies
 
-The admin can delete policies.
-
-> Must-have: user_token, computation_id and user_id.
+The admin or the owner of the computation can delete the policy.
 
 ```bash
-curl -isSX DELETE -H "Accept: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9000/policies/:user/:computation"
+curl -isSX DELETE http://localhost:9000/policies/<user_id>/<computation_id> -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX DELETE -H 'Accept: application/json' -H "Authorization: Bearer $USER_TOKEN" "http://localhost:9000/policies/50569d27-060d-42aa-87a8-11b596ef0e68/fbb39123-9e82-44b2-a7d1-eb20c0c73c60"
+curl -isSX DELETE http://localhost:9000/policies/50569d27-060d-42aa-87a8-11b596ef0e68/75e85000-bfea-4faf-b6c6-51fc22e52f92 -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Mon, 17 Jul 2023 15:26:18 GMT
+Date: Wed, 02 Aug 2023 09:02:11 GMT
 ```
 
 If you delete policies, the policy will be removed from the policy storage. Further authorization checks related to that policy will fail.
