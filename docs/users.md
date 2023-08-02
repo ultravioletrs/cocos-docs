@@ -2,18 +2,39 @@
 
 ## Create User
 
-> Must-have: identity, which can be email-address (this must be unique as it identifies the user) and secret (password must contain at least 8 characters)
->
-> Optional: name, tags, metadata, status and role
+> Identity, which can be email-address (this must be unique as it identifies the user) and secret (password must contain at least 8 characters)
 
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" http://localhost:9003/users -d '{"credentials": {"identity": "<user_identity>", "secret": "<user_secret>"}}'
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer [user_token]" -d @- <<EOF
+{
+  "name": "[name]",
+  "credentials": {
+    "identity": "<identity>",
+    "secret": "<secret>"
+  },
+  "tags": [
+    "[tag_1]", ..., "[tag_N]"
+  ],
+  "owner": "[owner_id]",
+  "metadata": {},
+  "status": "[status]",
+  "role": "[role]"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" http://localhost:9003/users -d '{"credentials": {"identity": "john.doe@email.com", "secret": "12345678"}, "name": "John Doe"}'
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -d @- <<EOF
+{
+  "name": "John Doe",
+  "credentials": {
+    "identity": "john.doe@email.com",
+    "secret": "12345678"
+  }
+}
+EOF
 
 HTTP/1.1 201 Created
 Server: nginx/1.23.3
@@ -34,10 +55,18 @@ Access-Control-Expose-Headers: Location
 }
 ```
 
-You can also use <user_token> so that the owner of the new user is the one identified by the <user_token> for example:
+You can also use `[user_token]` so that the owner of the new user is the one identified by the `[user_token]` for example:
 
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users -d '{"credentials": {"identity": "john.doe2@email.com", "secret": "12345678"}}'
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "name": "John Doe",
+  "credentials": {
+    "identity": "john.doe2@email.com",
+    "secret": "12345678"
+  }
+}
+EOF
 
 HTTP/1.1 201 Created
 Server: nginx/1.23.3
@@ -62,16 +91,24 @@ Access-Control-Expose-Headers: Location
 
 To log in to the Mainflux system, you need to create a `user_token`.
 
-> Must-have: registered identity and secret.
-
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" http://localhost:9003/users/tokens/issue -d '{"identity":"<user_identity>", "secret":"<user_secret>"}'
+curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+{
+  "identity": "<user_identity>",
+  "secret": "<user_secret>"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" http://localhost:9003/users/tokens/issue -d '{"identity": "john.doe@email.com", "secret": "12345678"}'
+curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+{
+  "identity": "john.doe@email.com",
+  "secret": "12345678"
+}
+EOF
 
 HTTP/1.1 201 Created
 Server: nginx/1.23.3
@@ -92,16 +129,15 @@ Access-Control-Expose-Headers: Location
 
 To issue another `access_token` after getting expired, you need to use a `refresh_token`.
 
-> Must-have: refresh_token
-
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <refresh_token>" http://localhost:9003/users/tokens/refresh
+curl -sSiX POST http://localhost:9003/users/tokens/refresh -H "Content-Type: application/json" -H "Authorization: Bearer <refresh_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $REFRESH_TOKEN" http://localhost:9003/users/tokens/refresh
+curl -sSiX POST http://localhost:9003/users/tokens/refresh -H "Content-Type: application/json" -H "Authorization: Bearer <refresh_token>"
+
 
 HTTP/1.1 201 Created
 Server: nginx/1.23.3
@@ -120,18 +156,14 @@ Access-Control-Expose-Headers: Location
 
 ## Get User Profile
 
-You can always check the user profile that is logged in by using the `user_token`.
-
-> Must-have: `user_token`
-
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users/profile
+curl -sSiX GET http://localhost:9003/users/profile -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/profile
+curl -sSiX GET http://localhost:9003/users/profile -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -156,18 +188,14 @@ Access-Control-Expose-Headers: Location
 
 ## Get User
 
-You can always check the user entity by entering the user ID and `user_token`.
-
-> Must-have: `user_id` and `user_token`
-
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>
+curl -sSiX GET http://localhost:9003/users/<user_id> -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281
+curl -sSiX GET http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281 -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -194,16 +222,14 @@ Access-Control-Expose-Headers: Location
 
 You can get all users in the database by querying this endpoint.
 
-> Must-have: `user_token`
-
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users
+curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users
+curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -231,18 +257,16 @@ Access-Control-Expose-Headers: Location
 
 If you want to paginate your results then use this
 
-> Must have: `user_token`
->
 > Additional parameters: `offset`, `limit`, `metadata`, `name`, `identity`, `tag`, `status` and `visbility`
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users?offset=<offset>&limit=<limit>&identity=<identity>
+curl -sSiX GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users?offset=[offset]&limit=[limit]&identity=[identity]
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users?offset=0&limit=5&identity=john.doe2@email.com
+curl -sSiX GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users?offset=0&limit=5&identity=john.doe2@email.com
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -272,17 +296,26 @@ Access-Control-Expose-Headers: Location
 
 Updating user's name and/or metadata
 
-> Must-have: `user_token` and `user_id`
-
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id> -d
-'{"metadata":{"foo":"bar"}}'
+curl -sSiX PATCH  http://localhost:9003/users/<user_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "name": "[name]",
+  "metadata": {}
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281 -d '{"name": "new name", "metadata":{"foo":"bar"}}'
+curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281 -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "name": "new name",
+  "metadata": {
+    "foo": "bar"
+  }
+}
+EOF
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -309,16 +342,22 @@ Access-Control-Expose-Headers: Location
 
 Updating user's tags
 
-> Must-have: `user_token` and `user_id`
-
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/tags -d '{"tags":["<tag_1>", ..., "tag_N"]}'
+curl -sSiX PATCH http://localhost:9003/users/<user_id>/tags -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "tags": ["<tag_1>", ..., "tag_N"]
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/tags -d '{"tags":["foo","bar"]}'
+curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/tags -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "tags": ["foo", "bar"]
+}
+EOF
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -346,16 +385,22 @@ Access-Control-Expose-Headers: Location
 
 Updating user's owner
 
-> Must-have: `user_token` and `user_id`
-
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/owner -d '{"owner":<owner_id>}'
+curl -sSiX PATCH http://localhost:9003/users/<user_id>/owner -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "owner": "<owner_id>"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/owner -d '{"owner": "532311a4-c13b-4061-b991-98dcae7a934e"}'
+curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/owner -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "owner": "532311a4-c13b-4061-b991-98dcae7a934e"
+}
+EOF
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -383,16 +428,22 @@ Access-Control-Expose-Headers: Location
 
 Updating user's identity
 
-> Must-have: `user_token` and `user_id`
-
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/identity -d '{"identity":<user_identity>}'
+curl -sSiX PATCH http://localhost:9003/users/<user_id>/identity -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "identity": "<identity>"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/identity -d '{"identity": "updated.john.doe@email.com"}'
+curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/identity -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "identity": "john.doe@email.com"
+}
+EOF
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -420,16 +471,24 @@ Access-Control-Expose-Headers: Location
 
 Changing the user secret can be done by calling the update secret function
 
-> Must-have: `user_token`, `old_secret` and password (`new_secret`)
-
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" http://localhost:9003/users/secret -d '{"old_secret":"<old_secret>", "new_secret":"<new_secret>"}'
+curl -sSiX PATCH http://localhost:9003/users/secret -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "old_secret": "<old_secret>",
+  "new_secret": "<new_secret>"
+}
+EOF
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X PATCH -H "Content-Type: application/json" -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/secret -d '{"old_secret":"12345678", "new_secret":"12345678a"}'
+curl -sSiX PATCH http://localhost:9003/users/secret -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
+{
+  "old_secret": "12345678",
+  "new_secret": "123456789"
+}
+EOF
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -444,16 +503,14 @@ Access-Control-Expose-Headers: Location
 
 Changing the user status to enabled can be done by calling the enable user function
 
-> Must-have: `user_id` and `user_token`
-
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/enable
+curl -sSiX GET http://localhost:9003/users/<user_id>/enable -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X POST -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/enable
+curl -sSiX POST http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/enable -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -481,16 +538,14 @@ Access-Control-Expose-Headers: Location
 
 Changing the user status to disabled can be done by calling the disable user function
 
-> Must-have: `user_id` and `user_token`
-
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/disable
+curl -sSiX GET http://localhost:9003/users/<user_id>/disable -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X POST -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/disable
+curl -sSiX POST http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/disable -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
@@ -520,18 +575,16 @@ You can get all groups a user is assigned to by calling the get user memberships
 
 If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
 
-> Must-have: `user_id` and `user_token`
->
 > Must take into consideration the user identified by the `user_token` needs to be assigned to the same group with `c_list` action or is the owner of the user identified by the `user_id`.
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users/<user_id>/memberships
+curl -sSiX GET http://localhost:9003/users/<user_id>/memberships  -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -s -S -i -X GET -H "Authorization: Bearer $USER_TOKEN" http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/memberships
+curl -sSiX GET http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/memberships  -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
 Server: nginx/1.23.3
