@@ -10,21 +10,18 @@ curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application
   "name": "<name>",
   "description": "<description>",
   "datasets": [
-    "<dataset_1>", ..., "<dataset_N>"
+    "<dataset_1>", ..., "[dataset_N]"
   ],
   "algorithms": [
-    "<algorithm_1>", ..., "<algorithm_N>"
+    "<algorithm_1>", ..., "[algorithm_N]"
   ],
   ],
-  "startTime": <start_time>,
-  "endTime": <end_time>,
-  "status": "<status>",
   "owner": "<owner>",
   "datasetProviders": [
-    "<dataset_provider_1>", ..., "<dataset_provider_N>"
+    "<dataset_provider_1>", ..., "[dataset_provider_N]"
   ],
   "algorithmProviders": [
-    "<algorithm_provider_1>", ..., "<algorithm_provider_N>"
+    "<algorithm_provider_1>", ..., "[algorithm_provider_N]"
   ],
   "ttl": <ttl>,
   "metadata": {}
@@ -140,7 +137,7 @@ Content-Length: 926
 
 ## Retrieve Computation Information
 
-In order to get one pspecific computation, by ID:
+In order to get one specific computation, by ID:
 
 ```bash
 curl -sSiX GET http://localhost:9000/computations/<computation_id> -H "Authorization: Bearer <user_token>"

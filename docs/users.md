@@ -55,7 +55,7 @@ Access-Control-Expose-Headers: Location
 }
 ```
 
-You can also use `[user_token]` so that the owner of the new user is the one identified by the `[user_token]` for example:
+You can also use `<user_token>` so that the owner of the new user is the one identified by the `<user_token>` for example:
 
 ```bash
 curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF

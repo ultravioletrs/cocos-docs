@@ -100,13 +100,13 @@ Content-Length: 365
 The admin can delete policies. _Only_ admin or owner of the policy can delete a policy.
 
 ```bash
-curl -isSX DELETE -H "Accept: application/json" -H "Authorization: Bearer <user_token>" "http://localhost:9003/policies/<user_id>/<group_id>"
+curl -isSX DELETE "http://localhost:9003/policies/<user_id>/<group_id>" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX DELETE -H 'Accept: application/json' -H "Authorization: Bearer <user_token>" "http://localhost:9003/policies/55bdf567-3595-42c6-8aa6-4091fdcc88da/0c5bb86a-5545-4e5f-9169-d9a0bff92c95"
+curl -isSX DELETE "http://localhost:9003/policies/55bdf567-3595-42c6-8aa6-4091fdcc88da/0c5bb86a-5545-4e5f-9169-d9a0bff92c95" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 204 No Content
 Content-Type: application/json

@@ -103,7 +103,7 @@ Content-Length: 709
 In order to get all of the users:
 
 ```bash
-curl -sSiX GET http://localhost:9003/users -H 'Authorization: Bearer <user_token>
+curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <admin_token>"
 ```
 
 Example:
@@ -187,19 +187,16 @@ curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application
   "name": "[name]",
   "description": "[description]",
   "datasets": [
-    "[dataset_1]", ..., "[dataset_n]"
+    "<dataset_1>", ..., "[dataset_n]"
   ],
   "algorithms": [
-    "[algorithm_1]", ..., "[algorithm_n]"
+    "<algorithm_1>", ..., "[algorithm_n]"
   ],
-  "startTime": [start_time],
-  "endTime": [end_time],
-  "status": "[status]",
   "datasetProviders": [
-    "[dataset_provider_1]", ..., "[dataset_provider_n]"
+    "<dataset_provider_1>", ..., "[dataset_provider_n]"
   ],
   "algorithmProviders": [
-    "[algorithm_provider_1]", ..., "[algorithm_provider_n]"
+    "<algorithm_provider_1>", ..., "[algorithm_provider_n]"
   ],
   "ttl": [ttl],
   "metadata": {}
