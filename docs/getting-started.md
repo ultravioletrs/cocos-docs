@@ -31,9 +31,9 @@ Example:
 ```bash
 curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -d @- <<EOF
 {
-  "name": "example user 1",
+  "name": "John Doe",
   "credentials": {
-    "identity": "example1@cocos.com",
+    "identity": "john.doe@example.com",
     "secret": "12345678"
   }
 }
@@ -51,8 +51,8 @@ Content-Length: 228
 
 {
   "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
-  "name": "example user 1",
-  "credentials": { "identity": "example1@cocos.com", "secret": "" },
+  "name": "John Doe",
+  "credentials": { "identity": "john.doe@example.com", "secret": "" },
   "created_at": "2023-08-01T11:12:13.694759Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
@@ -77,7 +77,7 @@ Example:
 ```bash
 curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
 {
-  "identity": "example1@cocos.com",
+  "identity": "john.doe@example.com",
   "secret": "12345678"
 }
 EOF
@@ -126,8 +126,8 @@ Content-Length: 261
   "users": [
     {
       "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
-      "name": "example user 1",
-      "credentials": { "identity": "example1@cocos.com", "secret": "" },
+      "name": "John Doe",
+      "credentials": { "identity": "john.doe@example.com", "secret": "" },
       "created_at": "2023-08-01T11:12:13.694759Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
@@ -160,9 +160,9 @@ Content-Length: 288
 
 {
   "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
-  "name": "example user 1",
+  "name": "John Doe",
   "credentials": {
-    "identity": "example1@cocos.com",
+    "identity": "john.doe@example.com",
     "secret": "$2a$10$5.0wXH15jr9Lp9LBrQSDEOmyuvLstXMv68LHjw2OSFSdfzHh6Lg/i"
   },
   "created_at": "2023-08-01T11:12:13.694759Z",

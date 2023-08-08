@@ -312,7 +312,7 @@ curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d28
 {
   "name": "new name",
   "metadata": {
-    "foo": "bar"
+    "depertment": "confidential-computing"
   }
 }
 EOF
@@ -330,7 +330,7 @@ Access-Control-Expose-Headers: Location
   "name": "new name",
   "owner": "94939159-d129-4f17-9e4e-cc2d615539d7",
   "credentials": { "identity": "john.doe2@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:54:40.208005Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -355,7 +355,7 @@ For example:
 ```bash
 curl -sSiX PATCH http://localhost:9003/users/1890c034-7ef9-4cde-83df-d78ea1d4d281/tags -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- <<EOF
 {
-  "tags": ["foo", "bar"]
+  "tags": ["manager", "developer"]
 }
 EOF
 
@@ -370,10 +370,10 @@ Access-Control-Expose-Headers: Location
 {
   "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
   "name": "new name",
-  "tags": ["foo", "bar"],
+  "tags": ["manager", "developer"],
   "owner": "94939159-d129-4f17-9e4e-cc2d615539d7",
   "credentials": { "identity": "john.doe2@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:55:18.353027Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -413,10 +413,10 @@ Access-Control-Expose-Headers: Location
 {
   "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
   "name": "new name",
-  "tags": ["foo", "bar"],
+  "tags": ["manager", "developer"],
   "owner": "532311a4-c13b-4061-b991-98dcae7a934e",
   "credentials": { "identity": "john.doe2@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:56:32.059484Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -456,10 +456,10 @@ Access-Control-Expose-Headers: Location
 {
   "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
   "name": "new name",
-  "tags": ["foo", "bar"],
+  "tags": ["manager", "developer"],
   "owner": "94939159-d129-4f17-9e4e-cc2d615539d7",
   "credentials": { "identity": "updated.john.doe@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:59:53.422595Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -523,10 +523,10 @@ Access-Control-Expose-Headers: Location
 {
   "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
   "name": "new name",
-  "tags": ["foo", "bar"],
+  "tags": ["manager", "developer"],
   "owner": "94939159-d129-4f17-9e4e-cc2d615539d7",
   "credentials": { "identity": "updated.john.doe@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:59:53.422595Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -558,10 +558,10 @@ Access-Control-Expose-Headers: Location
 {
   "id": "1890c034-7ef9-4cde-83df-d78ea1d4d281",
   "name": "new name",
-  "tags": ["foo", "bar"],
+  "tags": ["manager", "developer"],
   "owner": "94939159-d129-4f17-9e4e-cc2d615539d7",
   "credentials": { "identity": "updated.john.doe@email.com", "secret": "" },
-  "metadata": { "foo": "bar" },
+  "metadata": { "depertment": "confidential-computing" },
   "created_at": "2023-06-14T13:46:47.322648Z",
   "updated_at": "2023-06-14T13:59:53.422595Z",
   "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
@@ -603,7 +603,7 @@ Access-Control-Expose-Headers: Location
       "owner_id": "94939159-d129-4f17-9e4e-cc2d615539d7",
       "name": "new name",
       "description": "new description",
-      "metadata": { "foo": "bar" },
+      "metadata": { "depertment": "confidential-computing" },
       "created_at": "2023-06-15T09:41:42.860481Z",
       "updated_at": "2023-06-15T10:17:56.475241Z",
       "updated_by": "94939159-d129-4f17-9e4e-cc2d615539d7",
