@@ -127,7 +127,7 @@ Content-Length: 261
     {
       "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
       "name": "John Doe",
-      "credentials": { "identity": "john.doe@example.com", "secret": "" },
+      "credentials": { "identity": "john.doe@example.com" },
       "created_at": "2023-08-01T11:12:13.694759Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
@@ -162,8 +162,7 @@ Content-Length: 288
   "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
   "name": "John Doe",
   "credentials": {
-    "identity": "john.doe@example.com",
-    "secret": "$2a$10$5.0wXH15jr9Lp9LBrQSDEOmyuvLstXMv68LHjw2OSFSdfzHh6Lg/i"
+    "identity": "john.doe@example.com"
   },
   "created_at": "2023-08-01T11:12:13.694759Z",
   "updated_at": "0001-01-01T00:00:00Z",
