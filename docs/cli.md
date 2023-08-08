@@ -1,14 +1,14 @@
 # Agent CLI
 
-This repository contains the command-line interface (CLI) tool for interacting with the Agent service. The CLI allows you to perform various tasks related to the computation and management of algorithms and datasets.
+The CLI allows you to perform various tasks related to the computation and management of algorithms and datasets.
 
 ## Build
 
 To build the CLI, follow these steps:
 
 1. Clone the repository: `go get github.com/ultravioletrs/agent`
-2. Please replace `$GOPATH` with the actual path to your Go workspace.
-3. Navigate to the project root: `cd $GOPATH/src/github.com/ultravioletrs/agent`
+2. Replace `$GOPATH` with the actual path to your Go workspace.
+3. Navigate to the project root.
 4. Build the CLI binary: `make cli`
 
 ## Usage
@@ -47,7 +47,7 @@ To retrieve the computation result, use the following command:
 ./build/cocos-cli result
 ```
 
-### Installation
+## Installation
 
 You have the option to install the CLI globally on your system. Here's how:
 
@@ -55,7 +55,7 @@ Build the CLI: Run `make install-cli`.
 
 The CLI binary will be installed to `~/.local/bin/cocos-cli`.
 
-### Notes
+## Notes
 
 The CLI supports various configuration flags and options.
 
