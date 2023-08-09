@@ -5,7 +5,7 @@
 > Identity, which can be email-address (this must be unique as it identifies the user) and secret (password must contain at least 8 characters)
 
 ```bash
-curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer [user_token]" -d @- <<EOF
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" [-H "Authorization: Bearer <user_token>"] -d @- <<EOF
 {
   "name": "[name]",
   "credentials": {
@@ -218,7 +218,7 @@ Access-Control-Expose-Headers: Location
 
 ## Get Users
 
-You can get all users in the database by querying this endpoint.
+You can get all users in the database by querying `/users` endpoint.
 
 ```bash
 curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <user_token>"
@@ -253,9 +253,7 @@ Access-Control-Expose-Headers: Location
 }
 ```
 
-If you want to paginate your results then use this
-
-> Additional parameters: `offset`, `limit`, `metadata`, `name`, `identity`, `tag`, `status` and `visbility`
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `identity`, `tag`, `status` and `visbility` as query parameters.
 
 ```bash
 curl -sSiX GET -H "Authorization: Bearer <user_token>" http://localhost:9003/users?offset=[offset]&limit=[limit]&identity=[identity]
@@ -571,7 +569,7 @@ Access-Control-Expose-Headers: Location
 
 You can get all groups a user is assigned to by calling the get user memberships function.
 
-If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` as query parameters.
 
 > Must take into consideration the user identified by the `user_token` needs to be assigned to the same group with `c_list` action or is the owner of the user identified by the `user_id`.
 

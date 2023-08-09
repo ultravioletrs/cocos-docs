@@ -4,7 +4,7 @@
 
 ### Add User Policies
 
-You can add policies through a HTTP endpoint. _Only_ admin or a member with `g_add` policy in relation to the group can use this endpoint. Therefore, you need an authentication token.
+_Only_ admin or a member with `g_add` policy in relation to the group can use `policies` endpoint.
 
 ```bash
 curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
@@ -97,7 +97,7 @@ Content-Length: 365
 
 ### Delete User Policies
 
-The admin can delete policies. _Only_ admin or owner of the policy can delete a policy.
+_Only_ admin or owner of the policy can delete a policy.
 
 ```bash
 curl -isSX DELETE "http://localhost:9003/policies/<user_id>/<group_id>" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
@@ -119,7 +119,7 @@ If you delete policies, the policy will be removed from the policy storage. Furt
 
 ### Add Computation Policies
 
-You can add policies as well through an HTTP endpoint. _Only_ admin or the owner of the computation can use this endpoint. Therefore, you need an authentication token.
+_Only_ admin or the owner of the computation can use `/policies` endpoint.
 
 ```bash
 curl -sSiX POST http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF

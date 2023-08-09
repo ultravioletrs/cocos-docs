@@ -1,5 +1,7 @@
 # Groups
 
+Groups are a logical way to group users together. Groups can be nested and have a parent-child relationship.
+
 ## Create group
 
 ```bash
@@ -87,8 +89,6 @@ Content-Length: 393
 
 ## Get group
 
-Get a group entity for a logged in user
-
 ```bash
 curl -isS -X GET http://localhost:9003/groups/<group_id> -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
@@ -117,9 +117,7 @@ Content-Length: 331
 
 ## Get groups
 
-You can get all groups for a logged in user.
-
-If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` as query parameters.
 
 ```bash
 curl -isS -X GET http://localhost:9003/groups -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
@@ -167,9 +165,7 @@ Content-Length: 768
 
 ## Get Group Parents
 
-You can get all groups that are parents of a group for a logged in user.
-
-If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` as query parameters.
 
 ```bash
 curl -isS -X GET http://localhost:9003/groups/<group_id>/parents  -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
@@ -220,9 +216,7 @@ Content-Length: 793
 
 ## Get Group Children
 
-You can get all groups that are children of a group for a logged in user.
-
-If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` query parameters.
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` as query parameters.
 
 ```bash
 curl -isS -X GET http://localhost:9003/groups/<group_id>/children -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
@@ -414,11 +408,9 @@ Content-Length: 0
 
 ## Members
 
-You can get all users assigned to a group.
+To paginate the results, use `offset`, `limit`, `metadata`, `name`, `status`, `parentID`, `ownerID`, `tree` and `dir` as query parameters.
 
-If you want to paginate your results then use this `offset`, `limit`, `metadata`, `name`, `status`, `identity`, and `tag` query parameters.
-
-> Must take into consideration the user identified by the `user_token` needs to be assigned to the same group with `g_list` action or be the owner of the group.
+> Must take into consideration the user identified by the `user_token` needs to be assigned to the same group identified by `group_id` with `g_list` action or be the owner of the group identified by `group_id`.
 
 ```bash
 curl -isS -X GET http://localhost:9003/groups/<group_id>/members -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"

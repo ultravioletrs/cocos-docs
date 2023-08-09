@@ -9,7 +9,7 @@ For user management, we use Mainflux Users micorservice. By default, this servic
 In order to create user, we need to provide identity and secret. The `USER_TOKEN` is optional and is used for ownership:
 
 ```bash
-curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -H "Authorization: Bearer [user_token]" -d @- <<EOF
+curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" [-H "Authorization: Bearer <user_token>"] -d @- <<EOF
 {
   "name": "[name]",
   "credentials": {
@@ -29,7 +29,7 @@ EOF
 Example:
 
 ```bash
-curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" -d @- <<EOF
+curl -sSiX POST http://localhost/users -H "Content-Type: application/json" -d @- <<EOF
 {
   "name": "John Doe",
   "credentials": {
