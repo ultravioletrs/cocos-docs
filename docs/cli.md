@@ -6,14 +6,11 @@ The CLI allows you to perform various tasks related to the computation and manag
 
 To build the CLI, follow these steps:
 
-1. Clone the repository: `go get github.com/ultravioletrs/agent`
-2. Replace `$GOPATH` with the actual path to your Go workspace.
-3. Navigate to the project root.
-4. Build the CLI binary: `make cli`
+1. Clone the repository: `go get github.com/ultravioletrs/agent`.
+2. Navigate to the project root.
+3. Build the CLI binary: `make cli`.
 
 ## Usage
-
-The Agent CLI provides several commands for different actions:
 
 #### Run Computation
 
@@ -49,11 +46,9 @@ To retrieve the computation result, use the following command:
 
 ## Installation
 
-You have the option to install the CLI globally on your system. Here's how:
+To install the CLI locally, i.e. for the current user:
 
-Build the CLI: Run `make install-cli`.
-
-The CLI binary will be installed to `~/.local/bin/cocos-cli`.
+Run `make install-cli`.
 
 ## Notes
 
@@ -62,5 +57,3 @@ The CLI supports various configuration flags and options.
 Use the `--help` flag with any command to see additionalinformation.
 
 The CLI uses gRPC for communication with the Agent service.
-
-Make sure to have the necessary dependencies installed before building or running the CLI.
