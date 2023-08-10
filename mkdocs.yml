@@ -1,5 +1,5 @@
 copyright: Copyright (c) Ultraviolet
-repo_url: https://github.com/ultraviolet/cocos
+repo_url: https://github.com/ultravioletrs/cocos
 site_description: Cocos AI SMPC Platform
 site_name: Cocos
 site_url: https://docs.cocos.ai
@@ -19,9 +19,14 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Architecture: architecture.md
-  - Intsall: install.md
+  - Install: install.md
   - Getting Started: getting-started.md
   - Computations: computations.md
+  - Datasets: datasets.md
+  - Users: users.md
+  - Groups: groups.md
+  - Policies: policies.md
   - TEE: tee.md
   - Agent: agent.md
   - CLI: cli.md
+  - UI: ui.md

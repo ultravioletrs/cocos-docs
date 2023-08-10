@@ -26,7 +26,7 @@ pip install mkdocs-material
 Doc repo can be fetched from GitHub:
 
 ```bash
-git clone git@github.com:mainflux/docs.git
+git clone git@github.com:ultravioletrs/docs.git
 ```
 
 ## Usage
