@@ -9,7 +9,7 @@ For user management, we use Mainflux Users micorservice. By default, this servic
 In order to create user, we need to provide identity and secret. The `USER_TOKEN` is optional and is used for ownership:
 
 ```bash
-curl -sSiX POST http://localhost:9003/users -H "Content-Type: application/json" [-H "Authorization: Bearer <user_token>"] -d @- <<EOF
+curl -sSiX POST http://localhost/users -H "Content-Type: application/json" [-H "Authorization: Bearer <user_token>"] -d @- <<EOF
 {
   "name": "[name]",
   "credentials": {
@@ -44,19 +44,22 @@ Response:
 
 ```bash
 HTTP/1.1 201 Created
+Content-Length: 211
 Content-Type: application/json
-Location: /users/55543d34-77fc-48e7-b6c4-6acfca6e5c86
-Date: Tue, 01 Aug 2023 11:12:13 GMT
-Content-Length: 228
+Date: Thu, 10 Aug 2023 07:24:57 GMT
+Location: /users/1b849a99-cef7-42f5-a7f4-e00b1f439e08
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
-  "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+  "id": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
   "name": "John Doe",
-  "credentials": { "identity": "john.doe@example.com", "secret": "" },
-  "created_at": "2023-08-01T11:12:13.694759Z",
+  "credentials": { "identity": "john.doe@example.com" },
+  "created_at": "2023-08-10T07:24:57.33876Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
+
 ```
 
 ### Login User
@@ -64,7 +67,7 @@ Content-Length: 228
 In order to login user, we need to provide username and password:
 
 ```bash
-curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+curl -sSiX POST http://localhost/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
 {
   "identity": "<identity>",
   "secret": "<secret>"
@@ -75,7 +78,7 @@ EOF
 Example:
 
 ```bash
-curl -sSiX POST http://localhost:9003/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
+curl -sSiX POST http://localhost/users/tokens/issue -H "Content-Type: application/json" -d @- <<EOF
 {
   "identity": "john.doe@example.com",
   "secret": "12345678"
@@ -87,15 +90,18 @@ Response:
 
 ```bash
 HTTP/1.1 201 Created
+Content-Length: 715
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:12:52 GMT
-Content-Length: 709
+Date: Thu, 10 Aug 2023 07:25:06 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
-  "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTA4OTAxNzIsImlhdCI6MTY5MDg4ODM3MiwiaWRlbnRpdHkiOiJleGFtcGxlMUBjb2Nvcy5jb20iLCJpc3MiOiJjbGllbnRzLmF1dGgiLCJzdWIiOiI1NTU0M2QzNC03N2ZjLTQ4ZTctYjZjNC02YWNmY2E2ZTVjODYiLCJ0eXBlIjoiYWNjZXNzIn0.hOH6b4FU73Odz8MK5_OqkmbY4twgUobMp68oYPwm_JPb5-91Wkclqmf6-bkxoW8TlU3TYI5ay_ORjNhhCkUxBQ",
-  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTA5NzQ3NzIsImlhdCI6MTY5MDg4ODM3MiwiaWRlbnRpdHkiOiJleGFtcGxlMUBjb2Nvcy5jb20iLCJpc3MiOiJjbGllbnRzLmF1dGgiLCJzdWIiOiI1NTU0M2QzNC03N2ZjLTQ4ZTctYjZjNC02YWNmY2E2ZTVjODYiLCJ0eXBlIjoicmVmcmVzaCJ9.Cmc1kLdrjEgY1jPXYxYSOWc47Tdm2-XCp1R9rhcvKJrg9xc5OdsSWdvLEYCx_SLF3qGPuZox5D6shOvmHsqIgA",
+  "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE2NTQxMDYsImlhdCI6MTY5MTY1MjMwNiwiaWRlbnRpdHkiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjFiODQ5YTk5LWNlZjctNDJmNS1hN2Y0LWUwMGIxZjQzOWUwOCIsInR5cGUiOiJhY2Nlc3MifQ.FRaSjJT7wZVPSW6w-O3jyQa9WekLUzp6WcdakrZuvFgTsPvo29tbCNsX71ktJkwKeQUK1CPwRQrWrEu8tAOKFg",
+  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3Mzg3MDYsImlhdCI6MTY5MTY1MjMwNiwiaWRlbnRpdHkiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjFiODQ5YTk5LWNlZjctNDJmNS1hN2Y0LWUwMGIxZjQzOWUwOCIsInR5cGUiOiJyZWZyZXNoIn0.iGpKn5FrTknYeuxqIxMd8x40MnExgaUJ1iWJ9Vg5szoShM-M6hu-Q1bNMcZQJoS4wxswGc50JzOjd7JSIYnucg",
   "access_type": "Bearer"
 }
+
 ```
 
 ### Get All Users
@@ -103,37 +109,40 @@ Content-Length: 709
 In order to get all of the users:
 
 ```bash
-curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <admin_token>"
+curl -sSiX GET http://localhost/users -H "Authorization: Bearer <admin_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSiX GET http://localhost:9003/users -H "Authorization: Bearer <admin_token>"
+curl -sSiX GET http://localhost/users -H "Authorization: Bearer <admin_token>"
 ```
 
 Response:
 
 ```bash
 HTTP/1.1 200 OK
+Content-Length: 478
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:14:41 GMT
-Content-Length: 261
+Date: Thu, 10 Aug 2023 07:25:36 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
   "limit": 10,
-  "total": 1,
+  "total": 2,
   "users": [
     {
-      "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+      "id": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
       "name": "John Doe",
       "credentials": { "identity": "john.doe@example.com" },
-      "created_at": "2023-08-01T11:12:13.694759Z",
+      "created_at": "2023-08-10T07:24:57.33876Z",
       "updated_at": "0001-01-01T00:00:00Z",
       "status": "enabled"
     }
   ]
 }
+
 ```
 
 ### Get Specific User
@@ -141,30 +150,30 @@ Content-Length: 261
 Getting one particular user, by ID:
 
 ```bash
-curl -sSiX GET http://localhost:9003/users/<user_id> -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/users/<user_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSiX GET http://localhost:9003/users/55543d34-77fc-48e7-b6c4-6acfca6e5c86 -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/users/1b849a99-cef7-42f5-a7f4-e00b1f439e08 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
 
 ```bash
 HTTP/1.1 200 OK
+Content-Length: 211
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:16:10 GMT
-Content-Length: 288
+Date: Thu, 10 Aug 2023 07:26:44 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
-  "id": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
+  "id": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
   "name": "John Doe",
-  "credentials": {
-    "identity": "john.doe@example.com"
-  },
-  "created_at": "2023-08-01T11:12:13.694759Z",
+  "credentials": { "identity": "john.doe@example.com" },
+  "created_at": "2023-08-10T07:24:57.33876Z",
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
@@ -181,7 +190,7 @@ For computation management, we use Computations micorservice. By default, this s
 In order to create computation, we can to provide the following content:
 
 ```bash
-curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "name": "[name]",
   "description": "[description]",
@@ -206,7 +215,7 @@ EOF
 Example:
 
 ```bash
-curl -sSiX POST http://localhost:9000/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/computations -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "name": "Machine Diagnostics Analysis",
   "description": "Performing diagnostics analysis on machine data",
@@ -240,10 +249,12 @@ Response:
 
 ```bash
 HTTP/1.1 201 Created
-Content-Type: application/json
-Location: /computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58
-Date: Tue, 01 Aug 2023 11:18:46 GMT
 Content-Length: 0
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 07:27:14 GMT
+Location: /computations/8c0ad21d-9f57-4b02-89f2-f1030413b260
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 ### Get All Computations
@@ -251,34 +262,36 @@ Content-Length: 0
 In order to get all computations:
 
 ```bash
-curl -sSiX GET http://localhost:9000/computations -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/computations -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSiX GET http://localhost:9000/computations -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/computations -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
 
 ```bash
 HTTP/1.1 200 OK
+Content-Length: 925
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:20:05 GMT
-Content-Length: 926
+Date: Thu, 10 Aug 2023 07:27:28 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
   "total": 1,
   "limit": 10,
   "computations": [
     {
-      "id": "1ca3b356-98dd-48ee-beb0-5c6c90cc1c58",
+      "id": "8c0ad21d-9f57-4b02-89f2-f1030413b260",
       "name": "Machine Diagnostics Analysis",
       "description": "Performing diagnostics analysis on machine data",
       "status": "executable",
-      "owner": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
-      "start_time": "2023-08-01T11:18:46.858077Z",
+      "owner": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
+      "start_time": "2023-08-10T07:27:14.85809Z",
       "end_time": "0001-01-01T00:00:00Z",
       "datasets": [
         "Sensor Data Logs",
@@ -314,30 +327,32 @@ Content-Length: 926
 In order to get one specific computation, by ID:
 
 ```bash
-curl -sSiX GET http://localhost:9000/computations/<computation_id> -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/computations/<computation_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSiX GET http://localhost:9000/computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58 -H "Authorization: Bearer <user_token>"
+curl -sSiX GET http://localhost/computations/8c0ad21d-9f57-4b02-89f2-f1030413b260 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
 
 ```bash
 HTTP/1.1 200 OK
+Content-Length: 885
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:21:22 GMT
-Content-Length: 886
+Date: Thu, 10 Aug 2023 07:27:57 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
-  "id": "1ca3b356-98dd-48ee-beb0-5c6c90cc1c58",
+  "id": "8c0ad21d-9f57-4b02-89f2-f1030413b260",
   "name": "Machine Diagnostics Analysis",
   "description": "Performing diagnostics analysis on machine data",
   "status": "executable",
-  "owner": "55543d34-77fc-48e7-b6c4-6acfca6e5c86",
-  "start_time": "2023-08-01T11:18:46.858077Z",
+  "owner": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
+  "start_time": "2023-08-10T07:27:14.85809Z",
   "end_time": "0001-01-01T00:00:00Z",
   "datasets": [
     "Sensor Data Logs",
@@ -371,13 +386,13 @@ Content-Length: 886
 In order to delete computation:
 
 ```bash
-curl -sSiX DELETE http://localhost:9000/computations/<computation_id> -H "Authorization: Bearer <user_token>"
+curl -sSiX DELETE http://localhost/computations/<computation_id> -H "Authorization: Bearer <user_token>"
 ```
 
 Example:
 
 ```bash
-curl -sSiX DELETE http://localhost:9000/computations/1ca3b356-98dd-48ee-beb0-5c6c90cc1c58 -H "Authorization: Bearer <user_token>"
+curl -sSiX DELETE http://localhost/computations/8c0ad21d-9f57-4b02-89f2-f1030413b260 -H "Authorization: Bearer <user_token>"
 ```
 
 Response:
@@ -385,7 +400,9 @@ Response:
 ```bash
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Tue, 01 Aug 2023 11:22:29 GMT
+Date: Thu, 10 Aug 2023 07:28:14 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 For more information, please refer to [Computations Docs](./computations.md).

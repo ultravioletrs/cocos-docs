@@ -7,7 +7,7 @@
 _Only_ admin or a member with `g_add` policy in relation to the group can use `policies` endpoint.
 
 ```bash
-curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "subject": "<user_id>",
   "object": "<group_id>",
@@ -19,24 +19,26 @@ EOF
 For example:
 
 ```bash
-curl -sSiX POST http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
-  "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-  "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
-  "actions": ["c_list", "g_list"]
+  "subject": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+  "object": "b19c8738-0efa-400e-aaf0-610ef42f1ee1",
+  "actions": ["g_list", "c_list"]
 }
 EOF
 
 HTTP/1.1 201 Created
-Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:46:53 GMT
 Content-Length: 0
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 08:17:51 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 ### Updating User Policies
 
 ```bash
-curl -sSiX PUT http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX PUT http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "subject": "<user_id>",
   "object": "<group_id>",
@@ -48,34 +50,38 @@ EOF
 For example:
 
 ```bash
-curl -sSiX PUT http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX PUT http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
-  "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-  "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+  "subject": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+  "object": "b19c8738-0efa-400e-aaf0-610ef42f1ee1",
   "actions": ["c_delete", "g_add"]
 }
 EOF
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:47:07 GMT
+Date: Thu, 10 Aug 2023 08:18:24 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 ### Lisiting User Policies
 
 ```bash
-curl -isSX GET http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX GET http://localhost:9003/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost/users/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
-Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:47:20 GMT
 Content-Length: 365
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 08:18:38 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
   "limit": 10,
@@ -83,13 +89,13 @@ Content-Length: 365
   "total": 1,
   "policies": [
     {
-      "owner_id": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
-      "subject": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-      "object": "0c5bb86a-5545-4e5f-9169-d9a0bff92c95",
+      "owner_id": "11a2a5ba-723a-4b6d-8a5d-0c679efbf283",
+      "subject": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+      "object": "b19c8738-0efa-400e-aaf0-610ef42f1ee1",
       "actions": ["c_delete", "g_add"],
-      "created_at": "2023-08-02T08:46:53.834944Z",
-      "updated_at": "2023-08-02T08:47:07.248309Z",
-      "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a"
+      "created_at": "2023-08-10T08:17:51.462127Z",
+      "updated_at": "2023-08-10T08:18:24.882169Z",
+      "updated_by": "11a2a5ba-723a-4b6d-8a5d-0c679efbf283"
     }
   ]
 }
@@ -100,17 +106,19 @@ Content-Length: 365
 _Only_ admin or owner of the policy can delete a policy.
 
 ```bash
-curl -isSX DELETE "http://localhost:9003/policies/<user_id>/<group_id>" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX DELETE "http://localhost/users/policies/<user_id>/<group_id>" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX DELETE "http://localhost:9003/policies/55bdf567-3595-42c6-8aa6-4091fdcc88da/0c5bb86a-5545-4e5f-9169-d9a0bff92c95" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX DELETE "http://localhost/users/policies/47887629-7b4c-4bf5-b414-35bb2a5f5f23/b19c8738-0efa-400e-aaf0-610ef42f1ee1" -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:47:48 GMT
+Date: Thu, 10 Aug 2023 08:19:03 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 If you delete policies, the policy will be removed from the policy storage. Further authorization checks related to that policy will fail.
@@ -122,7 +130,7 @@ If you delete policies, the policy will be removed from the policy storage. Furt
 _Only_ admin or the owner of the computation can use `/policies` endpoint.
 
 ```bash
-curl -sSiX POST http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/computations/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "user": "<user_id>",
   "computation": "<computation_id>",
@@ -134,18 +142,20 @@ EOF
 For example:
 
 ```bash
-curl -sSiX POST http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX POST http://localhost/computations/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
-  "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-  "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+  "user": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+  "computation": "306d5348-4865-42df-91e3-b292cc94387f",
   "role": ["view"]
 }
 EOF
 
 HTTP/1.1 201 Created
-Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:51:42 GMT
 Content-Length: 0
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 08:20:34 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 ### Updating Computation Policies
@@ -153,7 +163,7 @@ Content-Length: 0
 The admin or the owner of the computation can update the policy.
 
 ```bash
-curl -sSiX PUT http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX PUT http://localhost/computations/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
   "user": "<user_id>",
   "computation": "<computation_id>",
@@ -165,18 +175,20 @@ EOF
 For example:
 
 ```bash
-curl -sSiX PUT http://localhost:9000/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+curl -sSiX PUT http://localhost/computations/policies -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
 {
-  "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-  "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+  "user": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+  "computation": "306d5348-4865-42df-91e3-b292cc94387f",
   "role": ["view", "run"]
 }
 EOF
 
 HTTP/1.1 200 OK
-Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:52:40 GMT
 Content-Length: 0
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 08:20:48 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 ### Lisiting Computation Policies
@@ -184,31 +196,33 @@ Content-Length: 0
 As an admin, you can list all the policies, while as a user you can only list your own policies.
 
 ```bash
-curl -isSX GET http://localhost:9000/policies -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost/computations/policies -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX GET http://localhost:9000/policies -H "Authorization: Bearer <user_token>"
+curl -isSX GET http://localhost/computations/policies -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 200 OK
+Content-Length: 344
 Content-Type: application/json
-Date: Wed, 02 Aug 2023 08:52:55 GMT
-Content-Length: 345
+Date: Thu, 10 Aug 2023 08:20:59 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 
 {
   "limit": 10,
   "total": 1,
   "policies": [
     {
-      "owner": "dbec6755-8af5-4ce5-a042-8966b90ad84a",
-      "user": "55bdf567-3595-42c6-8aa6-4091fdcc88da",
-      "computation": "75e85000-bfea-4faf-b6c6-51fc22e52f92",
+      "owner": "11a2a5ba-723a-4b6d-8a5d-0c679efbf283",
+      "user": "47887629-7b4c-4bf5-b414-35bb2a5f5f23",
+      "computation": "306d5348-4865-42df-91e3-b292cc94387f",
       "roles": ["view", "run"],
-      "created_at": "2023-08-02T08:51:42.844285Z",
-      "updated_at": "2023-08-02T08:52:40.327864Z",
-      "updated_by": "dbec6755-8af5-4ce5-a042-8966b90ad84a"
+      "created_at": "2023-08-10T08:20:34.867615Z",
+      "updated_at": "2023-08-10T08:20:48.09559Z",
+      "updated_by": "11a2a5ba-723a-4b6d-8a5d-0c679efbf283"
     }
   ]
 }
@@ -219,17 +233,19 @@ Content-Length: 345
 The admin or the owner of the computation can delete the policy.
 
 ```bash
-curl -isSX DELETE http://localhost:9000/policies/<user_id>/<computation_id> -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX DELETE http://localhost/computations/policies/<user_id>/<computation_id> -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 ```
 
 For example:
 
 ```bash
-curl -isSX DELETE http://localhost:9000/policies/50569d27-060d-42aa-87a8-11b596ef0e68/75e85000-bfea-4faf-b6c6-51fc22e52f92 -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
+curl -isSX DELETE http://localhost/computations/policies/50569d27-060d-42aa-87a8-11b596ef0e68/306d5348-4865-42df-91e3-b292cc94387f -H "Accept: application/json" -H "Authorization: Bearer <user_token>"
 
 HTTP/1.1 204 No Content
 Content-Type: application/json
-Date: Wed, 02 Aug 2023 09:02:11 GMT
+Date: Thu, 10 Aug 2023 08:21:13 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
 ```
 
 If you delete policies, the policy will be removed from the policy storage. Further authorization checks related to that policy will fail.
