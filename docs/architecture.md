@@ -14,7 +14,6 @@ Web part of the Cocos AI is a distributed cloud application based on microservic
 It implementes the following microservices:
 
 - Users - which handle User and Consortium management
-- Datasets - which define data resources used in the computation
 - Computations - which define and orchestrate secure multi-party computations
 
 ## TEE
