@@ -9,7 +9,7 @@ CoCoS.ai is a distributed, microservice-based solution in the cloud that enables
 CoCoS.ai is enabling the following features:
 
 - User and Consortium management
-- Collaborative computation definition (computation roles, datasets, algorithm, ...)
+- Collaborative computation definition (computation roles, algorithm, ...)
 - Distributed computation orchestration over TEE-enabled machines
 - TEE enablement, deployment and monitoring
 - In-enclave agent, netowrking controller and other system software
