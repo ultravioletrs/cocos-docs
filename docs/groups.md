@@ -51,7 +51,6 @@ X-Xss-Protection: 1; mode=block
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
-EOF
 ```
 
 When you use `parent_id` make sure the parent is an already exisiting group
@@ -90,7 +89,6 @@ X-Xss-Protection: 1; mode=block
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
-EOF
 ```
 
 ## Get group
@@ -121,7 +119,6 @@ X-Xss-Protection: 1; mode=block
   "updated_at": "0001-01-01T00:00:00Z",
   "status": "enabled"
 }
-EOF
 ```
 
 ## Get groups
@@ -172,7 +169,6 @@ X-Xss-Protection: 1; mode=block
     }
   ]
 }
-EOF
 ```
 
 ## Get Group Parents
