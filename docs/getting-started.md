@@ -2,7 +2,7 @@
 
 ## Users
 
-For user management, we use Mainflux Users micorservice. By default, this service will be running on the port `9003`.
+For user management, we use Magistrarla Users micorservice. By default, this service will be running on the port `9003`.
 
 ### Create User
 
@@ -102,6 +102,107 @@ X-Xss-Protection: 1; mode=block
   "access_type": "Bearer"
 }
 
+```
+
+### Create an organization
+
+```bash
+curl -sSiX POST http://localhost/organizations/ -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "<domain_name>",
+  "metadata": {
+    "key": "value"
+  },
+  "tags": ["tag1", "tag2"],
+  "alias": "<alias>",
+  "status": "<status>",
+  "permission": "<permission>",
+  "created_by": "<created_by_id>",
+  "permissions": ["permission1", "permission2"]
+}
+EOF
+```
+
+For example:
+
+```bash
+curl -sSiX POST http://localhost/organizations/ -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "name": "organization 1",
+  "description": "organization providing data",
+  "metadata": {
+    "meeting": "every monday",
+    "location": "room 101"
+  }
+  "tags": ["data", "algo"],
+  "alias": "org1",
+  "status": "active",
+}
+EOF
+
+HTTP/1.1 200 Ok
+Content-Length: 331
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 08:03:34 GMT
+Location: /organizations/b19c8738-0efa-400e-aaf0-610ef42f1ee1
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
+
+{
+  "id": "b19c8738-0efa-400e-aaf0-610ef42f1ee1",
+  "name": "organization 1",
+  "description": "organization providing data",
+  "metadata": { 
+    "location": "room 101", 
+    "meeting": "every monday" 
+  },
+  "tags": ["data", "algo"],
+  "alias": "org1",
+  "created_at": "2023-08-10T08:03:34.204862Z",
+  "created_by": "1b849a99-cef7-42f5-a7f4-e00b1f439e08",
+  "updated_at": "0001-01-01T00:00:00Z",  
+  "status": "active",
+}
+
+```
+
+### Organization Login
+
+To log in to an organization:
+
+```bash
+curl -sSiX POST http://localhost/organizations/tokens/issue -H "Content-Type: application/json" -H "Authorization : Bearer <user_token>" -d @- << EOF
+{
+  "orgID": "<organization_id>"
+}
+EOF
+```
+
+Example:
+
+```bash
+curl -sSiX POST http://localhost/organizations/tokens/issue -H "Content-Type: application/json" -H "Authorization: Bearer <user_token>" -d @- << EOF
+{
+  "orgID": "b19c8738-0efa-400e-aaf0-610ef42f1ee1"
+}
+EOF
+```
+
+Resopnse:
+
+```bash
+HTTP/1.1 201 Created
+Content-Length: 715
+Content-Type: application/json
+Date: Thu, 10 Aug 2023 07:25:06 GMT
+X-Frame-Options: DENY
+X-Xss-Protection: 1; mode=block
+
+{
+  "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE2NTQxMDYsImlhdCI6MTY5MTY1MjMwNiwiaWRlbnRpdHkiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjFiODQ5YTk5LWNlZjctNDJmNS1hN2Y0LWUwMGIxZjQzOWUwOCIsInR5cGUiOiJhY2Nlc3MifQ.FRaSjJT7wZVPSW6w-O3jyQa9WekLUzp6WcdakrZuvFgTsPvo29tbCNsX71ktJkwKeQUK1CPwRQrWrEu8tAOKFg",
+  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3Mzg3MDYsImlhdCI6MTY5MTY1MjMwNiwiaWRlbnRpdHkiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlzcyI6ImNsaWVudHMuYXV0aCIsInN1YiI6IjFiODQ5YTk5LWNlZjctNDJmNS1hN2Y0LWUwMGIxZjQzOWUwOCIsInR5cGUiOiJyZWZyZXNoIn0.iGpKn5FrTknYeuxqIxMd8x40MnExgaUJ1iWJ9Vg5szoShM-M6hu-Q1bNMcZQJoS4wxswGc50JzOjd7JSIYnucg",
+  "access_type": "Bearer"
+}
 ```
 
 ### Get All Users
