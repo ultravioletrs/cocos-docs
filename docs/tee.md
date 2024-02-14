@@ -1,3 +1,0 @@
-# TEE Enablement
-
-Lorem ipsum
