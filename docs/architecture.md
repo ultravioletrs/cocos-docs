@@ -4,23 +4,21 @@ Cocos AI system is a distributed platform for running secure multi-party computa
 
 It has 2 parts:
 
-- Web application
-- In-TEE fimrware
+- Manager, that acts as a bridge between the web and the TEE and controls the creation and management of computations in the TEE.
+- In-TEE (Trusted Execution Environment) fimrware, otherwise called Agent
 
-## Web
+The system architecture is illustrated in the image below.
 
-Web part of the Cocos AI is a distributed cloud application based on microservices.
+## Agent
 
-It implementes the following microservices:
+Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with outside world (in order to fetch the data and provide the result of the computation). The Agent contains a gRPC server that listens for requests from gRPC clients. Communication between the Manager and Agent is done via vsock. The Agent sends events to the Manager via vsock, which then forwards these via gRPC. Agent contains a gRPC server that exposes useful functions that can be accessed by other gRPC clients such as the CLI.
 
-- Users - which handle User and Consortium management
-- Computations - which define and orchestrate secure multi-party computations
+## Manager
 
-## TEE
+Manager is a gRPC client that listens to requests sent through gRPC and sends them to Agent via vsock. Manager creates a secure enclave and loads the computation where the agent resides. The connection between Manager and Agent is through vsock, through which channel agent sends events periodically to manager, who forwards these via gRPC.
 
-TEE part defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with outside world (in order to fetch the data and provide the result of the computation).
+## CLI
 
-This SW is consisted of:
+CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with funcitons such as algo to provide the algorithm to be run, data to provide the data to be used in the computation, and run to start the computation. It also has functions to fetch and validate the attestation report of the enclave.
 
-- Agent - which is loaded in the enclave and presents its entrypoint
-- CLI - which is run on the client side (remote machine) and communicates with the client in the remote enclave
+For more information on CLI, please refer to [CLI docs](./cli.md).

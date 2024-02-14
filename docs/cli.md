@@ -1,14 +1,15 @@
 # Agent CLI
 
-The CLI allows you to perform various tasks related to the computation and management of algorithms and datasets.
+The CLI allows you to perform various tasks related to the computation and management of algorithms and datasets. The CLI is a gRPC client for the agent service.
 
 ## Build
 
 To build the CLI, follow these steps:
 
-1. Clone the repository: `go get github.com/ultravioletrs/agent`.
-2. Navigate to the project root.
+1. Clone the repository: `go get github.com/ultravioletrs/cocos`.
+2. Navigate to the project root: `cd cocos`.
 3. Build the CLI binary: `make cli`.
+4. Install the CLI binary to bin: `make install-cli`.
 
 ## Usage
 

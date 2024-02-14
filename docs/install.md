@@ -14,7 +14,7 @@ To run the backend, first download Cocos AI backend:
 ```bash
 git clone git@github.com:ultravioletrs/cocos.git
 cd cocos
-make -j 2 && make -j 2 dockers_dev
+make && make dockers_dev
 ```
 
 Finaly - you can run the backned (within `cocos` directory):
@@ -22,19 +22,3 @@ Finaly - you can run the backned (within `cocos` directory):
 ```bash
 make run
 ```
-
-## Frontend
-
-To deploy the user interface run the following commands:
-
-```bash
-git clone git@github.com:ultravioletrs/cocos-ui.git
-cd cocos-ui/cmd/ui
-make -j 1
-make run
-```
-
-The User Interface can now be accesible from [http://localhost:9090](http://localhost:9090/).
-
-> [http://localhost:9090/](http://localhost/9090) is for internal use only, and is not intended to be used by the end-user.
-> Only port `80` is exposed to the outside world via NginX proxy.
