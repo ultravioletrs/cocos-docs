@@ -12,7 +12,7 @@ Agent is has a gRPC server which different clients such as CLI and manager can u
 
 ## vsock connection between agent & manager
 
-Agent sends agent events to the manager via vsock. The manager listens to the vsock and forwards the events to the Prism or other clients via gRPC. The agent events are used to show the status of the computation inside the TEE so that a user can be aware of what is happening inside the TEE.
+Agent sends agent events to the manager via vsock. The manager listens to the vsock and forwards the events via gRPC. The agent events are used to show the status of the computation inside the TEE so that a user can be aware of what is happening inside the TEE.
 
 ## Security
 
