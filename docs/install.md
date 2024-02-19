@@ -1,23 +1,21 @@
 # Install
 
-## Backend
-
 Before proceeding, install the following prerequisites:
 
-- [Docker](https://docs.docker.com/install/) (version 20.10.17)
+- [go](https://go.dev/doc/install) (version 1.22.0)
 - [Docker Compose](https://docs.docker.com/compose/install/) (version 2.9.0)
 
 Once everything is installed, execute the following command from project root:
 
-To run the backend, first download Cocos AI backend:
+To run CoCoS.ai, first download the cocos git repository:
 
 ```bash
 git clone git@github.com:ultravioletrs/cocos.git
 cd cocos
-make && make dockers_dev
+make -j5
 ```
 
-Finaly - you can run the backned (within `cocos` directory):
+Finally - you can run the backend (within `cocos` directory):
 
 ```bash
 make run

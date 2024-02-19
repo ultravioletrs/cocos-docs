@@ -1,6 +1,6 @@
 # Agent
 
-The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from from the manager, a manager creates a VM where the agent is found and sends the computation manifest to the agent.
+The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from from the manager, manager creates a VM where the agent is found and sends the computation manifest to the agent.
 
 ## Agent events
 
@@ -8,7 +8,7 @@ As the computation in the agent undergoes different operations, it sends events 
 
 ## gRPC connection between agent & manager
 
-Agent is has a gRPC server which different clients such as CLI and manager can use to access different operations within the agent.
+Agent is has a gRPC server which different clients such as CLI can use to access different operations within the agent.
 
 ## vsock connection between agent & manager
 
