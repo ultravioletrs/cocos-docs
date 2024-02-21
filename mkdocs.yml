@@ -27,6 +27,8 @@ nav:
   - Groups: groups.md
   - Policies: policies.md
   - TEE: tee.md
+  - HAL: hal.md
   - Agent: agent.md
+  - Attestation: attestation.md
   - CLI: cli.md
   - UI: ui.md
