@@ -8,7 +8,7 @@ Vsock is used to send agent events from the computation in the agent to the mana
 
 Agent runs a gRPC server, and CLI is a gRPC client of agent. The manager sends the computation to the agent via gRPC and the agent runs the computation while sending evnets back to manager on the status. The manager then sends the events it receives from agent via vsock through gRPC.
 
-## Setup and test manager <> agent
+## Setup and Test Manager <> Agent
 
 ```sh
 git clone https://github.com/ultravioletrs/cocos
@@ -49,7 +49,7 @@ ls -l /dev/vsock
 Cocos HAL for Linux is framework for building custom in-enclave Linux distribution. Use the instructions in [Readme](https://github.com/ultravioletrs/cocos/blob/main/hal/linux/README.md).
 Once the image is built copy the kernel and rootfs image to `cmd/manager/img` from `buildroot/output/images/bzImage` and `buildroot/output/images/rootfs.cpio.gz` respectively.
 
-#### Test VM creation
+#### Test VM Creation
 
 ```sh
 cd cmd/manager
@@ -85,7 +85,7 @@ qemu-system-x86_64 \
 ```
 Once the VM is booted press enter and on the login use username `root`.
 
-#### Build and run Agent
+#### Build and Run Agent
 Agent is started automatically in the VM.
 ```sh
 # List running processes and use 'grep' to filter for processes containing 'agent' in their names.
@@ -161,7 +161,7 @@ MANAGER_QEMU_SEV_CBITPOS=51 \
 ./build/cocos-manager
 ```
 
-### Verifying VM launch
+### Verifying VM Launch
 
 NB: To verify that the manager successfully launched the VM, you need to open two terminals on the same machine. In one terminal, you need to launch `go run main.go` (with the environment variables of choice) and in the other, you can run the verification commands.
 
@@ -209,7 +209,7 @@ You can run the command - the value of the `"message"` key - directly in the ter
 
 and look for the possible problems. This problems can usually be solved by using the adequate env var assignments. Look in the `manager/qemu/config.go` file to see the recognized env vars. Don't forget to prepend `MANAGER_QEMU_` to the name of the env vars.
 
-#### Kill `qemu-system-x86_64` processes
+#### Kill `qemu-system-x86_64` Processes
 
 To kill any leftover `qemu-system-x86_64` processes, use
 
