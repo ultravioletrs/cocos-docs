@@ -12,7 +12,7 @@ To run CoCoS.ai, first download the cocos git repository:
 ```bash
 git clone git@github.com:ultravioletrs/cocos.git
 cd cocos
-make -j5
+make
 ```
 
 Finally - you can run the backend (within `cocos` directory):
