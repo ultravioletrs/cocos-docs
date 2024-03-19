@@ -9,16 +9,12 @@ To build the CLI, follow these steps:
 1. Clone the repository: `go get github.com/ultravioletrs/cocos`.
 2. Navigate to the project root: `cd cocos`.
 3. Build the CLI binary: `make cli`.
-4. Install the CLI binary to bin: `make install-cli`.
 
 ## Usage
 
-#### Run Computation
-
-To run a computation, use the following command:
-
-```bash
-./build/cocos-cli run --computation '{"name": "my-computation"}'
+#### Set Agent url
+```shell
+export AGENT_GRPC_URL=<agent_host:agent_host>
 ```
 
 #### Upload Algorithm
