@@ -27,3 +27,4 @@ nav:
   - Manager: manager.md
   - Attestation: attestation.md
   - CLI: cli.md
+  - Developer's Guide: developer-guide.md

@@ -65,6 +65,7 @@ find: ‘/run/user/1000/gvfs’: Permission denied
 When manager client connects to server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
 
 ```shell
+cd cmd/manager
 MANAGER_GRPC_URL=localhost:7001 MANAGER_LOG_LEVEL=debug MANAGER_QEMU_USE_SUDO=false  MANAGER_QEMU_ENABLE_SEV=false MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd go run main.go
 ```
 
