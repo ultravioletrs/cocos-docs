@@ -1,0 +1,791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Cocos AI SMPC Platform">
+      
+      
+      
+        <link rel="canonical" href="https://docs.cocos.ai/manager/">
+      
+      
+      
+      <link rel="icon" href="../img/logo.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Manager - Cocos</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#manager" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Cocos" class="md-header__button md-logo" aria-label="Cocos" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cocos
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Manager
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Cocos" class="md-nav__button md-logo" aria-label="Cocos" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    Cocos
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        Install
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started.md" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../computations.md" class="md-nav__link">
+        Computations
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datasets.md" class="md-nav__link">
+        Datasets
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../users.md" class="md-nav__link">
+        Users
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../groups.md" class="md-nav__link">
+        Groups
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policies.md" class="md-nav__link">
+        Policies
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tee/" class="md-nav__link">
+        TEE
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hal/" class="md-nav__link">
+        HAL
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        Agent
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../attestation/" class="md-nav__link">
+        Attestation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        CLI
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ui.md" class="md-nav__link">
+        UI
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#manager-agent" class="md-nav__link">
+    Manager &lt;&gt; Agent
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-and-test-manager-agent" class="md-nav__link">
+    Setup and Test Manager &lt;&gt; Agent
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup and Test Manager &lt;&gt; Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qemu-kvm" class="md-nav__link">
+    QEMU-KVM
+  </a>
+  
+    <nav class="md-nav" aria-label="QEMU-KVM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-v-sock" class="md-nav__link">
+    Add V-sock
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepare-cocos-hal" class="md-nav__link">
+    Prepare Cocos HAL
+  </a>
+  
+    <nav class="md-nav" aria-label="Prepare Cocos HAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-vm-creation" class="md-nav__link">
+    Test VM Creation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-and-run-agent" class="md-nav__link">
+    Build and Run Agent
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    Conclusion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ovmf" class="md-nav__link">
+    OVMF
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    Deployment
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verifying-vm-launch" class="md-nav__link">
+    Verifying VM Launch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kill-qemu-system-x86_64-processes" class="md-nav__link">
+    Kill qemu-system-x86_64 Processes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="manager">Manager<a class="headerlink" href="#manager" title="Permanent link">#</a></h1>
+<p>Manager acts as the bridge between computation running in the VM and the user/organization. Once a computation is created by a user and the invited users have uploaded their public certificates and a run request is sent, the manager is responsible for creating the computation in the VM and managing the computation lifecycle. Communication to Manager is done via gRPC, while communication between Manager and Agent is done via vsock.</p>
+<p>Vsock is used to send agent events from the computation in the agent to the manager. The manager then sends the events to via gRPC, and these are visible to the end user.</p>
+<h2 id="manager-agent">Manager &lt;&gt; Agent<a class="headerlink" href="#manager-agent" title="Permanent link">#</a></h2>
+<p>Agent runs a gRPC server, and CLI is a gRPC client of agent. The manager sends the computation to the agent via gRPC and the agent runs the computation while sending evnets back to manager on the status. The manager then sends the events it receives from agent via vsock through gRPC.</p>
+<h2 id="setup-and-test-manager-agent">Setup and Test Manager &lt;&gt; Agent<a class="headerlink" href="#setup-and-test-manager-agent" title="Permanent link">#</a></h2>
+<pre><code class="language-sh">git clone https://github.com/ultravioletrs/cocos
+cd cocos
+</code></pre>
+<p>NB: all relative paths in this document are relative to <code>cocos</code> repository directory.</p>
+<h3 id="qemu-kvm">QEMU-KVM<a class="headerlink" href="#qemu-kvm" title="Permanent link">#</a></h3>
+<p><a href="https://www.qemu.org/">QEMU-KVM</a> is a virtualization platform that allows you to run multiple operating systems on the same physical machine. It is a combination of two technologies: QEMU and KVM.</p>
+<ul>
+<li>QEMU is an emulator that can run a variety of operating systems, including Linux, Windows, and macOS.</li>
+<li><a href="https://wiki.qemu.org/Features/KVM">KVM</a> is a Linux kernel module that allows QEMU to run virtual machines.</li>
+</ul>
+<p>To install QEMU-KVM on a Debian based machine, run</p>
+<pre><code class="language-sh">sudo apt update
+sudo apt install qemu-kvm
+</code></pre>
+<p>Create <code>img</code> directory in <code>cmd/manager</code>. Create <code>tmp</code> directory in <code>cmd/manager</code>.</p>
+<h4 id="add-v-sock">Add V-sock<a class="headerlink" href="#add-v-sock" title="Permanent link">#</a></h4>
+<p>The necessary kernel modules must be loaded on the hypervisor.</p>
+<pre><code class="language-shell">sudo modprobe vhost_vsock
+ls -l /dev/vhost-vsock
+# crw-rw-rw- 1 root kvm 10, 241 Jan 16 12:05 /dev/vhost-vsock
+ls -l /dev/vsock
+# crw-rw-rw- 1 root root 10, 121 Jan 16 12:05 /dev/vsock
+</code></pre>
+<h3 id="prepare-cocos-hal">Prepare Cocos HAL<a class="headerlink" href="#prepare-cocos-hal" title="Permanent link">#</a></h3>
+<p>Cocos HAL for Linux is framework for building custom in-enclave Linux distribution. Use the instructions in <a href="https://github.com/ultravioletrs/cocos/blob/main/hal/linux/README.md">Readme</a>.
+Once the image is built copy the kernel and rootfs image to <code>cmd/manager/img</code> from <code>buildroot/output/images/bzImage</code> and <code>buildroot/output/images/rootfs.cpio.gz</code> respectively.</p>
+<h4 id="test-vm-creation">Test VM Creation<a class="headerlink" href="#test-vm-creation" title="Permanent link">#</a></h4>
+<pre><code class="language-sh">cd cmd/manager
+
+sudo find / -name OVMF_CODE.fd
+# =&gt; /usr/share/OVMF/OVMF_CODE.fd
+OVMF_CODE=/usr/share/OVMF/OVMF_CODE.fd
+
+sudo find / -name OVMF_VARS.fd
+# =&gt; /usr/share/OVMF/OVMF_VARS.fd
+OVMF_VARS=/usr/share/OVMF/OVMF_VARS.fd
+
+KERNEL=&quot;img/bzImage&quot;
+INITRD=&quot;img/rootfs.cpio.gz&quot;
+
+qemu-system-x86_64 \
+    -enable-kvm \
+    -cpu EPYC-v4 \
+    -machine q35 \
+    -smp 4 \
+    -m 2048M,slots=5,maxmem=10240M \
+    -no-reboot \
+    -drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
+    -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
+    -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
+    -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 \
+    -kernel $KERNEL \
+    -append &quot;earlyprintk=serial console=ttyS0&quot; \
+    -initrd $INITRD \
+    -nographic \
+    -monitor pty \
+    -monitor unix:monitor,server,nowait
+</code></pre>
+<p>Once the VM is booted press enter and on the login use username <code>root</code>.</p>
+<h4 id="build-and-run-agent">Build and Run Agent<a class="headerlink" href="#build-and-run-agent" title="Permanent link">#</a></h4>
+<p>Agent is started automatically in the VM.</p>
+<pre><code class="language-sh"># List running processes and use 'grep' to filter for processes containing 'agent' in their names.
+ps aux | grep cocos-agent
+# This command helps verify that the 'agent' process is running.
+# The output shows the process ID (PID), resource usage, and other information about the 'cocos-agent' process.
+# For example: 118 root     cocos-agent
+</code></pre>
+<p>We can also check if <code>Agent</code> is reachable from the host machine:</p>
+<pre><code class="language-sh"># Use netcat (nc) to test the connection to localhost on port 7020.
+nc -zv localhost 7020
+# Output:
+# nc: connect to localhost (::1) port 7020 (tcp) failed: Connection refused
+# Connection to localhost (127.0.0.1) 7020 port [tcp/*] succeeded!
+</code></pre>
+<h4 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">#</a></h4>
+<p>Now you are able to use <code>Manager</code> with <code>Agent</code>. Namely, <code>Manager</code> will create a VM with a separate OVMF variables file on manager <code>/run</code> request.</p>
+<h3 id="ovmf">OVMF<a class="headerlink" href="#ovmf" title="Permanent link">#</a></h3>
+<p>We need <a href="https://wiki.ubuntu.com/UEFI/OVMF">Open Virtual Machine Firmware</a>. OVMF is a port of Intel's tianocore firmware - an open source implementation of the Unified Extensible Firmware Interface (UEFI) - used by a qemu virtual machine. We need OVMF in order to run virtual machine with <em>focal-server-cloudimg-amd64</em>. When we install QEMU, we get two files that we need to start a VM: <code>OVMF_VARS.fd</code> and <code>OVMF_CODE.fd</code>. We will make a local copy of <code>OVMF_VARS.fd</code> since a VM will modify this file. On the other hand, <code>OVMF_CODE.fd</code> is only used as a reference, so we only record its path in an environment variable.</p>
+<pre><code class="language-sh">sudo find / -name OVMF_CODE.fd
+# =&gt; /usr/share/OVMF/OVMF_CODE.fd
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/OVMF/OVMF_CODE.fd
+
+sudo find / -name OVMF_VARS.fd
+# =&gt; /usr/share/OVMF/OVMF_VARS.fd
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/OVMF/OVMF_VARS.fd
+</code></pre>
+<p>NB: we set environment variables that we will use in the shell process where we run <code>manager</code>.</p>
+<h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">#</a></h2>
+<p>To start the service, execute the following shell script (note a server needs to be running see  <a href="../test/manager-server/README.md">here</a>):</p>
+<pre><code class="language-bash"># download the latest version of the service
+go get github.com/ultravioletrs/cocos
+
+cd $GOPATH/src/github.com/ultravioletrs/cocos
+
+# compile the manager
+make manager
+
+# copy binary to bin
+make install
+
+# set the environment variables and run the service
+MANAGER_GRPC_URL=localhost:7001
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_USE_SUDO=false \
+MANAGER_QEMU_ENABLE_SEV=false \
+./build/cocos-manager
+</code></pre>
+<p>To enable <a href="https://www.amd.com/en/developer/sev.html">AMD SEV</a> support, start manager like this </p>
+<pre><code class="language-sh">MANAGER_GRPC_URL=localhost:7001
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_USE_SUDO=true \
+MANAGER_QEMU_ENABLE_SEV=true \
+MANAGER_QEMU_SEV_CBITPOS=51 \
+./build/cocos-manager
+</code></pre>
+<h3 id="verifying-vm-launch">Verifying VM Launch<a class="headerlink" href="#verifying-vm-launch" title="Permanent link">#</a></h3>
+<p>NB: To verify that the manager successfully launched the VM, you need to open two terminals on the same machine. In one terminal, you need to launch <code>go run main.go</code> (with the environment variables of choice) and in the other, you can run the verification commands.</p>
+<p>To verify that the manager launched the VM successfully, run the following command:</p>
+<pre><code class="language-sh">ps aux | grep qemu-system-x86_64
+</code></pre>
+<p>You should get something similar to this</p>
+<pre><code>darko     324763 95.3  6.0 6398136 981044 ?      Sl   16:17   0:15 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
+</code></pre>
+<p>If you run a command as <code>sudo</code>, you should get the output similar to this one</p>
+<pre><code>root       37982  0.0  0.0   9444  4572 pts/0    S+   16:18   0:00 sudo /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
+root       37989  122 13.1 5345816 4252312 pts/0 Sl+  16:19   0:04 /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
+</code></pre>
+<p>The two processes are due to the fact that we run the command <code>/usr/bin/qemu-system-x86_64</code> as <code>sudo</code>, so there is one process for <code>sudo</code> command and the other for <code>/usr/bin/qemu-system-x86_64</code>.</p>
+<h3 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h3>
+<p>If the <code>ps aux | grep qemu-system-x86_64</code> give you something like this</p>
+<pre><code>darko      13913  0.0  0.0      0     0 pts/2    Z+   20:17   0:00 [qemu-system-x86] &lt;defunct&gt;
+</code></pre>
+<p>means that the a QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a <a href="https://en.wikipedia.org/wiki/Zombie_process">"zombie" process</a>.</p>
+<p>You can troubleshoot the VM launch procedure by running directly <code>qemu-system-x86_64</code> command. When you run <code>manager</code> with <code>MANAGER_LOG_LEVEL=info</code> env var set, it prints out the entire command used to launch a VM. The relevant part of the log might look like this</p>
+<pre><code>{&quot;level&quot;:&quot;info&quot;,&quot;message&quot;:&quot;/usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty&quot;,&quot;ts&quot;:&quot;2023-08-14T18:29:19.2653908Z&quot;}
+</code></pre>
+<p>You can run the command - the value of the <code>"message"</code> key - directly in the terminal:</p>
+<pre><code class="language-sh">/usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
+</code></pre>
+<p>and look for the possible problems. This problems can usually be solved by using the adequate env var assignments. Look in the <code>manager/qemu/config.go</code> file to see the recognized env vars. Don't forget to prepend <code>MANAGER_QEMU_</code> to the name of the env vars.</p>
+<h4 id="kill-qemu-system-x86_64-processes">Kill <code>qemu-system-x86_64</code> Processes<a class="headerlink" href="#kill-qemu-system-x86_64-processes" title="Permanent link">#</a></h4>
+<p>To kill any leftover <code>qemu-system-x86_64</code> processes, use</p>
+<pre><code class="language-sh">pkill -f qemu-system-x86_64
+</code></pre>
+<p>The pkill command is used to kill processes by name or by pattern. The -f flag to specify that we want to kill processes that match the pattern <code>qemu-system-x86_64</code>. It sends the SIGKILL signal to all processes that are running <code>qemu-system-x86_64</code>.</p>
+<p>If this does not work, i.e. if <code>ps aux | grep qemu-system-x86_64</code> still outputs <code>qemu-system-x86_64</code> related process(es), you can kill the unwanted process with <code>kill -9 &lt;PID&gt;</code>, which also sends a SIGKILL signal to the process.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright (c) Ultraviolet
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
