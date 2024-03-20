@@ -6,11 +6,7 @@ The agent is responsible for the life cycle of the computation, i.e., running th
 
 As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client. Events sent to the manager include computation running, computation finished, computation failed, and computation stopped.
 
-## gRPC Connection Between Agent & Manager
-
-Agent is has a gRPC server which different clients such as CLI can use to access different operations within the agent.
-
-## Vsock Bonnection Between Agent & Manager
+## Vsock Connection Between Agent & Manager
 
 Agent sends agent events to the manager via vsock. The manager listens to the vsock and forwards the events via gRPC. The agent events are used to show the status of the computation inside the TEE so that a user can be aware of what is happening inside the TEE.
 
