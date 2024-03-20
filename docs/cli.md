@@ -12,7 +12,7 @@ To build the CLI, follow these steps:
 
 ## Usage
 
-#### Set Agent url
+#### Set Agent URL
 ```shell
 export AGENT_GRPC_URL=<agent_host:agent_host>
 ```
