@@ -45,8 +45,6 @@ The output will be simillar to this:
 ```shell
 /usr/share/edk2/x64/OVMF_CODE.fd
 /usr/share/edk2/ia32/OVMF_CODE.fd
-find: ‘/run/user/1000/doc’: Permission denied
-find: ‘/run/user/1000/gvfs’: Permission denied
 ```
 
 Find the ovmf vars file:
@@ -57,8 +55,6 @@ the output will be simillar to this
 ```shell
 /usr/share/edk2/x64/OVMF_VARS.fd
 /usr/share/edk2/ia32/OVMF_VARS.fd
-find: ‘/run/user/1000/doc’: Permission denied
-find: ‘/run/user/1000/gvfs’: Permission denied
 ```
 
 ### Run
