@@ -20,16 +20,10 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Architecture: architecture.md
-  - Install: install.md
   - Getting Started: getting-started.md
-  - Computations: computations.md
-  - Datasets: datasets.md
-  - Users: users.md
-  - Groups: groups.md
-  - Policies: policies.md
   - TEE: tee.md
   - HAL: hal.md
   - Agent: agent.md
+  - Manager: manager.md
   - Attestation: attestation.md
   - CLI: cli.md
-  - UI: ui.md
