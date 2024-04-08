@@ -28,7 +28,7 @@ the output should be simillar to this:
 Next we need to start manager. But first we'll need to install some prerequisites.
 
 ### Vsock
-This is used to communicate between manager and agent. To enable it run:
+[Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between manager and agent. To enable it run the following on the host:
 `sudo modprobe vhost_vsock`
 
 to confirm that it is enabled run:
