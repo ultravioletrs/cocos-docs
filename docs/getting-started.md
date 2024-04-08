@@ -28,7 +28,7 @@ the output should be simillar to this:
 Next we need to start manager. But first we'll need to install some prerequisites.
 
 ### Vsock
-This is used to communicate between manager and agent. To enable it run:
+[Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between manager and agent. To enable it run the following on the host:
 `sudo modprobe vhost_vsock`
 
 to confirm that it is enabled run:
@@ -45,8 +45,6 @@ The output will be simillar to this:
 ```shell
 /usr/share/edk2/x64/OVMF_CODE.fd
 /usr/share/edk2/ia32/OVMF_CODE.fd
-find: ‘/run/user/1000/doc’: Permission denied
-find: ‘/run/user/1000/gvfs’: Permission denied
 ```
 
 Find the ovmf vars file:
@@ -57,12 +55,10 @@ the output will be simillar to this
 ```shell
 /usr/share/edk2/x64/OVMF_VARS.fd
 /usr/share/edk2/ia32/OVMF_VARS.fd
-find: ‘/run/user/1000/doc’: Permission denied
-find: ‘/run/user/1000/gvfs’: Permission denied
 ```
 
 ### Run
-When manager client connects to server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
+When manager connects to the server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
 
 ```shell
 cd cmd/manager
