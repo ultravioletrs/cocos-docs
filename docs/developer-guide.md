@@ -14,7 +14,7 @@ cd $SOMEPATH/cocos
 - [Protocol Buffers](https://grpc.io/docs/languages/go/quickstart/)
 - [Golang](https://go.dev/doc/install)
 
-### Build all services
+### Build All Services
 Use the GNU Make tool to build all CoCos services:
 `make`
 Build artifacts will be put in the build directory.
@@ -76,19 +76,19 @@ qemu-system-x86_64 \
 
 The default password is `root`.
 
-### Testing agent independently
+### Testing Agent Independently
 Agent once started will wait to receive its configuration via v-sock. For testing purposes you can use the script in `cocos/test/manual/agent-config`. This script sends agent config and also receives logs and events from agent. Once the VM is launched you can send config including computation manifest to agent as follows:
 ```shell
 cd cocos
 go run ./test/manual/agent-config/main.go
 ```
 
-### Testing manager
+### Testing Manager
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
 `go run ./test/manager-server/main.go`
 
-#### Run manager
+#### Run Manager
 Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
 Copy `rootfs.cpio.gz` and `bzImage` from the buildroot output directory files to `cocos/cmd/manager/img`.
 
@@ -118,7 +118,7 @@ sammy      13913  0.0  0.0      0     0 pts/2    Z+   20:17   0:00 [qemu-system-
 
 means that the a QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a ["zombie" process](https://en.wikipedia.org/wiki/Zombie_process).
 
-### Kill `qemu-system-x86_64` processes
+### Kill `qemu-system-x86_64` Processes
 To kill any leftover `qemu-system-x86_64` processes, use
 `pkill -f qemu-system-x86_64`
 The pkill command is used to kill processes by name or by pattern. The `-f` flag to specify that we want to kill processes that match the pattern `qemu-system-x86_64`. It sends the SIGKILL signal to all processes that are running `qemu-system-x86_64`.

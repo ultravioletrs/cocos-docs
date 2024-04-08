@@ -16,7 +16,7 @@ Get the hardware abstraction layer from the [releases](https://github.com/ultrav
 Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
 Copy the downloaded files to `cocos/cmd/manager/img`.
 
-## Starting manager server
+## Starting Manager Server
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
 `go run ./test/manager-server/main.go`
@@ -24,7 +24,7 @@ Manager is a gRPC client and needs gRPC sever to connect to. We have an example 
 the output should be simillar to this:
 `{"time":"2024-03-19T12:27:46.542638146+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}`
 
-## Running manager
+## Running Manager
 Next we need to start manager. But first we'll need to install some prerequisites.
 
 ### Vsock
