@@ -58,7 +58,7 @@ the output will be simillar to this
 ```
 
 ### Run
-When manager client connects to server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
+When manager connects to the server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
 
 ```shell
 cd cmd/manager
