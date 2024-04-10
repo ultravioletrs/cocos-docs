@@ -1,6 +1,10 @@
 # Agent
 
-The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from from the manager, manager creates a VM where the agent is found and sends the computation manifest to the agent.
+The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from from the manager, manager creates a VM where the agent is found and sends the computation manifest to the agent. 
+
+The picture below shows where the Agent runs in the Cocos system, helping us better understand its role.
+
+![Cocos AI Arhitecture](./img/CoCoS_Architecture.png){ align=center }
 
 ## Agent Events
 

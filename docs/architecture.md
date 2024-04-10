@@ -9,6 +9,8 @@ It has 2 parts:
 
 The system architecture is illustrated in the image below.
 
+![Cocos AI Arhitecture](./img/CoCoS_Architecture.png){ align=center }
+
 ## Agent
 
 Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with outside world (in order to fetch the data and provide the result of the computation). The Agent contains a gRPC server that listens for requests from gRPC clients. Communication between the Manager and Agent is done via vsock. The Agent sends events to the Manager via vsock, which then forwards these via gRPC. Agent contains a gRPC server that exposes useful functions that can be accessed by other gRPC clients such as the CLI.
