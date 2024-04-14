@@ -20,7 +20,7 @@ These features are implemented by several independed components of CocosAI syste
 
 ![Cocos Arch](./img/arch.png){ align=center }
 
- **N.B.** CocosAI open-source project does not provide Computation Management service. It is usually a cloud component, used to define a Computation (i.e. define computation metadata, like participant list, algorithm and data providers, result recipients, etc...). Ultraviolet provide commercial product Prism, a multi-party computation platform, that implements multi-tenant and scalable Computation Management service, running in the cloud or on premise, and capable to connect and control CocosAI system running on the TEE host.
+ >**N.B.** CocosAI open-source project does not provide Computation Management service. It is usually a cloud component, used to define a Computation (i.e. define computation metadata, like participant list, algorithm and data providers, result recipients, etc...). Ultraviolet provide commercial product Prism, a multi-party computation platform, that implements multi-tenant and scalable Computation Management service, running in the cloud or on premise, and capable to connect and control CocosAI system running on the TEE host.
 
 ## Manager
 
