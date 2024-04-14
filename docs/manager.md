@@ -1,6 +1,7 @@
 # Manager
 
 Manager runs on the TEE-capable host (AMD SEV-SNP, Intel SGX or Intel TDX) and has 2 main roles:
+
 1. To deploy the well-prepared TEE upon the `start` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
 2. To monitor deployed TEE and provide remot logs
 

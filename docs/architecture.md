@@ -1,6 +1,7 @@
 # Architecture
 
 CocosAI system is running on the host, and it's main goal is to enable:
+
 - Programatic creation of enclaves (TEEs)
 - Gest OS and system enviroment withn the enclave VMs
 - Monitoring of enclaves
@@ -11,6 +12,7 @@ CocosAI system is running on the host, and it's main goal is to enable:
 - Enablement of vTPM and [DICE](https://trustedcomputinggroup.org/accurately-attest-the-integrity-of-devices-with-dice/) integrity checks (root chain of trust) in order to ensure secure boot of the TEEs
 
 These features are implemented by several independed components of CocosAI system:
+
 1. Manager
 2. Agent
 3. EOS (Enclave Operating System)
