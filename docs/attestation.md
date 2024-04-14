@@ -3,8 +3,9 @@
 Remote attestation is a process in which one side (the attester) collects information about itself and sends that information to the client (or the relying party) so that the relying party can verify the attester. The successful verification proves to the relying party that the secure virtual machine (SVM) runs the expected code on the expected hardware and is configured correctly. If the attester is deemed trustworthy, the relying party will send confidential code/data to the attester. This information implies that a secure channel needs to be formed between the attester and the relaying party. The secure channel is created using attested TLS.
 
 Cocos has two software components that represent the attester and the relying party:
- * The Agent - software application that is running inside the HAL. It is responsible for fetching the attestation report and running the computation.
- * Cocos CLI - a command-line application running on the machines of each Secure Multiparty Computation (SMPC) member. It verifies the attestation report and sends confidential code/data to the Agent.
+
+ 1. The Agent - software application that is running inside the HAL. It is responsible for fetching the attestation report and running the computation.
+ 2. Cocos CLI - a command-line application running on the machines of each Secure Multiparty Computation (SMPC) member. It verifies the attestation report and sends confidential code/data to the Agent.
 
 ## What are the parts of the attestation report?
 
