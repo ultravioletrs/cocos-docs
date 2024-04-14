@@ -1,12 +1,20 @@
 # Manager
 
-Manager acts as the bridge between computation running in the VM and the user/organization. Once a computation is created by a user and the invited users have uploaded their public certificates and a run request is sent, the manager is responsible for creating the computation in the VM and managing the computation lifecycle. Communication to Manager is done via gRPC, while communication between Manager and Agent is done via vsock.
+Manager runs on the TEE-capable host (AMD SEV-SNP, Intel SGX or Intel TDX) and has 2 main roles:
+1. To deploy the well-prepared TEE upon the `start` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
+2. To monitor deployed TEE and provide remot logs
 
-Vsock is used to send agent events from the computation in the agent to the manager. The manager then sends the events to via gRPC, and these are visible to the end user.
+Manager expsoses and API for control, based on gRPC, and is controlled by Computation Management service. Manager acts as the client of Computation Management service and connects to it upon the start via TLS-encoded gRPC connection.
+
+Computation Management service is used to to cnfigure computation metadata. Once a computation is created by a user and the invited users have uploaded their public certificates (used later for identification and data exchange in the enclave), a run request is sent. The Manager is responsible for creating the TEE in which computation will be ran and managing the computation lifecycle.
+
+Communication to between Computation Management cloud and the Manager is done via gRPC, while communication between Manager and Agent is done via [Virtio Vsock](https://wiki.qemu.org/Features/VirtioVsock). Vsock is used to send Agent events from the computation in the Agent to the Manager. The Manager then sends the events back to Computation Mangement cloud via gRPC, and these are visible to the end user.
 
 ## Manager <> Agent
 
-Agent runs a gRPC server, and CLI is a gRPC client of agent. The manager sends the computation to the agent via gRPC and the agent runs the computation while sending evnets back to manager on the status. The manager then sends the events it receives from agent via vsock through gRPC.
+When TEE is booted, and Agent is autmatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
+
+Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending evnets back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
 
 ## Setup and Test Manager <> Agent
 
@@ -15,7 +23,7 @@ git clone https://github.com/ultravioletrs/cocos
 cd cocos
 ```
 
-NB: all relative paths in this document are relative to `cocos` repository directory.
+> **N.B.** All relative paths in this document are relative to `cocos` repository directory.
 
 ### QEMU-KVM
 
