@@ -1,7 +1,7 @@
 copyright: Copyright (c) Ultraviolet
 repo_url: https://github.com/ultravioletrs/cocos
 site_description: Cocos AI SMPC Platform
-site_name: Cocos
+site_name: Cocos AI
 site_url: https://docs.cocos.ai
 edit_uri: ""
 theme:
