@@ -11,6 +11,10 @@ Computation Management service is used to to cnfigure computation metadata. Once
 
 Communication to between Computation Management cloud and the Manager is done via gRPC, while communication between Manager and Agent is done via [Virtio Vsock](https://wiki.qemu.org/Features/VirtioVsock). Vsock is used to send Agent events from the computation in the Agent to the Manager. The Manager then sends the events back to Computation Mangement cloud via gRPC, and these are visible to the end user.
 
+The picture below shows where the Manager runs in the Cocos system, helping us better understand its role.
+
+![Manager](./img/manager.png){ align=center }
+
 ## Manager <> Agent
 
 When TEE is booted, and Agent is autmatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
@@ -172,7 +176,18 @@ MANAGER_QEMU_SEV_CBITPOS=51 \
 
 ### Verifying VM Launch
 
-NB: To verify that the manager successfully launched the VM, you need to open two terminals on the same machine. In one terminal, you need to launch `go run main.go` (with the environment variables of choice) and in the other, you can run the verification commands.
+NB: To verify that the manager successfully launched the VM, you need to open three terminals on the same machine. In one terminal, you need to launch the Manager test server by executing (with the environment variables of choice):
+
+```bash
+go run ./test/manager-server/main.go
+```
+and in the second the manager by executing (with the environment variables of choice):
+
+```bash
+go run ./cmd/manager/main.go
+```
+
+Ensure that the Manager can connect to the Manager test server by setting the MANAGER_GRPC_PORT with the port value of the Manager test server. The Manager test server is listening on the default value of the MANAGER_GRPC_PORT. In the last one, you can run the verification commands.
 
 To verify that the manager launched the VM successfully, run the following command:
 
