@@ -3,8 +3,9 @@
 Remote attestation is a process in which one side (the attester) collects information about itself and sends that information to the client (or the relying party) so that the relying party can verify the attester. The successful verification proves to the relying party that the secure virtual machine (SVM) runs the expected code on the expected hardware and is configured correctly. If the attester is deemed trustworthy, the relying party will send confidential code/data to the attester. This information implies that a secure channel needs to be formed between the attester and the relaying party. The secure channel is created using attested TLS.
 
 Cocos has two software components that represent the attester and the relying party:
- * The Agent - software application that is running inside the HAL. It is responsible for fetching the attestation report and running the computation.
- * Cocos CLI - a command-line application running on the machines of each Secure Multiparty Computation (SMPC) member. It verifies the attestation report and sends confidential code/data to the Agent.
+
+ 1. The Agent - software application that is running inside the HAL. It is responsible for fetching the attestation report and running the computation.
+ 2. Cocos CLI - a command-line application running on the machines of each Secure Multiparty Computation (SMPC) member. It verifies the attestation report and sends confidential code/data to the Agent.
 
 ## What are the parts of the attestation report?
 
@@ -24,6 +25,6 @@ The Agent is responsible for fetching the attestation report from the SVM. This 
 
 For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report. The SVM is the server in Cocos. The Agent generates a self-signed x.509 certificate extended with the attestation report. When fetching the attestation report, the Agent inserts the hash of the public key into it using the field report data. The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
 
-![Attested TLS](./img/aTLS.png){ align=center }
+![Attested TLS](./img/atls.png){ align=center }
 
 The relying party uses the Cocos CLI to verify the self-signed certificate and the attestation report that is part of it. Successful verification proves to the relying party that the certificate is generated inside the SVM because the certificate's public key is part of the attestation report.

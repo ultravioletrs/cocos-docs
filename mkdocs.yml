@@ -19,12 +19,13 @@ markdown_extensions:
 
 nav:
   - Overview: index.md
+  - TEE: tee.md
+  - Computation: computation.md
   - Architecture: architecture.md
   - Getting Started: getting-started.md
-  - TEE: tee.md
-  - HAL: hal.md
-  - Agent: agent.md
   - Manager: manager.md
-  - Attestation: attestation.md
+  - Agent: agent.md
   - CLI: cli.md
+  - HAL: hal.md
+  - Attestation: attestation.md
   - Developer's Guide: developer-guide.md

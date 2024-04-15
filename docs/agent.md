@@ -4,7 +4,7 @@ The agent is responsible for the life cycle of the computation, i.e., running th
 
 The picture below shows where the Agent runs in the Cocos system, helping us better understand its role.
 
-![Cocos AI Arhitecture](./img/CoCoS_Architecture.png){ align=center }
+![Agent](./img/agent.png){ align=center }
 
 ## Agent Events
 
@@ -17,3 +17,7 @@ Agent sends agent events to the manager via vsock. The manager listens to the vs
 ## Security
 
 To run a computation in the agent, a signed certificate is required. The certificate is used to verify the user who is running the computation. The certificate is sent to the agent by the manager, and the agent verifies the certificate before running the computation.
+
+## Attestation
+
+The Agent can fetch the [attestation](./attestation.md) report from the host using the AMD SEV guest driver. The attestation report proves that the Agent is running inside the secure virtual machine (SVM) and that the SVM is running the expected code on the expected hardware and is configured correctly.

@@ -49,8 +49,7 @@ Run `make install-cli`.
 
 ## Notes
 
-The CLI supports various configuration flags and options.
-
-Use the `--help` flag with any command to see additionalinformation.
-
-The CLI uses gRPC for communication with the Agent service.
+- The CLI supports various configuration flags and options
+- Use the `--help` flag with any command to see additionalinformation
+- The CLI uses gRPC for communication with the Agent service
+- All traffic between CLI and the TEE is encrypted via mutual TLS
