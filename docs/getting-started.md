@@ -19,7 +19,7 @@ Copy the downloaded files to `cocos/cmd/manager/img`.
 ## Starting Manager Server
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
-`go run ./test/manager-server/main.go`
+`go run ./test/computations/main.go`
 
 the output should be simillar to this:
 `{"time":"2024-03-19T12:27:46.542638146+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}`
@@ -58,7 +58,7 @@ the output will be simillar to this
 ```
 
 ### Run
-When manager connects to the server, it sends a whoAmI request after which the server sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
+When manager connects to the computations server, the server then sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
 
 ```shell
 cd cmd/manager

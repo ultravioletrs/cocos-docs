@@ -141,7 +141,7 @@ NB: we set environment variables that we will use in the shell process where we 
 
 ## Deployment
 
-To start the service, execute the following shell script (note a server needs to be running see  [here](../test/manager-server/README.md)):
+To start the service, execute the following shell script (note a server needs to be running see  [here](../test/computations/README.md)):
 
 ```bash
 # download the latest version of the service
@@ -176,10 +176,10 @@ MANAGER_QEMU_SEV_CBITPOS=51 \
 
 ### Verifying VM Launch
 
-NB: To verify that the manager successfully launched the VM, you need to open three terminals on the same machine. In one terminal, you need to launch the Manager test server by executing (with the environment variables of choice):
+NB: To verify that the manager successfully launched the VM, you need to open three terminals on the same machine. In one terminal, you need to launch the computations server by executing (with the environment variables of choice):
 
 ```bash
-go run ./test/manager-server/main.go
+go run ./test/computations/main.go <path to dataset> <path to algorithm>
 ```
 and in the second the manager by executing (with the environment variables of choice):
 
@@ -187,7 +187,7 @@ and in the second the manager by executing (with the environment variables of ch
 go run ./cmd/manager/main.go
 ```
 
-Ensure that the Manager can connect to the Manager test server by setting the MANAGER_GRPC_PORT with the port value of the Manager test server. The Manager test server is listening on the default value of the MANAGER_GRPC_PORT. In the last one, you can run the verification commands.
+Ensure that the Manager can connect to the computations server by setting the MANAGER_GRPC_PORT with the port value of the computations server. In the last terminal window, you can run the verification commands.
 
 To verify that the manager launched the VM successfully, run the following command:
 
