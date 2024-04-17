@@ -13,8 +13,8 @@ The picture below shows where the Agent runs in the Cocos system, helping us bet
 
 ### States
 - `idle`: Initial state, waiting for the computation to start.
-- `receivingManifests`: Receives the initial computation manifest.
-- `receivingAlgorithms`: Receives algorithm data for the computation.
+- `receivingManifest`: Receives the initial computation manifest.
+- `receivingAlgorithm`: Receives the algorithm for the computation.
 - `receivingData`: Receives dataset data for the computation.
 - `running`: Executes the computation using received algorithms and data.
 - `resultsReady`: Computation has finished, results are available.
@@ -22,8 +22,8 @@ The picture below shows where the Agent runs in the Cocos system, helping us bet
 
 ### Events
 - `start`: Triggers the computation startup process.
-- `manifestsReceived`: Indicates computation manifest has been received.
-- `algorithmsReceived`: Indicates all algorithm data has been received.
+- `manifestReceived`: Indicates computation manifest has been received.
+- `algorithmReceived`: Indicates the algorithm has been received.
 - `dataReceived`: Indicates all dataset data has been received.
 - `runComplete`: Signals the completion of the computation execution.
 - `resultsConsumed`: Indicates all consumers have retrieved the results.
