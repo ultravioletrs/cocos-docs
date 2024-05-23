@@ -22,7 +22,7 @@ export AGENT_GRPC_URL=<agent_host:agent_host>
 To upload an algorithm, use the following command:
 
 ```bash
-./build/cocos-cli algo /path/to/algorithm
+./build/cocos-cli algo /path/to/algorithm <algorithm_id> <algorithm_provider>
 ```
 
 #### Upload Dataset
@@ -30,15 +30,26 @@ To upload an algorithm, use the following command:
 To upload a dataset, use the following command:
 
 ```bash
-./build/cocos-cli data /path/to/dataset.csv
+./build/cocos-cli data /path/to/dataset.csv <dataset_id> <dataset_provider>
 ```
 
 #### Retrieve Result
 
 To retrieve the computation result, use the following command:
-
 ```bash
-./build/cocos-cli result
+./build/cocos-cli result <result-consumer>
+```
+
+#### Attestation
+
+To retrieve the attestation, use the following command:
+```bash
+./build/cocos-cli attestation get <report_data>
+```
+
+To validate the attestation, use the following:
+```bash
+./build/cocos-cli attestation validate <attestation_report_file_path>
 ```
 
 ## Installation
