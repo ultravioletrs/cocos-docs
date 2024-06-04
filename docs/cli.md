@@ -17,12 +17,21 @@ To build the CLI, follow these steps:
 export AGENT_GRPC_URL=<agent_host:agent_host>
 ```
 
+#### Generate Keys
+Public and private key pairs are used to identify and authenticate users for different agent operations as defined in the computation manifest. Keys are generated as below:
+
+```bash
+./build/cocos-cli keys
+```
+
+This will generate two file `private.pem` and `public.pem`. Public key is added to the computation manifest while private key is used with cli.
+
 #### Upload Algorithm
 
 To upload an algorithm, use the following command:
 
 ```bash
-./build/cocos-cli algo /path/to/algorithm
+./build/cocos-cli algo /path/to/algorithm <private_key_file>
 ```
 
 #### Upload Dataset
@@ -30,15 +39,26 @@ To upload an algorithm, use the following command:
 To upload a dataset, use the following command:
 
 ```bash
-./build/cocos-cli data /path/to/dataset.csv
+./build/cocos-cli data /path/to/dataset.csv <private_key_file>
 ```
 
 #### Retrieve Result
 
 To retrieve the computation result, use the following command:
-
 ```bash
-./build/cocos-cli result
+./build/cocos-cli result <private_key_file>
+```
+
+#### Attestation
+
+To retrieve the attestation, use the following command:
+```bash
+./build/cocos-cli attestation get <report_data>
+```
+
+To validate the attestation, use the following:
+```bash
+./build/cocos-cli attestation validate <attestation_report_file_path>
 ```
 
 ## Installation
