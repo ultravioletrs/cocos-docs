@@ -17,6 +17,15 @@ To build the CLI, follow these steps:
 export AGENT_GRPC_URL=<agent_host:agent_host>
 ```
 
+#### Generate Keys
+Public and private key pairs are used to identify and authenticate users for different agent operations as defined in the computation manifest. Keys are generated as below:
+
+```bash
+./build/cocos-cli keys
+```
+
+This will generate two file `private.pem` and `public.pem`. Public key is added to the computation manifest while private key is used with cli.
+
 #### Upload Algorithm
 
 To upload an algorithm, use the following command:
