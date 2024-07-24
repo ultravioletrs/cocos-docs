@@ -104,8 +104,7 @@ MANAGER_GRPC_URL=localhost:7001 \
     MANAGER_QEMU_SEV_CBITPOS=51 \
     MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/OVMF/OVMF_CODE.fd \
     MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/ovmf/OVMF_VARS.fd \
-    MANAGER_QEMU_ENABLE_SEV_SNP=false MANAGER_QEMU_MEMORY_SIZE=16G \
-    go run main.go
+    ./build/cocos-manager
 ```
 
 This will result in manager sending a whoIam request to manager-server. Manager server will then launch a VM with agent running and having received the computation manifest.

@@ -78,12 +78,47 @@ To fetch or validate the attestation report, use the following commands.
 
 To fetch attestation report:
 ```bash
-./build/cocos-cli attestation get report <report_data>
+./build/cocos-cli attestation get <report_data>
 ```
 
 To validate attestation report
 ```bash
-./build/cocos-cli attestation validate <attestation_report_file_path>
+./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data>
+```
+To validate the report data, the report data flag is compulsory.
+
+Optional Flags:
+```shell
+      --CA_bundles stringArray                  PEM format CA bundles for the AMD product. Combined with contents of cabundle_paths.
+      --CA_bundles_paths stringArray            Paths to CA bundles for the AMD product. Must be in PEM format, ASK, then ARK certificates. If unset, uses embedded root certificates.
+      --check_crl                               Download and check the CRL for revoked certificates.
+      --chip_id bytesHex                        The expected MEASUREMENT field as a hex string. Must encode 48 bytes. Unchecked if unset.
+      --config string                           Serialized json check.Config protobuf. This will overwrite individual flags. Unmarshalled as json.                                  	
+      --family_id bytesHex                      The expected FAMILY_ID field as a hex string. Must encode 16 bytes. Unchecked if unset.
+      --guest_policy uint                       The most acceptable guest SnpPolicy. (default 196608)
+  -h, --help                                    help for validate
+      --host_data bytesHex                      The expected HOST_DATA field as a hex string. Must encode 32 bytes. Unchecked if unset.
+      --image_id bytesHex                       The expected IMAGE_ID field as a hex string. Must encode 16 bytes. Unchecked if unset.
+      --max_retry_delay duration                Maximum Duration to wait between HTTP request retries. (default 30s)
+      --measurement bytesHex                    The expected MEASUREMENT field as a hex string. Must encode 48 bytes. Unchecked if unset.
+      --minimum_build uint32                    The 8-bit minimum build number for AMD-SP firmware
+      --minimum_guest_svn uint32                The most acceptable GUEST_SVN.
+      --minimum_lauch_tcb uint                  The minimum acceptable value for LAUNCH_TCB.
+      --minimum_tcb uint                        The minimum acceptable value for CURRENT_TCB, COMMITTED_TCB, and REPORTED_TCB.
+      --minimum_version string                  Minimum AMD-SP firmware API version (major.minor). Each number must be 8-bit non-negative. (default "0.0")
+      --platform_info string                    The maximum acceptable PLATFORM_INFO field bit-wise. May be empty or a 64-bit unsigned integer
+      --product string                          The AMD product name for the chip that generated the attestation report.
+      --report_data bytesHex                    The expected REPORT_DATA field as a hex string. Must encode 64 bytes. Must be set.
+      --report_id bytesHex                      The expected REPORT_ID field as a hex string. Must encode 32 bytes. Unchecked if unset.
+      --report_id_ma bytesHex                   The expected REPORT_ID_MA field as a hex string. Must encode 32 bytes. Unchecked if unset.
+      --require_author_key                      Require that AUTHOR_KEY_EN is 1.
+      --require_id_block                        Require that the VM was launch with an ID_BLOCK signed by a trusted id key or author key
+      --stepping string                         The machine stepping for the chip that generated the attestation report. Default unchecked.
+      --timeout duration                        Duration to continue to retry failed HTTP requests. (default 2m0s)
+      --trusted_author_key_hashes stringArray   Hex-encoded SHA-384 hash values of trusted author keys in AMD public key format
+      --trusted_author_keys stringArray         Paths to x.509 certificates of trusted author keys
+      --trusted_id_key_hashes stringArray       Hex-encoded SHA-384 hash values of trusted identity keys in AMD public key format
+      --trusted_id_keys stringArray             Paths to x.509 certificates of trusted author keys
 ```
 
 ### File Hash
