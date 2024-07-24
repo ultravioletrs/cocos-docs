@@ -19,10 +19,16 @@ Copy the downloaded files to `cocos/cmd/manager/img`.
 ## Starting Manager Server
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
-`go run ./test/computations/main.go`
+```shell
+go run ./test/computations/main.go /path/to/algo/file /path/to/public/key/file <attested_tls_bool> /path/to/data/file1.zip path/to/data/file2.zip path/to/data/file3.zip
+```
 
-the output should be simillar to this:
+Multiple data files can be provided, depending on the nature of the algorithm and type of data.
+
+The output should be simillar to this:
 `{"time":"2024-03-19T12:27:46.542638146+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}`
+
+The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes to the computation manifest. The files are uploaded to agent via cli. The public key provided can be generated using openssl or cocos-cli.
 
 ## Running Manager
 Next we need to start manager. But first we'll need to install some prerequisites.
@@ -62,7 +68,15 @@ When manager connects to the computations server, the server then sends a comput
 
 ```shell
 cd cmd/manager
-MANAGER_GRPC_URL=localhost:7001 MANAGER_LOG_LEVEL=debug MANAGER_QEMU_USE_SUDO=false  MANAGER_QEMU_ENABLE_SEV=false MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd go run main.go
+MANAGER_GRPC_URL=localhost:7001 \
+    MANAGER_LOG_LEVEL=debug \
+    MANAGER_QEMU_USE_SUDO=false \
+    MANAGER_QEMU_ENABLE_SEV=false \
+    MANAGER_QEMU_SEV_CBITPOS=51 \
+    MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/OVMF/OVMF_CODE.fd \
+    MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/ovmf/OVMF_VARS.fd \
+    MANAGER_QEMU_ENABLE_SEV_SNP=false MANAGER_QEMU_MEMORY_SIZE=16G \
+    go run main.go
 ```
 
 The output on manager will be simillar to this:
@@ -99,4 +113,6 @@ received agent log
 &{message:"agent service gRPC server listening at :7002 without TLS" computation_id:"1" level:"INFO" timestamp:{seconds:1710841147 nanos:819759020}}
 ```
 
-From the logs we see agent has been bound to port `48592` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case the `AGENT_GRPC_URL` will be `localhost:48592`. To test agent proceed to [CLI](/cli)
+From the logs we see agent has been bound to port `48592` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case the `AGENT_GRPC_URL` will be `localhost:48592`. 
+
+To test agent proceed to [CLI](/cli), where the algorithm will be uploaded, followed by the dataset, which will be followed by result retrieval once results are ready.
