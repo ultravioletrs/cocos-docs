@@ -26,21 +26,27 @@ This will generate a key pair of type rsa. Different key types can be generated 
 ./build/cocos-cli keys -k ecdsa
 ```
 
+#### Set Agent URL
+
+For commands involving sending data to agent (data and algo upload, result fetching), the agent url is required since cli uses this to connect to the specified agent.
+
+```shell
+export AGENT_GRPC_URL=<agent_host:agent_port>
+```
+
+Agent port is found from the manager logs after the TEE has been provisioned and agent inserted.
+
 #### Upload Algorithm
 
 To upload an algorithm, use the following command:
 
 ```bash
-export AGENT_GRPC_URL=<agent_host:agent_host>
-
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key
 ```
 
 Currently, support is provided for two types of algorithms: executable binaries and python files. The above command expects an algorithm in the binary format which will be executed inside agent. For python files, the algo file is required, along with the requirements file and the python runtime. To run a python file, use the following command:
 
 ```bash
-export AGENT_GRPC_URL=<agent_host:agent_host>
-
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm python --requirements /path/to/requirements.txt --python-runtime python
 ```
 
@@ -51,8 +57,6 @@ The agent grpc url is required for this operation, this will be available once t
 To upload a dataset, use the following command:
 
 ```bash
-export AGENT_GRPC_URL=<agent_host:agent_host>
-
 ./build/cocos-cli data /path/to/dataset.csv /path/to/private/key
 ```
 
