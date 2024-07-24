@@ -171,7 +171,7 @@ To fetch the CA bundle for SEV-SNP, use the following commands:
 
 To install the CLI locally, i.e. for the current user:
 
-Run `make install-cli`.
+Run `cp ./build/cocos-cli $GOBIN`.
 
 ## Notes
 
