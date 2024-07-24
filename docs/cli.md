@@ -52,6 +52,15 @@ Currently, support is provided for two types of algorithms: executable binaries 
 
 The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
 
+Supported flags:
+
+```shell
+  -a, --algorithm string        Algorithm type to run (default "bin")
+  -h, --help                    help for algo
+      --python-runtime string   Python runtime to use (default "python3")
+  -r, --requirements string     Python requirements file
+```
+
 #### Upload Dataset
 
 To upload a dataset, use the following command:
@@ -67,8 +76,6 @@ The agent grpc url is required for this operation, this will be available once t
 To retrieve the computation result, use the following command:
 
 ```bash
-export AGENT_GRPC_URL=<agent_host:agent_host>
-
 ./build/cocos-cli result /path/to/private/key
 ```
 
@@ -92,6 +99,7 @@ To validate attestation report
 To validate the report data, the report data flag is compulsory.
 
 Optional Flags:
+
 ```shell
       --CA_bundles stringArray                  PEM format CA bundles for the AMD product. Combined with contents of cabundle_paths.
       --CA_bundles_paths stringArray            Paths to CA bundles for the AMD product. Must be in PEM format, ASK, then ARK certificates. If unset, uses embedded root certificates.
