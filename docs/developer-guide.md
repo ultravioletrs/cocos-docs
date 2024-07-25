@@ -80,13 +80,15 @@ The default password is `root`.
 Agent once started will wait to receive its configuration via v-sock. For testing purposes you can use the script in `cocos/test/manual/agent-config`. This script sends agent config and also receives logs and events from agent. Once the VM is launched you can send config including computation manifest to agent as follows:
 ```shell
 cd cocos
-go run ./test/manual/agent-config/main.go
+go run ./test/manual/agent-config/main.go <data-path> <algo-path> <public-key-path> <attested-tls-bool>
 ```
 
 ### Testing Manager
-Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
+Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/computations`. Run the server as follows:
 
-`go run ./test/manager-server/main.go`
+```shell
+go run ./test/computations/main.go /path/to/algo/file /path/to/public/key/file <attested_tls_bool> /path/to/data/file1.zip path/to/data/file2.zip path/to/data/file3.zip
+```
 
 #### Run Manager
 Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
@@ -95,20 +97,29 @@ Copy `rootfs.cpio.gz` and `bzImage` from the buildroot output directory files to
 Next run manager client.
 ```shell
 cd cmd/manager
-MANAGER_GRPC_URL=localhost:7001 MANAGER_LOG_LEVEL=debug MANAGER_QEMU_USE_SUDO=false  MANAGER_QEMU_ENABLE_SEV=false MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd go run main.go
+MANAGER_GRPC_URL=localhost:7001 \
+    MANAGER_LOG_LEVEL=debug \
+    MANAGER_QEMU_USE_SUDO=false \
+    MANAGER_QEMU_ENABLE_SEV=false \
+    MANAGER_QEMU_SEV_CBITPOS=51 \
+    MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/OVMF/OVMF_CODE.fd \
+    MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/ovmf/OVMF_VARS.fd \
+    ./build/cocos-manager
 ```
 
 This will result in manager sending a whoIam request to manager-server. Manager server will then launch a VM with agent running and having received the computation manifest.
-
-## Runnung Tests
-To run all of the tests you can execute:
-`make test`
 
 ## Protobuf
 If you've made any changes to .proto files, you should call protoc command prior to compiling individual microservices.
 
 To do this by hand, execute:
 `make protoc`
+
+## Mocks
+To run tests, some of the services are mocked and these need to be updated if the function signatures are changed.
+
+To do this, execute:
+`make mocks`
 
 ## Troubleshooting
 If you run `ps aux | grep qemu-system-x86_64` and it returns give you something like this:
