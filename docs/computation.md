@@ -1,6 +1,6 @@
 # Computation
 
-Computation in CocosAI is any execution of a program (Algorithm) on a data set (Data), that can be one data file, or a lot of files comping from different parties.
+Computation in CocosAI is any execution of a program (Algorithm) on a data set (Data), that can be one data file, or a lot of files coming from different parties.
 
 Computations are multi-party, meaning that program and data providers can be different parties that do not want to expose their intellectual property to other parties participating in the computation.
 
@@ -8,7 +8,7 @@ Computations are multi-party, meaning that program and data providers can be dif
 
 ## Computation Roles
 
-Computation is multi-party, i.e. has multiple participants. Each of the users that participate in the computation can have one of the follwoing roles:
+Computation is multi-party, i.e. has multiple participants. Each of the users that participate in the computation can have one of the following roles:
 
 1. **Computation Owner** - user that created the `Computation` and that defines who will participate in it and with which role (by inviting other users to the Computation)
 2. **Algorithm Provider** - user that will provide the actual program to be executed
