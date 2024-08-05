@@ -44,10 +44,15 @@ To upload an algorithm, use the following command:
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key
 ```
 
-Currently, support is provided for two types of algorithms: executable binaries and python files. The above command expects an algorithm in the binary format which will be executed inside agent. For python files, the algo file is required, along with the requirements file and the python runtime. To run a python file, use the following command:
+Currently, support is provided for three types of algorithms: executable binaries, Python files, and Docker images (provided as tar files). The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. For Docker images, the Docker image is required along with the Docker start command. To run a python file, use the following command:
 
 ```bash
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm python --requirements /path/to/requirements.txt --python-runtime python
+```
+to run a Docker image, use the following command:
+
+```bash
+./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm docker --dockerc "docker run command"
 ```
 
 The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
@@ -56,6 +61,7 @@ Supported flags:
 
 ```shell
   -a, --algorithm string        Algorithm type to run (default "bin")
+  -d, --dockerc string          the docker start command (default "python3 /cocos/algorithm.py")
   -h, --help                    help for algo
       --python-runtime string   Python runtime to use (default "python3")
   -r, --requirements string     Python requirements file
@@ -157,7 +163,7 @@ To add measurement data:
 To add host data:
 
 ```bash
-./build/cocos-cli attestation hostdata <host-data> <backend_info.json>
+./build/cocos-cli backend hostdata <host-data> <backend_info.json>
 ```
 
 The backend information is obtained from the backend that has SEV. Check [backend info readme](https://github.com/ultravioletrs/cocos/blob/main/scripts/backend_info/README.md) for information on how to run the script to generate backend info.
@@ -180,5 +186,5 @@ Run `cp ./build/cocos-cli $GOBIN`.
 
 - The CLI supports various configuration flags and options
 - Use the `--help` flag with any command to see additionalinformation
-- The CLI uses gRPC for communication with the Agent service
+- The CLI uses gRPC for communication with the agent service
 - All traffic between CLI and the TEE is encrypted via mutual TLS
