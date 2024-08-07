@@ -40,4 +40,4 @@ mkdocs serve
 Then just point the browser to [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 
-[docs]: https://docs.cocos.ai
+[docs]: https://docs.cocos.ultraviolet.rs

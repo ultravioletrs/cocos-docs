@@ -5,11 +5,11 @@ Manager runs on the TEE-capable host (AMD SEV-SNP, Intel SGX or Intel TDX) and h
 1. To deploy the well-prepared TEE upon the `start` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
 2. To monitor deployed TEE and provide remot logs
 
-Manager expsoses and API for control, based on gRPC, and is controlled by Computation Management service. Manager acts as the client of Computation Management service and connects to it upon the start via TLS-encoded gRPC connection.
+Manager exposes an API for control, based on gRPC, and is controlled by Computation Management service. Manager acts as the client of Computation Management service and connects to it upon the start via TLS-encoded gRPC connection.
 
-Computation Management service is used to to cnfigure computation metadata. Once a computation is created by a user and the invited users have uploaded their public certificates (used later for identification and data exchange in the enclave), a run request is sent. The Manager is responsible for creating the TEE in which computation will be ran and managing the computation lifecycle.
+Computation Management service is used to to configure computation metadata. Once a computation is created by a user and the invited users have uploaded their public certificates (used later for identification and data exchange in the enclave), a run request is sent. The Manager is responsible for creating the TEE in which computation will be ran and managing the computation lifecycle.
 
-Communication to between Computation Management cloud and the Manager is done via gRPC, while communication between Manager and Agent is done via [Virtio Vsock](https://wiki.qemu.org/Features/VirtioVsock). Vsock is used to send Agent events from the computation in the Agent to the Manager. The Manager then sends the events back to Computation Mangement cloud via gRPC, and these are visible to the end user.
+Communication between Computation Management cloud and the Manager is done via gRPC, while communication between Manager and Agent is done via [Virtio Vsock](https://wiki.qemu.org/Features/VirtioVsock). Vsock is used to send Agent events from the computation in the Agent to the Manager. The Manager then sends the events back to Computation Mangement cloud via gRPC, and these are visible to the end user.
 
 The picture below shows where the Manager runs in the Cocos system, helping us better understand its role.
 
@@ -17,9 +17,9 @@ The picture below shows where the Manager runs in the Cocos system, helping us b
 
 ## Manager <> Agent
 
-When TEE is booted, and Agent is autmatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
+When TEE is booted, an Agent is automatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
 
-Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending evnets back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
+Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending events back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
 
 ## Setup and Test Manager <> Agent
 
@@ -47,7 +47,9 @@ sudo apt install qemu-kvm
 Create `img` directory in `cmd/manager`. Create `tmp` directory in `cmd/manager`.
 
 #### Add V-sock
+
 The necessary kernel modules must be loaded on the hypervisor.
+
 ```shell
 sudo modprobe vhost_vsock
 ls -l /dev/vhost-vsock
@@ -56,10 +58,9 @@ ls -l /dev/vsock
 # crw-rw-rw- 1 root root 10, 121 Jan 16 12:05 /dev/vsock
 ```
 
-
 ### Prepare Cocos HAL
 
-Cocos HAL for Linux is framework for building custom in-enclave Linux distribution. Use the instructions in [Readme](https://github.com/ultravioletrs/cocos/blob/main/hal/linux/README.md).
+Cocos HAL for Linux is a framework for building custom in-enclave Linux distribution. Use the instructions in [Readme](https://github.com/ultravioletrs/cocos/blob/main/hal/linux/README.md).
 Once the image is built copy the kernel and rootfs image to `cmd/manager/img` from `buildroot/output/images/bzImage` and `buildroot/output/images/rootfs.cpio.gz` respectively.
 
 #### Test VM Creation
@@ -96,10 +97,13 @@ qemu-system-x86_64 \
     -monitor pty \
     -monitor unix:monitor,server,nowait
 ```
+
 Once the VM is booted press enter and on the login use username `root`.
 
 #### Build and Run Agent
+
 Agent is started automatically in the VM.
+
 ```sh
 # List running processes and use 'grep' to filter for processes containing 'agent' in their names.
 ps aux | grep cocos-agent
@@ -138,7 +142,6 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/OVMF/OVMF_VARS.fd
 
 NB: we set environment variables that we will use in the shell process where we run `manager`.
 
-
 ## Deployment
 
 To start the service, execute the following shell script (note a server needs to be running see  [here](../test/computations/README.md)):
@@ -163,7 +166,7 @@ MANAGER_QEMU_ENABLE_SEV=false \
 ./build/cocos-manager
 ```
 
-To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager like this 
+To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager like this
 
 ```sh
 MANAGER_GRPC_URL=localhost:7001
@@ -181,6 +184,7 @@ NB: To verify that the manager successfully launched the VM, you need to open th
 ```bash
 go run ./test/computations/main.go <path to dataset> <path to algorithm>
 ```
+
 and in the second the manager by executing (with the environment variables of choice):
 
 ```bash
@@ -196,6 +200,7 @@ ps aux | grep qemu-system-x86_64
 ```
 
 You should get something similar to this
+
 ```
 darko     324763 95.3  6.0 6398136 981044 ?      Sl   16:17   0:15 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
 ```
@@ -217,7 +222,7 @@ If the `ps aux | grep qemu-system-x86_64` give you something like this
 darko      13913  0.0  0.0      0     0 pts/2    Z+   20:17   0:00 [qemu-system-x86] <defunct>
 ```
 
-means that the a QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a ["zombie" process](https://en.wikipedia.org/wiki/Zombie_process).
+means that the QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a ["zombie" process](https://en.wikipedia.org/wiki/Zombie_process).
 
 You can troubleshoot the VM launch procedure by running directly `qemu-system-x86_64` command. When you run `manager` with `MANAGER_LOG_LEVEL=info` env var set, it prints out the entire command used to launch a VM. The relevant part of the log might look like this
 
@@ -244,4 +249,3 @@ pkill -f qemu-system-x86_64
 The pkill command is used to kill processes by name or by pattern. The -f flag to specify that we want to kill processes that match the pattern `qemu-system-x86_64`. It sends the SIGKILL signal to all processes that are running `qemu-system-x86_64`.
 
 If this does not work, i.e. if `ps aux | grep qemu-system-x86_64` still outputs `qemu-system-x86_64` related process(es), you can kill the unwanted process with `kill -9 <PID>`, which also sends a SIGKILL signal to the process.
-
