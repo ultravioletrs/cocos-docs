@@ -12,14 +12,14 @@ Computation is multi-party, i.e. has multiple participants. Each of the users th
 
 1. **Computation Owner** - user that created the `Computation` and that defines who will participate in it and with which role (by inviting other users to the Computation)
 2. **Algorithm Provider** - user that will provide the actual program to be executed
-3. **Data Provider** - user that will provide data on which the algorithm will be executed, i.e. data which algorithm will process
-4. **Result Recipient** - user that will recieve result after the processing
+3. **Data Provider** - user that will provide data on which the algorithm will be executed, i.e. data which algorithm will process. Datasets are optional.
+4. **Result Consumer** - user that will recieve result after the processing
 
 One user can have several roles - for example, an Algorithm Provider can also be a Result Recipient.
 
 ## Computation Manifest
 
-Computation Manifest represents the Computation description and is sent upon `run` command to the Manager as a JSON.
+Computation Manifest represents the Computation description and is sent upon `run` command to the Manager.
 
 Manager fetches the Computation Manifest and sends it into the TEE to Agent, via vsock.
 
