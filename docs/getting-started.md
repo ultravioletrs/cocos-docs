@@ -14,7 +14,7 @@ Get the hardware abstraction layer from the [releases](https://github.com/ultrav
 - `bzImage` - Kernel
 
 Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
-Copy the downloaded files to `cocos/cmd/manager/img`.
+Copy the downloaded files to `cocos/cmd/manager/img`. If using the latest version of cocos see the Developer guide for instructions on building HAL.
 
 ## Starting Manager Server
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
@@ -115,3 +115,5 @@ received agent log
 From the logs we see agent has been bound to port `48592` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case the `AGENT_GRPC_URL` will be `localhost:48592`. 
 
 To test agent proceed to [CLI](/cli), where the algorithm will be uploaded, followed by the dataset, which will be followed by result retrieval once results are ready.
+
+For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).

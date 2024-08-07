@@ -2,7 +2,7 @@
 
 Manager runs on the TEE-capable host (AMD SEV-SNP, Intel SGX or Intel TDX) and has 2 main roles:
 
-1. To deploy the well-prepared TEE upon the `start` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
+1. To deploy the well-prepared TEE upon the `run` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
 2. To monitor deployed TEE and provide remot logs
 
 Manager exposes an API for control, based on gRPC, and is controlled by Computation Management service. Manager acts as the client of Computation Management service and connects to it upon the start via TLS-encoded gRPC connection.
@@ -60,71 +60,12 @@ ls -l /dev/vsock
 
 ### Prepare Cocos HAL
 
-Cocos HAL for Linux is a framework for building custom in-enclave Linux distribution. Use the instructions in [Readme](https://github.com/ultravioletrs/cocos/blob/main/hal/linux/README.md).
-Once the image is built copy the kernel and rootfs image to `cmd/manager/img` from `buildroot/output/images/bzImage` and `buildroot/output/images/rootfs.cpio.gz` respectively.
+Get the hardware abstraction layer from the [releases](https://github.com/ultravioletrs/cocos/releases) on the cocos repository. Two files will be required:
+- `rootfs.cpio.gz` - Initramfs
+- `bzImage` - Kernel
 
-#### Test VM Creation
-
-```sh
-cd cmd/manager
-
-sudo find / -name OVMF_CODE.fd
-# => /usr/share/OVMF/OVMF_CODE.fd
-OVMF_CODE=/usr/share/OVMF/OVMF_CODE.fd
-
-sudo find / -name OVMF_VARS.fd
-# => /usr/share/OVMF/OVMF_VARS.fd
-OVMF_VARS=/usr/share/OVMF/OVMF_VARS.fd
-
-KERNEL="img/bzImage"
-INITRD="img/rootfs.cpio.gz"
-
-qemu-system-x86_64 \
-    -enable-kvm \
-    -cpu EPYC-v4 \
-    -machine q35 \
-    -smp 4 \
-    -m 2048M,slots=5,maxmem=10240M \
-    -no-reboot \
-    -drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
-    -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
-    -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
-    -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 \
-    -kernel $KERNEL \
-    -append "earlyprintk=serial console=ttyS0" \
-    -initrd $INITRD \
-    -nographic \
-    -monitor pty \
-    -monitor unix:monitor,server,nowait
-```
-
-Once the VM is booted press enter and on the login use username `root`.
-
-#### Build and Run Agent
-
-Agent is started automatically in the VM.
-
-```sh
-# List running processes and use 'grep' to filter for processes containing 'agent' in their names.
-ps aux | grep cocos-agent
-# This command helps verify that the 'agent' process is running.
-# The output shows the process ID (PID), resource usage, and other information about the 'cocos-agent' process.
-# For example: 118 root     cocos-agent
-```
-
-We can also check if `Agent` is reachable from the host machine:
-
-```sh
-# Use netcat (nc) to test the connection to localhost on port 7020.
-nc -zv localhost 7020
-# Output:
-# nc: connect to localhost (::1) port 7020 (tcp) failed: Connection refused
-# Connection to localhost (127.0.0.1) 7020 port [tcp/*] succeeded!
-```
-
-#### Conclusion
-
-Now you are able to use `Manager` with `Agent`. Namely, `Manager` will create a VM with a separate OVMF variables file on manager `/run` request.
+Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
+Copy the downloaded files to `cocos/cmd/manager/img`. If using the latest version of cocos see the Developer guide for instructions on building HAL.
 
 ### OVMF
 
@@ -182,16 +123,16 @@ MANAGER_QEMU_SEV_CBITPOS=51 \
 NB: To verify that the manager successfully launched the VM, you need to open three terminals on the same machine. In one terminal, you need to launch the computations server by executing (with the environment variables of choice):
 
 ```bash
-go run ./test/computations/main.go <path to dataset> <path to algorithm>
+go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
 ```
 
 and in the second the manager by executing (with the environment variables of choice):
 
 ```bash
-go run ./cmd/manager/main.go
+./build/cocos-manager
 ```
 
-Ensure that the Manager can connect to the computations server by setting the MANAGER_GRPC_PORT with the port value of the computations server. In the last terminal window, you can run the verification commands.
+Ensure that the Manager can connect to the computations server by setting the MANAGER_GRPC_URL with the url value of the computations server. In the last terminal window, you can run the verification commands.
 
 To verify that the manager launched the VM successfully, run the following command:
 
@@ -202,50 +143,14 @@ ps aux | grep qemu-system-x86_64
 You should get something similar to this
 
 ```
-darko     324763 95.3  6.0 6398136 981044 ?      Sl   16:17   0:15 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
+darko     324763 95.3  6.0 6398136 981044 ?      Sl   16:17   0:15 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
 ```
 
 If you run a command as `sudo`, you should get the output similar to this one
 
 ```
-root       37982  0.0  0.0   9444  4572 pts/0    S+   16:18   0:00 sudo /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
-root       37989  122 13.1 5345816 4252312 pts/0 Sl+  16:19   0:04 /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
+root       37982  0.0  0.0   9444  4572 pts/0    S+   16:18   0:00 sudo /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
+root       37989  122 13.1 5345816 4252312 pts/0 Sl+  16:19   0:04 /usr/local/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -object sev-guest,id=sev0,cbitpos=51,reduced-phys-bits=1 -machine memory-encryption=sev0 -nographic -monitor pty
 ```
 
 The two processes are due to the fact that we run the command `/usr/bin/qemu-system-x86_64` as `sudo`, so there is one process for `sudo` command and the other for `/usr/bin/qemu-system-x86_64`.
-
-### Troubleshooting
-
-If the `ps aux | grep qemu-system-x86_64` give you something like this
-
-```
-darko      13913  0.0  0.0      0     0 pts/2    Z+   20:17   0:00 [qemu-system-x86] <defunct>
-```
-
-means that the QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a ["zombie" process](https://en.wikipedia.org/wiki/Zombie_process).
-
-You can troubleshoot the VM launch procedure by running directly `qemu-system-x86_64` command. When you run `manager` with `MANAGER_LOG_LEVEL=info` env var set, it prints out the entire command used to launch a VM. The relevant part of the log might look like this
-
-```
-{"level":"info","message":"/usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty","ts":"2023-08-14T18:29:19.2653908Z"}
-```
-
-You can run the command - the value of the `"message"` key - directly in the terminal:
-
-```sh
-/usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=64 -m 4096M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=img/OVMF_VARS.fd -device virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true -drive file=img/focal-server-cloudimg-amd64.img,if=none,id=disk0,format=qcow2 -device scsi-hd,drive=disk0 -netdev user,id=vmnic,hostfwd=tcp::2222-:22,hostfwd=tcp::9301-:9031,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= -nographic -monitor pty
-```
-
-and look for the possible problems. This problems can usually be solved by using the adequate env var assignments. Look in the `manager/qemu/config.go` file to see the recognized env vars. Don't forget to prepend `MANAGER_QEMU_` to the name of the env vars.
-
-#### Kill `qemu-system-x86_64` Processes
-
-To kill any leftover `qemu-system-x86_64` processes, use
-
-```sh
-pkill -f qemu-system-x86_64
-```
-
-The pkill command is used to kill processes by name or by pattern. The -f flag to specify that we want to kill processes that match the pattern `qemu-system-x86_64`. It sends the SIGKILL signal to all processes that are running `qemu-system-x86_64`.
-
-If this does not work, i.e. if `ps aux | grep qemu-system-x86_64` still outputs `qemu-system-x86_64` related process(es), you can kill the unwanted process with `kill -9 <PID>`, which also sends a SIGKILL signal to the process.
