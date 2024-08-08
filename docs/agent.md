@@ -49,11 +49,11 @@ Before execution, algorithms and datasets are validated against the computation 
 
 ## Supported Algorithm types and restrictions
 
-Three supported algorithm types are binaries (default), Python files, and Docker images (provided as tar files). The [CLI](/cli) uploads the algorithm type and optional files to the agent.Instructions on how to provide algorithm files (of all types) are provided in the [CLI](/cli).
+Three supported algorithm types are binaries (default), Python files, and Docker images (provided as tar files). The [CLI](/cli) uploads the algorithm type and optional files to the agent. Instructions on how to provide algorithm files (of all types) are provided in the [CLI](/cli).
 
 The algorithm has the following restrictions:
 
- * The agent will save all the datasets of the dataset providers in the `/datasets` directory. The algorithm authors should use this directory to read all the data.
- * The agent will read the algorithm results from the `/results` directory. The algorithm authors should save the results in this directory for the agent to read.
+ * The agent will save all the datasets of the dataset providers in the `datasets` directory. The algorithm authors should use this directory to read all the data.
+ * The agent will read the algorithm results from the `results` directory. The algorithm authors should save the results in this directory for the agent to read.
 
-The same restrictions apply to the Docker images. The Agent will mount the datasets and the results directory to the Docker image and expect the results to be in the results directory.
+The same restrictions apply to the Docker images, but the user can specify the absolute paths in the Docker image where the Agent will mount the datasets and the results directory as part of the CLI command.
