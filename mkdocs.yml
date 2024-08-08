@@ -28,4 +28,5 @@ nav:
   - Manager: manager.md
   - Agent: agent.md
   - CLI: cli.md
+  - Docker: docker.md
   - Developer's Guide: developer-guide.md
