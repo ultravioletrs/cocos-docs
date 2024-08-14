@@ -34,13 +34,17 @@ wget https://github.com/ultravioletrs/cocos/releases/download/v0.2.0/bzImage -P 
 wget https://github.com/ultravioletrs/cocos/releases/download/v0.2.0/rootfs.cpio.gz -P cocos/cmd/manager/img
 ```
 
-If using the latest version of cocos see the [Developer guide](../developer-guide/#building-hal) for instructions on building HAL.
+If using the latest version of cocos see the [Developer guide](developer-guide.md#building-hal) for instructions on building HAL.
 
-## Generating Keys
+### Generating Keys
 
 Generate a public and private key pair for the manager.
 
 Build cli
+
+```bash
+cd cocos
+```
 
 ```bash
 make cli
@@ -60,7 +64,7 @@ The output will be simillar to this:
 
 The keys will be saved as `public.pem` and `private.pem` in the current directory.
 
-## Starting Manager Server
+### Starting Computations Server
 
 Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
@@ -86,11 +90,11 @@ The output will be simillar to this:
 
 The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes to the computation manifest. The files are uploaded to agent via cli. The public key provided can be generated using openssl or cocos-cli.
 
-## Running Manager
+### Running Manager
 
 Next we need to start manager. But first we'll need to install some prerequisites.
 
-### Vsock
+#### Vsock
 
 [Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between manager and agent. To enable it run the following on the host:
 
@@ -122,7 +126,7 @@ The output will be simillar to this:
 crw-rw-rw- 1 root kvm 10, 241 Aug 11 23:47 /dev/vhost-vsock
 ```
 
-### OVMF
+#### OVMF
 
 Find the ovmf code file:
 
@@ -135,6 +139,7 @@ The output will be simillar to this:
 ```bash
 /usr/share/edk2/ia32/OVMF_CODE.fd
 /usr/share/edk2/x64/OVMF_CODE.fd
+/usr/share/OVMF/OVMF_CODE.fd
 ```
 
 Find the ovmf vars file:
@@ -148,9 +153,10 @@ the output will be simillar to this
 ```bash
 /usr/share/edk2/ia32/OVMF_VARS.fd
 /usr/share/edk2/x64/OVMF_VARS.fd
+/usr/share/OVMF/OVMF_VARS.fd
 ```
 
-### Run
+#### Run
 
 When manager connects to the computations server, the server then sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
 
@@ -205,6 +211,8 @@ received agent log
 &{message:"agent service gRPC server listening at :7002 without TLS" computation_id:"1" level:"INFO" timestamp:{seconds:1723410338 nanos:718373804}}
 ```
 
+### Uploading artifacts
+
 From the logs we see agent has been bound to port `6006` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case the `AGENT_GRPC_URL` will be `localhost:6006`.
 
 ```bash
@@ -224,6 +232,8 @@ The output will be simillar to this:
 Uploading algorithm...  100% [=========================================================================================================================>]
 2024/08/12 00:06:34 Successfully uploaded algorithm
 ```
+
+### Reading the results
 
 Since this algorithm doesn't have a datasets we can go straight ro reading the results
 
@@ -317,7 +327,7 @@ received agent log
 
 These logs provide detailed information about the operations of the manager and agent, and can be useful for troubleshooting any issues that may arise.
 
-NOTE: The logs are in JSON format and can be parsed using a JSON parser.
+## Running Python Algorithms with Datasets
 
 For Python algorithms, with datatsets:
 
@@ -430,6 +440,185 @@ Iris-versicolor      1.000     1.000     1.000        23
 [[29  0  0]
  [ 0 23  0]
  [ 0  0 23]]
+```
+
+For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+
+## Running Binary Algorithms
+
+For Binary algorithms, with datatsets or without datasets the process is similar to the one for Python algorithms.
+
+NOTE: Make sure you have terminated the previous computation before starting a new one.
+
+### Download Examples
+
+Download the examples from the [AI repository](https://github.com/ultravioletrs/ai) and follow the [instructions in the README file](https://github.com/ultravioletrs/ai/blob/main/burn-algorithms/COCOS.md) to compile one of the examples.
+
+```bash
+git clone https://github.com/ultravioletrs/ai
+```
+
+### Build Addition example
+
+Make sure you have Rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+
+```bash
+cd ai/burn-algorithms
+```
+
+```bash
+cargo build --release --bin addition --features cocos
+```
+
+This will generate the binary in the `target/release` folder. Copy the binary to `cocos` folder.
+
+```bash
+cp target/release/addition ../cocos
+```
+
+Start the computation server:
+
+```bash
+go run ./test/computations/main.go ./addition public.pem false
+```
+
+Start the manager
+
+```bash
+
+sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run main.go
+```
+
+Export the agent grpc url
+
+```bash
+export AGENT_GRPC_URL=localhost:6006
+```
+
+Upload the algorithm
+
+```bash
+./build/cocos-cli algo ./addition ./private.pem
+```
+
+Since the algorithm is a binary, we don't need to upload the requirements file. Also this is the addition example so we don't need to upload the dataset.
+
+Finally, download the results
+
+```bash
+./build/cocos-cli result ./private.pem
+```
+
+Unzip the results
+
+```bash
+unzip result.zip -d results
+```
+
+```bash
+cat results/result.txt
+```
+
+The output will be simillar to this:
+
+```bash
+"[5.141593, 4.0, 5.0, 8.141593]"
+```
+
+For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+
+## Running WASM Algorithms
+
+For WASM algorithms, with datatsets or without datasets the process is similar to the one for Python algorithms.
+
+NOTE: Make sure you have terminated the previous computation before starting a new one.
+
+### Download Examples
+
+Download the examples from the [AI repository](https://github.com/ultravioletrs/ai) and follow the [instructions in the README file](https://github.com/ultravioletrs/ai/blob/main/burn-algorithms/COCOS.md) to compile one of the examples.
+
+```bash
+git clone https://github.com/ultravioletrs/ai
+```
+
+### Build Addition example
+
+Make sure you have Rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+
+```bash
+cd ai/burn-algorithms/addition-inference
+```
+
+```bash
+cargo build --release --target wasm32-wasip1 --features cocos
+```
+
+This will generate the wasm module in the `../target/wasm32-wasip1/release` folder. Copy the module to `cocos` folder.
+
+```bash
+cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
+```
+
+Start the computation server:
+
+```bash
+go run ./test/computations/main.go ./addition-inference.wasm public.pem true
+```
+
+Start the manager
+
+```bash
+sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run main.go
+```
+
+Export the agent grpc url
+
+```bash
+export AGENT_GRPC_URL=localhost:6006
+```
+
+Upload the algorithm
+
+```bash
+./build/cocos-cli algo ./addition-inference.wasm ./private.pem
+```
+
+Since the algorithm is a wasm module, we don't need to upload the requirements file. Also this is the addition example so we don't need to upload the dataset.
+
+Finally, download the results
+
+```bash
+./build/cocos-cli result ./private.pem
+```
+
+Unzip the results
+
+```bash
+unzip result.zip -d results
+```
+
+```bash
+cat results/results.txt
+```
+
+The output will be simillar to this:
+
+```bash
+"[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
