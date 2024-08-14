@@ -21,7 +21,7 @@ Get the hardware abstraction layer from the [releases](https://github.com/ultrav
 - `rootfs.cpio.gz` - Initramfs
 - `bzImage` - Kernel
 
-Create two directories in `cocos/cmd/manager`, the directories are `img` and `tmp`.
+Create two directories in `cocos/cmd/manager`, which are `img` and `tmp`.
 
 ```bash
 mkdir -p cocos/cmd/manager/img cocos/cmd/manager/tmp
@@ -56,7 +56,7 @@ Generate keys
 ./build/cocos-cli keys
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 2024/08/11 23:44:40 Successfully generated public/private key pair of type: *rsa.PrivateKey
@@ -66,7 +66,7 @@ The keys will be saved as `public.pem` and `private.pem` in the current director
 
 ### Starting Computations Server
 
-Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
+The manager is a gRPC client and needs a gRPC server to connect to. We have an example server for testing purposes in `test/manager-server`. Run the server as follows:
 
 ```bash
 go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
@@ -82,21 +82,21 @@ go run ./test/computations/main.go ./test/manual/algo/addition.py ./public.pem f
 
 Since this is an addition example, the data paths are empty.
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
 ```
 
-The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes to the computation manifest. The files are uploaded to agent via cli. The public key provided can be generated using openssl or cocos-cli.
+The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes in the computation manifest. The files are uploaded to the agent via cli. The public key provided can be generated using OpenSSL or cocos-cli.
 
 ### Running Manager
 
-Next we need to start manager. But first we'll need to install some prerequisites.
+Next, we need to start manager. But first, we'll need to install some prerequisites.
 
 #### Vsock
 
-[Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between manager and agent. To enable it run the following on the host:
+[Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between the manager and the agent. To enable it run the following on the host:
 
 ```bash
 sudo modprobe vhost_vsock
@@ -108,7 +108,7 @@ to confirm that it is enabled run:
 ls -l /dev/vsock
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 crw-rw-rw- 1 root root 10, 122 Aug 11 23:47 /dev/vsock
@@ -120,7 +120,7 @@ and
 ls -l /dev/vhost-vsock
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 crw-rw-rw- 1 root kvm 10, 241 Aug 11 23:47 /dev/vhost-vsock
@@ -134,7 +134,7 @@ Find the ovmf code file:
 sudo find / -name OVMF_CODE.fd
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 /usr/share/edk2/ia32/OVMF_CODE.fd
@@ -148,7 +148,7 @@ Find the ovmf vars file:
 sudo find / -name OVMF_VARS.fd
 ```
 
-the output will be simillar to this
+the output will be similar to this
 
 ```bash
 /usr/share/edk2/ia32/OVMF_VARS.fd
@@ -158,7 +158,7 @@ the output will be simillar to this
 
 #### Run
 
-When manager connects to the computations server, the server then sends a computation manifest. In response manager will sends logs and events from the computation both from manager and agent. To start run:
+When the manager connects to the computations server, the server then sends a computation manifest. In response, the manager will send logs and events from the computation both from the manager and the agent. To start run:
 
 ```bash
 cd cmd/manager
@@ -175,7 +175,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-The output on manager will be simillar to this:
+The output of the manager will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
@@ -186,7 +186,7 @@ The output on manager will be simillar to this:
 2024/08/12 00:05:41 traces export: Post "http://localhost:4318/v1/traces": dial tcp [::1]:4318: connect: connection refused
 ```
 
-The output on manager test server will be simillar to this:
+The output on the manager test server will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
@@ -211,9 +211,9 @@ received agent log
 &{message:"agent service gRPC server listening at :7002 without TLS" computation_id:"1" level:"INFO" timestamp:{seconds:1723410338 nanos:718373804}}
 ```
 
-### Uploading artifacts
+### Uploading artefacts
 
-From the logs we see agent has been bound to port `6006` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case the `AGENT_GRPC_URL` will be `localhost:6006`.
+From the logs we see agent has been bound to port `6006` which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case, the `AGENT_GRPC_URL` will be `localhost:6006`.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6006
@@ -225,7 +225,7 @@ Upload the algorithm
 ./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 2024/08/12 00:06:34 Uploading algorithm binary: ./test/manual/algo/addition.py
@@ -235,13 +235,13 @@ Uploading algorithm...  100% [==================================================
 
 ### Reading the results
 
-Since this algorithm doesn't have a datasets we can go straight ro reading the results
+Since this algorithm doesn't have a dataset we can go straight to reading the results
 
 ```bash
 ./build/cocos-cli result ./private.pem
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 2024/08/12 00:06:54 Retrieving computation result file
@@ -268,7 +268,7 @@ Both should return the same result.
 15
 ```
 
-The output from manager will be simillar to this:
+The output from the manager will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
@@ -286,7 +286,7 @@ The output from manager will be simillar to this:
 {"time":"2024-08-12T00:06:54.583319814+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Method Result took 1.403µs to complete without errors\" computation_id:\"1\" level:\"INFO\" timestamp:{seconds:1723410414 nanos:561057047}}"}
 ```
 
-The output from agent will be simillar to this:
+The output from the agent will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
@@ -325,7 +325,7 @@ received agent log
 &{message:"Method Result took 1.403µs to complete without errors" computation_id:"1" level:"INFO" timestamp:{seconds:1723410414 nanos:561057047}}
 ```
 
-These logs provide detailed information about the operations of the manager and agent, and can be useful for troubleshooting any issues that may arise.
+These logs provide detailed information about the operations of the manager and agent and can be useful for troubleshooting any issues that may arise.
 
 ## Running Python Algorithms with Datasets
 
@@ -407,7 +407,7 @@ pip install -r test/manual/algo/requirements.txt
 python3 test/manual/algo/lin_reg.py predict results/model.bin  test/manual/data/iris.csv
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 Precision, Recall, Confusion matrix, in training
@@ -425,7 +425,7 @@ Iris-versicolor      0.923     0.889     0.906        27
 [[21  0  0]
  [ 0 24  3]
  [ 0  2 25]]
-Precision, Recall, Confusion matrix, in testing
+Precision, Recall, and Confusion matrix, in testing
 
                  precision    recall  f1-score   support
 
@@ -470,7 +470,7 @@ cd ai/burn-algorithms
 cargo build --release --bin addition --features cocos
 ```
 
-This will generate the binary in the `target/release` folder. Copy the binary to `cocos` folder.
+This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
 
 ```bash
 cp target/release/addition ../cocos
@@ -508,7 +508,7 @@ Upload the algorithm
 ./build/cocos-cli algo ./addition ./private.pem
 ```
 
-Since the algorithm is a binary, we don't need to upload the requirements file. Also this is the addition example so we don't need to upload the dataset.
+Since the algorithm is a binary, we don't need to upload the requirements file. Also, this is the addition example so we don't need to upload the dataset.
 
 Finally, download the results
 
@@ -526,7 +526,7 @@ unzip result.zip -d results
 cat results/result.txt
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 "[5.141593, 4.0, 5.0, 8.141593]"
@@ -560,7 +560,7 @@ cd ai/burn-algorithms/addition-inference
 cargo build --release --target wasm32-wasip1 --features cocos
 ```
 
-This will generate the wasm module in the `../target/wasm32-wasip1/release` folder. Copy the module to `cocos` folder.
+This will generate the wasm module in the `../target/wasm32-wasip1/release` folder. Copy the module to the `cocos` folder.
 
 ```bash
 cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
@@ -597,7 +597,7 @@ Upload the algorithm
 ./build/cocos-cli algo ./addition-inference.wasm ./private.pem
 ```
 
-Since the algorithm is a wasm module, we don't need to upload the requirements file. Also this is the addition example so we don't need to upload the dataset.
+Since the algorithm is a wasm module, we don't need to upload the requirements file. Also, this is the addition example so we don't need to upload the dataset.
 
 Finally, download the results
 
@@ -615,7 +615,7 @@ unzip result.zip -d results
 cat results/results.txt
 ```
 
-The output will be simillar to this:
+The output will be similar to this:
 
 ```bash
 "[5.141593, 4.0, 5.0, 8.141593]"
