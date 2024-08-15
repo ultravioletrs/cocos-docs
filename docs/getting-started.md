@@ -38,7 +38,7 @@ If using the latest version of cocos see the [Developer guide](developer-guide.m
 
 ### Generating Keys
 
-Generate a public and private key pair for the manager.
+Generate a public and private key pair for user communication with agent on cli.
 
 Build cli
 
