@@ -20,7 +20,9 @@ CoCoS.ai is enabling the following features:
 - CLI for system interaction
 
 ## License
+
 CocosAI is published under liberal [Apache-2.0](https://github.com/ultravioletrs/cocos/blob/main/LICENSE) open-source license.
 
 ## GitHub
+
 CocosAI can be downloaded from its [GitHub repository](https://github.com/ultravioletrs/cocos)
