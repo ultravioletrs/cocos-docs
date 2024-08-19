@@ -5,10 +5,7 @@ For this example, you will use the `lin_reg.py` algorithm that is part of the `c
 ls
 cocos  Dockerfile
 ```
-The docker image that the Agent will run inside the SVM must have directories where the Agent will mount the datasets and results directories. The docker image author can provide this directory to the Agent using the CLI options `datasets` and `results`. For example:
-```bash
-go run ./cocos/cmd/cli/main.go algo ./linreg.tar <private_key_file_path> -a docker -c "python3 /cocos/lin_reg.py" --results "/cocos/results" --datasets "/cocos/datasets" ./linreg.tar
-```
+The docker image must have a `cocos` directory containing the `datasets` and `results` directories. The Agent will run this image inside the SVM and will mount the datasets and results onto the `/cocos/datasets` and `/cocos/results` directories inside the image. The docker image must also contain the command that will be run when the docker container is run.
 
 ## Logistic Regression example
 
@@ -37,9 +34,8 @@ docker build -t linreg .
 docker save linreg > linreg.tar
 ```
 
-When the SVM starts, you can use these parameters for the CLI `algo` command:
+When the SVM starts, you can use the flag `algorithm` with the value `docker` of the `algo` CLI option to send the docker image to the Agent.
 
- * `-a docker`
- * `-c "python3 /cocos/lin_reg.py"`
- * `--datasets "/cocos/datasets"`
- * `--results "/cocos/results"`
+```bash
+go run ./cocos/cmd/cli/main.go algo  --algorithm docker ./linreg.tar <private_key_file_path>
+```
