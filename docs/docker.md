@@ -37,5 +37,5 @@ docker save linreg > linreg.tar
 When the SVM starts, you can use the flag `algorithm` with the value `docker` of the `algo` CLI option to send the docker image to the Agent.
 
 ```bash
-go run ./cocos/cmd/cli/main.go algo  --algorithm docker ./linreg.tar <private_key_file_path>
+go run ./cocos/cmd/cli/main.go algo --algorithm docker ./linreg.tar <private_key_file_path>
 ```
