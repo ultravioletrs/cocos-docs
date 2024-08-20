@@ -49,4 +49,4 @@ Before execution, algorithms and datasets are validated against the computation 
 
 ## Supported Algorithm types
 
-There are two supported algorithm types, binaries and python files. The default algorithm type is binaries, which is uploaded to agent using CLI. To upload a python file, the python file should be accompanied by the requirements file which will be used to provision the VM with all required libraries prior to algorithm execution. Instructions on how to provide a python file are provided in  [CLI](/cli).
+There are two supported algorithm types, binaries and python files. The default algorithm type is binaries, which is uploaded to agent using CLI. To upload a python file, the python file should be accompanied by the requirements file which will be used to provision the VM with all required libraries prior to algorithm execution. Instructions on how to provide a python file are provided in  [CLI](./cli.md).

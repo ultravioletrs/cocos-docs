@@ -12,7 +12,7 @@ To build the CLI, follow these steps:
 
 ## Usage
 
-#### Generate Keys
+### Generate Keys
 
 To generate a public & private key pair, run the following command:
 
@@ -26,7 +26,7 @@ This will generate a key pair of type rsa. Different key types can be generated 
 ./build/cocos-cli keys -k ecdsa
 ```
 
-#### Set Agent URL
+### Set Agent URL
 
 For commands involving sending data to agent (data and algo upload, result fetching), the agent url is required since cli uses this to connect to the specified agent.
 
@@ -36,7 +36,7 @@ export AGENT_GRPC_URL=<agent_host:agent_port>
 
 Agent port is found from the manager logs after the TEE has been provisioned and agent inserted.
 
-#### Upload Algorithm
+### Upload Algorithm
 
 To upload an algorithm, use the following command:
 
@@ -61,7 +61,7 @@ Supported flags:
   -r, --requirements string     Python requirements file
 ```
 
-#### Upload Dataset
+### Upload Dataset
 
 To upload a dataset, use the following command:
 
@@ -71,7 +71,7 @@ To upload a dataset, use the following command:
 
 The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
 
-#### Retrieve Result
+### Retrieve Result
 
 To retrieve the computation result, use the following command:
 
@@ -88,14 +88,17 @@ The agent grpc url is required for this operation, this will be available once t
 To fetch or validate the attestation report, use the following commands.
 
 To fetch attestation report:
+
 ```bash
 ./build/cocos-cli attestation get <report_data>
 ```
 
 To validate attestation report
+
 ```bash
 ./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data>
 ```
+
 To validate the report data, the report data flag is compulsory.
 
 Optional Flags:
@@ -105,7 +108,7 @@ Optional Flags:
       --CA_bundles_paths stringArray            Paths to CA bundles for the AMD product. Must be in PEM format, ASK, then ARK certificates. If unset, uses embedded root certificates.
       --check_crl                               Download and check the CRL for revoked certificates.
       --chip_id bytesHex                        The expected MEASUREMENT field as a hex string. Must encode 48 bytes. Unchecked if unset.
-      --config string                           Serialized json check.Config protobuf. This will overwrite individual flags. Unmarshalled as json.                                  	
+      --config string                           Serialized json check.Config protobuf. This will overwrite individual flags. Unmarshalled as json.
       --family_id bytesHex                      The expected FAMILY_ID field as a hex string. Must encode 16 bytes. Unchecked if unset.
       --guest_policy uint                       The most acceptable guest SnpPolicy. (default 196608)
   -h, --help                                    help for validate
