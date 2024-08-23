@@ -47,6 +47,6 @@ The agent can fetch the [attestation](./attestation.md) report from the host usi
 
 Before execution, algorithms and datasets are validated against the computation manifest to ensure integrity and compatibility. This includes the sha3 256 hash of the dataset and algorithm, which are validated against the value set in the manifest. The algorithm and dataset provider ID are also validated against the manifest during the uploading of the dataset and algorithm.
 
-## Supported Algorithm types and restrictions
+## Supported Algorithm types
 
-There are two supported algorithm types, binaries and python files. The default algorithm type is binaries, which is uploaded to agent using CLI. To upload a python file, the python file should be accompanied by the requirements file which will be used to provision the VM with all required libraries prior to algorithm execution. Instructions on how to provide a python file are provided in  [CLI](./cli.md).
+There are four supported algorithm types, binaries, python files, docker images and wasm modules. The default algorithm type is binaries, which is uploaded to agent using CLI. Instructions on how to provide a python file are provided in [CLI](./cli.md). More information on how to run the other types of algorithms can be found [here](algorithms.md).
