@@ -44,17 +44,10 @@ To upload an algorithm, use the following command:
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key
 ```
 
-Currently, support is provided for three types of algorithms: executable binaries, Python files, and Docker images (provided as tar files). The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. For Docker images, the Docker image is required. 
-
-To run a python file, use the following command:
+Currently, support is provided for four types of algorithms: executable binaries, Python files, Docker images (provided as tar files) and Wasm modules. The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. More information on how to run the other types of algorithms can be found [here](algorithms.md). To run a python file, use the following command:
 
 ```bash
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm python --requirements /path/to/requirements.txt --python-runtime python
-```
-to run a Docker image (instructions for building a docker image that uses the `lin_reg.py` algorithm from the cocos repository can be found [here](docker)), use the following command:
-
-```bash
-./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm docker"
 ```
 
 The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
