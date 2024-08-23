@@ -44,7 +44,7 @@ To upload an algorithm, use the following command:
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key
 ```
 
-Currently, support is provided for two types of algorithms: executable binaries and python files. The above command expects an algorithm in the binary format which will be executed inside agent. For python files, the algo file is required, along with the requirements file and the python runtime. To run a python file, use the following command:
+Currently, support is provided for four types of algorithms: executable binaries, Python files, Docker images (provided as tar files) and Wasm modules. The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. More information on how to run the other types of algorithms can be found [here](algorithms.md). To run a python file, use the following command:
 
 ```bash
 ./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm python --requirements /path/to/requirements.txt --python-runtime python
@@ -157,7 +157,7 @@ To add measurement data:
 To add host data:
 
 ```bash
-./build/cocos-cli attestation hostdata <host-data> <backend_info.json>
+./build/cocos-cli backend hostdata <host-data> <backend_info.json>
 ```
 
 The backend information is obtained from the backend that has SEV. Check [backend info readme](https://github.com/ultravioletrs/cocos/blob/main/scripts/backend_info/README.md) for information on how to run the script to generate backend info.
@@ -180,5 +180,5 @@ Run `cp ./build/cocos-cli $GOBIN`.
 
 - The CLI supports various configuration flags and options
 - Use the `--help` flag with any command to see additionalinformation
-- The CLI uses gRPC for communication with the Agent service
+- The CLI uses gRPC for communication with the agent service
 - All traffic between CLI and the TEE is encrypted via mutual TLS

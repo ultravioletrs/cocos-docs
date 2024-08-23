@@ -477,6 +477,104 @@ Terminal recording session
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 
+## Docker
+
+Docker is a platform designed to build, share, and run containerized applications. A container packages the application code, runtime, system tools, libraries, and all necessary settings into a single unit. This ensures the container can be reliably transferred between different computing environments and be executed as expected.
+
+### Building The Docker Image
+
+The Docker images that the Agent will run inside the SVM must have some restrictions. The image must have a `/cocos` directory containing the `datasets` and `results` directories. The Agent will run this image inside the SVM and mount the `datasets` and `results` onto the `/cocos/datasets` and `/cocos/results` directories inside the image. The docker image must also contain the command that will be run when the docker container is run.
+
+We will use the linear regression example from the cocos repository in this example.
+
+```bash
+git clone https://github.com/ultravioletrs/cocos.git
+```
+
+Then, use your favorite editor to create a file named `Dockerfile` in the current working directory and write the following code.
+
+```bash
+FROM python:3.9-slim
+
+# set the working directory in the container
+WORKDIR /cocos
+RUN mkdir /cocos/results
+RUN mkdir /cocos/datasets 
+
+COPY ./cocos/test/manual/algo/requirements.txt /cocos/requirements.txt
+COPY ./cocos/test/manual/algo/lin_reg.py /cocos/lin_reg.py
+
+# install dependencies
+RUN pip install -r requirements.txt
+
+# command to be run when the docker container is started
+CMD ["python3", "/cocos/lin_reg.py"]
+```
+
+Next, run the build command and save the docker image as a `tar` file.
+
+```bash
+docker build -t linreg .
+docker save linreg > linreg.tar
+```
+
+### Running Docker in SVM
+
+Change the current working directory to `cocos`.
+
+```bash
+cd ./cocos
+```
+
+Start the computation server:
+
+```bash
+go run ./test/computations/main.go ./test/manual/algo/lin_reg.py public.pem false ./test/manual/data/iris.csv
+```
+
+Start the manager
+
+```bash
+sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run ./cmd/manager/main.go
+```
+
+Export the agent grpc url from computation server logs
+
+```bash
+export AGENT_GRPC_URL=localhost:6015
+```
+
+Upload the algorithm
+
+```bash
+./build/cocos-cli algo ../linreg.tar ./private.pem -a docker
+```
+
+Upload the dataset
+
+```bash
+./build/cocos-cli data ./test/manual/data/iris.csv ./private.pem
+```
+
+After some time when the results are ready, you can run the following command to get the results:
+
+```bash
+./build/cocos-cli results ./private.pem
+```
+
+To make inference on the results, you can use the following command:
+
+```bash
+python3 ./test/manual/algo/lin_reg.py predict result.zip ./test/manual/data
+```
+
 ## Wasm Modules
 
 WebAssembly (wasm) is a binary instruction format for a stack-based virtual machine. Wasm is designed as a portable target for compilation of high-level languages like C/C++/Rust, enabling deployment on the web for client and server applications. Wasm modules can be run on the enclave.
