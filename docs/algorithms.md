@@ -4,6 +4,7 @@ Currently, cocos supports running the following algorithms:
 
 - binary algorithms
 - python scripts
+- docker images
 - wasm modules
 
 ## Binary Algorithms
@@ -497,7 +498,7 @@ Change directory to the linear regression example.
 cd cocos/test/manual/algo/
 ```
 
-Next, run the build command and save the docker image as a `tar` file.
+Next, run the build command and save the docker image as a `tar` file. This example Dockerfile is based of the python linear regression example using iris dataset.
 
 ```bash
 docker build -t linreg .
@@ -558,6 +559,19 @@ After some time when the results are ready, you can run the following command to
 
 ```bash
 ./build/cocos-cli results ./private.pem
+```
+
+The logs will be similar to this:
+
+```bash
+2024/08/19 14:14:31 Retrieving computation result file
+2024/08/19 14:14:31 Computation result retrieved and saved successfully!
+```
+
+Unzip the results
+
+```bash
+unzip results.zip -d results
 ```
 
 To make inference on the results, you can use the following command:
