@@ -353,11 +353,11 @@ For real-world examples to test with cocos, see our [AI repository](https://gith
 
 Python is a high-level, interpreted programming language. Python scripts can be run on the enclave. Python is known for its simplicity and readability, making it a popular choice for beginners and experienced developers alike.
 
-## Running Python Algorithms without Datasets
+### Running Python Algorithms without Datasets
 
 This has been covered in the [previous section](./getting-started.md#uploading-artefacts).
 
-## Running Python Algorithms with Datasets
+### Running Python Algorithms with Datasets
 
 For Python algorithms, with datatsets:
 
@@ -491,24 +491,10 @@ We will use the linear regression example from the cocos repository in this exam
 git clone https://github.com/ultravioletrs/cocos.git
 ```
 
-Then, use your favorite editor to create a file named `Dockerfile` in the current working directory and write the following code.
+Change directory to the linear regression example.
 
 ```bash
-FROM python:3.9-slim
-
-# set the working directory in the container
-WORKDIR /cocos
-RUN mkdir /cocos/results
-RUN mkdir /cocos/datasets 
-
-COPY ./cocos/test/manual/algo/requirements.txt /cocos/requirements.txt
-COPY ./cocos/test/manual/algo/lin_reg.py /cocos/lin_reg.py
-
-# install dependencies
-RUN pip install -r requirements.txt
-
-# command to be run when the docker container is started
-CMD ["python3", "/cocos/lin_reg.py"]
+cd cocos/test/manual/algo/
 ```
 
 Next, run the build command and save the docker image as a `tar` file.
@@ -529,32 +515,37 @@ cd ./cocos
 Start the computation server:
 
 ```bash
-go run ./test/computations/main.go ./test/manual/algo/lin_reg.py public.pem false ./test/manual/data/iris.csv
+go run ./test/computations/main.go ./test/manual/algo/linreg.tar public.pem false ./test/manual/data/iris.csv
 ```
 
 Start the manager
 
 ```bash
+cd cmd/manager
+```
+
+```bash
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_QEMU_MEMORY_SIZE=25G \
 MANAGER_GRPC_URL=localhost:7001 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
 MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run ./cmd/manager/main.go
+go run main.go
 ```
 
 Export the agent grpc url from computation server logs
 
 ```bash
-export AGENT_GRPC_URL=localhost:6015
+export AGENT_GRPC_URL=localhost:6100
 ```
 
 Upload the algorithm
 
 ```bash
-./build/cocos-cli algo ../linreg.tar ./private.pem -a docker
+./build/cocos-cli algo ./test/manual/algo/linreg.tar ./private.pem -a docker
 ```
 
 Upload the dataset
@@ -572,8 +563,12 @@ After some time when the results are ready, you can run the following command to
 To make inference on the results, you can use the following command:
 
 ```bash
-python3 ./test/manual/algo/lin_reg.py predict result.zip ./test/manual/data
+python3 test/manual/algo/lin_reg.py predict results/model.bin  test/manual/data/
 ```
+
+Terminal recording session
+
+[![asciicast](https://asciinema.org/a/vHaUnKoEcXwHJR78EBzTScCuS.svg)](https://asciinema.org/a/vHaUnKoEcXwHJR78EBzTScCuS)
 
 ## Wasm Modules
 
