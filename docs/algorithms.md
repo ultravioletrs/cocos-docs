@@ -477,6 +477,16 @@ Terminal recording session
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 
+## Running Python Algorithms with arguments
+
+To run a python algo that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example:
+
+```bash
+./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python --args="--a" --args="100" --args="--b" --args="20"
+```
+
+Details of how to run the full addition example with args can be found [here](https://github.com/ultravioletrs/cocos/blob/7a2789fb5fda48282ef0c1d516aa8ba36421f5f1/test/manual/algo/README.md).
+
 ## Docker
 
 Docker is a platform designed to build, share, and run containerized applications. A container packages the application code, runtime, system tools, libraries, and all necessary settings into a single unit. This ensures the container can be reliably transferred between different computing environments and be executed as expected.
