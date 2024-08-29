@@ -382,10 +382,10 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs
+Export the agent grpc url from computation server logs, by default
 
 ```bash
-export AGENT_GRPC_URL=localhost:6066
+export AGENT_GRPC_URL=localhost:6100
 ```
 
 Upload the algorithm
@@ -477,15 +477,64 @@ Terminal recording session
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 
-## Running Python Algorithms with arguments
+## Running Algorithms with arguments
 
-To run a python algo that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example:
+To run an algo that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example, which we will run with args below:
+
+NOTE: Make sure you have terminated the previous computation before starting a new one.
+
+Start the computation server:
+
+```bash
+go run ./test/computations/main.go ./test/manual/algo/addition.py public.pem false
+```
+
+Start the manager
+
+```bash
+sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run main.go
+```
+
+Export the agent grpc url from computation server logs, by default port 6100 will be used. If the port is not available, a different (random) port will be used, within the range 6100 - 6200. The port will be indicated on the computation server logs.
+
+```bash
+export AGENT_GRPC_URL=localhost:6100
+```
+
+Upload the algorithm
 
 ```bash
 ./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python --args="--a" --args="100" --args="--b" --args="20"
 ```
 
-Details of how to run the full addition example with args can be found [here](https://github.com/ultravioletrs/cocos/blob/7a2789fb5fda48282ef0c1d516aa8ba36421f5f1/test/manual/algo/README.md).
+The order and args of the algorithm should be as they are required by the algorithm. In the addition example, for instance, the args are set in order of how they are expected:
+
+```bash
+python3 addition.py --a 100 --b 200
+```
+
+Watch the agent logs until the computation is complete.
+
+```bash
+&{event_type:"algorithm-run" timestamp:{seconds:1723411516 nanos:935138750} computation_id:"1" originator:"agent" status:"error"}
+received agent event
+&{event_type:"resultsReady" timestamp:{seconds:1723411517 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
+received agent log
+&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1723411517 nanos:882432675}}
+```
+
+Finally, download the results
+
+```bash
+./build/cocos-cli result ./private.pem
+```
 
 ## Docker
 
