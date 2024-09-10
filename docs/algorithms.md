@@ -382,7 +382,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs, by default
+Export the agent grpc url from computation server logs, by default port 6100 will be used. If the port is not available, a different (random) port will be used, within the range 6100 - 6200. The port will be indicated on the computation server logs.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
@@ -479,7 +479,7 @@ For real-world examples to test with cocos, see our [AI repository](https://gith
 
 ## Running Algorithms with arguments
 
-To run an algo that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example, which we will run with args below:
+To run an algorithm that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example, which we will run with args below:
 
 NOTE: Make sure you have terminated the previous computation before starting a new one.
 
