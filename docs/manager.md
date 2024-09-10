@@ -86,37 +86,50 @@ NB: we set environment variables that we will use in the shell process where we 
 
 ## Deployment
 
-To start the service, execute the following shell script (note a server needs to be running see [here](https://github.com/ultravioletrs/cocos/tree/main/test/computations)):
+To start the service, execute the following shell script (note a server needs to be running see [here](https://github.com/ultravioletrs/cocos/tree/main/test/computations)). Additionally, the required environment variables should be set in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env) beforehand.
 
 ```bash
 # download the latest version of the service
 go get github.com/ultravioletrs/cocos
 
 cd $GOPATH/src/github.com/ultravioletrs/cocos
-
-# compile the manager
-make manager
-
-# copy binary to bin
-make install
-
-# set the environment variables and run the service
-MANAGER_GRPC_URL=localhost:7001
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_USE_SUDO=false \
-MANAGER_QEMU_ENABLE_SEV=false \
-./build/cocos-manager
 ```
 
-To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager like this
+Variables should be set at this point in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env).
 
-```sh
-MANAGER_GRPC_URL=localhost:7001
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_USE_SUDO=true \
-MANAGER_QEMU_ENABLE_SEV=true \
-MANAGER_QEMU_SEV_CBITPOS=51 \
-./build/cocos-manager
+```bash
+# builds binaries, copies them to bin and installs the env variables required for manager
+make install
+
+# run the service
+make run
+```
+
+To run manager service without using makefile:
+
+```bash
+sudo systemctl start cocos-manager
+```
+
+To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager after settin these environment variables in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env).
+
+```bash
+MANAGER_QEMU_USE_SUDO=true
+MANAGER_QEMU_ENABLE_SEV=true
+MANAGER_QEMU_SEV_CBITPOS=51
+```
+
+Then install the service:
+
+```bash
+# install the service with the environment variables
+make install
+
+# start the service
+make run
+
+# you can also start the service with
+sudo systemctl start cocos-manager
 ```
 
 ### Verifying VM Launch
@@ -130,7 +143,7 @@ go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-b
 and in the second the manager by executing (with the environment variables of choice):
 
 ```bash
-./build/cocos-manager
+sudo systemctl start cocos-manager
 ```
 
 Ensure that the Manager can connect to the computations server by setting the MANAGER_GRPC_URL with the url value of the computations server. In the last terminal window, you can run the verification commands.
@@ -155,3 +168,13 @@ root       37989  122 13.1 5345816 4252312 pts/0 Sl+  16:19   0:04 /usr/local/bi
 ```
 
 The two processes are due to the fact that we run the command `/usr/bin/qemu-system-x86_64` as `sudo`, so there is one process for `sudo` command and the other for `/usr/bin/qemu-system-x86_64`.
+
+You can view logs from manager using the following commands:
+
+```bash
+# check manager status
+sudo systemctl status cocos-manager
+
+# follow logs from manager
+journalctl -u cocos-manager -f n20
+```
