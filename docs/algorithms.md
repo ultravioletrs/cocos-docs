@@ -382,7 +382,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs, by default port 6100 will be used. If the port is not available, a different (random) port will be used, within the range 6100 - 6200. The port will be indicated on the computation server logs.
+Export the agent grpc url from computation server logs, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated on the computation server logs.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
@@ -502,7 +502,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs, by default port 6100 will be used. If the port is not available, a different (random) port will be used, within the range 6100 - 6200. The port will be indicated on the computation server logs.
+Export the agent grpc url from computation server logs, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated on the computation server logs.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
