@@ -113,6 +113,12 @@ MANAGER_QEMU_ENABLE_SEV=true
 MANAGER_QEMU_SEV_CBITPOS=51
 ```
 
+You can also enable SEV_SNP through the environment variable:
+
+```bash
+MANAGER_QEMU_ENABLE_SEV_SNP=false
+```
+
 Then install the service:
 
 ```bash
