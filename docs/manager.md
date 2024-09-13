@@ -105,13 +105,7 @@ make install
 make run
 ```
 
-To run manager service without using makefile:
-
-```bash
-sudo systemctl start cocos-manager
-```
-
-To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager after settin these environment variables in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env).
+To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, start manager after setting these environment variables in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env).
 
 ```bash
 MANAGER_QEMU_USE_SUDO=true
@@ -123,13 +117,10 @@ Then install the service:
 
 ```bash
 # install the service with the environment variables
-make install
+sudo make install
 
 # start the service
-make run
-
-# you can also start the service with
-sudo systemctl start cocos-manager
+sudo make run
 ```
 
 ### Verifying VM Launch
@@ -143,7 +134,7 @@ go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-b
 and in the second the manager by executing (with the environment variables of choice):
 
 ```bash
-sudo systemctl start cocos-manager
+sudo make run
 ```
 
 Ensure that the Manager can connect to the computations server by setting the MANAGER_GRPC_URL with the url value of the computations server. In the last terminal window, you can run the verification commands.
@@ -176,5 +167,5 @@ You can view logs from manager using the following commands:
 sudo systemctl status cocos-manager
 
 # follow logs from manager
-journalctl -u cocos-manager -f n20
+journalctl -u cocos-manager -n 20 -f
 ```
