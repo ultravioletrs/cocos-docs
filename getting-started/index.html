@@ -1,0 +1,1026 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Cocos AI SMPC Platform">
+      
+      
+      
+        <link rel="canonical" href="https://docs.cocos.ai/getting-started/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../computation/">
+      
+      
+      <link rel="icon" href="../img/logo.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Getting Started - Cocos AI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Cocos AI" class="md-header__button md-logo" aria-label="Cocos AI" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cocos AI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Cocos AI" class="md-nav__button md-logo" aria-label="Cocos AI" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    Cocos AI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-cocos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting COCOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting COCOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hal" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generating-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating Keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starting-computations-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting Computations Server
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Manager
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vsock" class="md-nav__link">
+    <span class="md-ellipsis">
+      Vsock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ovmf" class="md-nav__link">
+    <span class="md-ellipsis">
+      OVMF
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploading-artefacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uploading artefacts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-the-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading the results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../computation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Computation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HAL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../attestation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Attestation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tee/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TEE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Agent
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Algorithms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer-guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer's Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-cocos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting COCOS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting COCOS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hal" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generating-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generating Keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starting-computations-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting Computations Server
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Manager
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vsock" class="md-nav__link">
+    <span class="md-ellipsis">
+      Vsock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ovmf" class="md-nav__link">
+    <span class="md-ellipsis">
+      OVMF
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploading-artefacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uploading artefacts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-the-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading the results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">#</a></h1>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
+<p>Before proceeding install the following requirements.</p>
+<ul>
+<li><a href="https://go.dev/doc/install">Golang</a> (version 1.21.6)</li>
+</ul>
+<h2 id="getting-cocos">Getting COCOS<a class="headerlink" href="#getting-cocos" title="Permanent link">#</a></h2>
+<p>Get the cocos repository:</p>
+<pre><code class="language-bash">git clone https://github.com/ultravioletrs/cocos.git
+</code></pre>
+<h3 id="hal">HAL<a class="headerlink" href="#hal" title="Permanent link">#</a></h3>
+<p>Get the hardware abstraction layer from the <a href="https://github.com/ultravioletrs/cocos/releases">releases</a> on the cocos repository. Two files will be required:</p>
+<ul>
+<li><code>rootfs.cpio.gz</code> - Initramfs</li>
+<li><code>bzImage</code> - Kernel</li>
+</ul>
+<p>Create two directories in <code>cocos/cmd/manager</code>, which are <code>img</code> and <code>tmp</code>.</p>
+<pre><code class="language-bash">mkdir -p cocos/cmd/manager/img cocos/cmd/manager/tmp
+</code></pre>
+<p>Copy the downloaded files to <code>cocos/cmd/manager/img</code>.</p>
+<pre><code class="language-bash">wget https://github.com/ultravioletrs/cocos/releases/download/v0.2.0/bzImage -P cocos/cmd/manager/img
+wget https://github.com/ultravioletrs/cocos/releases/download/v0.2.0/rootfs.cpio.gz -P cocos/cmd/manager/img
+</code></pre>
+<p>If using the latest version of cocos see the <a href="../developer-guide/#building-hal">Developer guide</a> for instructions on building HAL.</p>
+<h3 id="generating-keys">Generating Keys<a class="headerlink" href="#generating-keys" title="Permanent link">#</a></h3>
+<p>Generate a public and private key pair for user communication with agent on cli.</p>
+<p>Build cli</p>
+<pre><code class="language-bash">cd cocos
+</code></pre>
+<pre><code class="language-bash">make cli
+</code></pre>
+<p>Generate keys</p>
+<pre><code class="language-bash">./build/cocos-cli keys
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">2024/08/11 23:44:40 Successfully generated public/private key pair of type: *rsa.PrivateKey
+</code></pre>
+<p>The keys will be saved as <code>public.pem</code> and <code>private.pem</code> in the current directory.</p>
+<h3 id="starting-computations-server">Starting Computations Server<a class="headerlink" href="#starting-computations-server" title="Permanent link">#</a></h3>
+<p>The manager is a gRPC client and needs a gRPC server to connect to. We have an example server for testing purposes in <code>test/computations</code>. Run the server as follows:</p>
+<pre><code class="language-bash">go run ./test/computations/main.go &lt;algo-path&gt; &lt;public-key-path&gt; &lt;attested-tls-bool&gt; &lt;data-paths&gt;
+</code></pre>
+<p><code>data-paths</code> can be empty, a single file or multiple files depending on the nature of the algorithm and type of data.</p>
+<p>For example</p>
+<pre><code class="language-bash">go run ./test/computations/main.go ./test/manual/algo/addition.py ./public.pem false
+</code></pre>
+<p>Since this is an addition example, the data paths are empty.</p>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">{&quot;time&quot;:&quot;2024-08-12T00:05:13.321374245+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;manager_test_server service gRPC server listening at :7001 without TLS&quot;}
+</code></pre>
+<p>The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes in the computation manifest. The files are uploaded to the agent via cli. The public key provided can be generated using OpenSSL or cocos-cli.</p>
+<h3 id="running-manager">Running Manager<a class="headerlink" href="#running-manager" title="Permanent link">#</a></h3>
+<p>Next, we need to start manager. But first, we'll need to install some prerequisites.</p>
+<h4 id="vsock">Vsock<a class="headerlink" href="#vsock" title="Permanent link">#</a></h4>
+<p><a href="https://wiki.qemu.org/Features/VirtioVsock">Virtio-vsock</a> is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between the manager and the agent. To enable it run the following on the host:</p>
+<pre><code class="language-bash">sudo modprobe vhost_vsock
+</code></pre>
+<p>to confirm that it is enabled run:</p>
+<pre><code class="language-bash">ls -l /dev/vsock
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">crw-rw-rw- 1 root root 10, 122 Aug 11 23:47 /dev/vsock
+</code></pre>
+<p>and</p>
+<pre><code class="language-bash">ls -l /dev/vhost-vsock
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">crw-rw-rw- 1 root kvm 10, 241 Aug 11 23:47 /dev/vhost-vsock
+</code></pre>
+<h4 id="ovmf">OVMF<a class="headerlink" href="#ovmf" title="Permanent link">#</a></h4>
+<p>Find the ovmf code file:</p>
+<pre><code class="language-bash">sudo find / -name OVMF_CODE.fd
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">/usr/share/edk2/ia32/OVMF_CODE.fd
+/usr/share/edk2/x64/OVMF_CODE.fd
+/usr/share/OVMF/OVMF_CODE.fd
+</code></pre>
+<p>Find the ovmf vars file:</p>
+<pre><code class="language-bash">sudo find / -name OVMF_VARS.fd
+</code></pre>
+<p>the output will be similar to this</p>
+<pre><code class="language-bash">/usr/share/edk2/ia32/OVMF_VARS.fd
+/usr/share/edk2/x64/OVMF_VARS.fd
+/usr/share/OVMF/OVMF_VARS.fd
+</code></pre>
+<h4 id="run">Run<a class="headerlink" href="#run" title="Permanent link">#</a></h4>
+<p>When the manager connects to the computations server, the server then sends a computation manifest. In response, the manager will send logs and events from the computation both from the manager and the agent. To start run:</p>
+<pre><code class="language-bash">cd cmd/manager
+</code></pre>
+<pre><code class="language-bash">sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run main.go
+</code></pre>
+<p>The output of the manager will be similar to this:</p>
+<pre><code class="language-bash">{&quot;time&quot;:&quot;2024-08-12T00:05:21.119156392+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \&quot;earlyprintk=serial console=ttyS0\&quot; -initrd img/rootfs.cpio.gz -nographic -monitor pty&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.725566058+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Method Run for computation took 17.591835113s to complete&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727745349+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\&quot;receivingAlgorithm\&quot; timestamp:{seconds:1723410338 nanos:718187674} computation_id:\&quot;1\&quot; originator:\&quot;agent\&quot; status:\&quot;in-progress\&quot;}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727737113+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;Transition: receivingManifest -&gt; receivingManifest\\n\&quot; computation_id:\&quot;1\&quot; level:\&quot;DEBUG\&quot; timestamp:{seconds:1723410338 nanos:717822747}}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727829542+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;agent service gRPC server listening at :7002 without TLS\&quot; computation_id:\&quot;1\&quot; level:\&quot;INFO\&quot; timestamp:{seconds:1723410338 nanos:718373804}}&quot;}
+2024/08/12 00:05:41 traces export: Post &quot;http://localhost:4318/v1/traces&quot;: dial tcp [::1]:4318: connect: connection refused
+</code></pre>
+<p>The output on the manager test server will be similar to this:</p>
+<pre><code class="language-bash">{&quot;time&quot;:&quot;2024-08-12T00:05:13.321374245+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;manager_test_server service gRPC server listening at :7001 without TLS&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:21.132925448+03:00&quot;,&quot;level&quot;:&quot;DEBUG&quot;,&quot;msg&quot;:&quot;received who am on ip address [::1]:39498&quot;}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410321 nanos:133669966} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;starting&quot;}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410321 nanos:133914629} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;char device redirected to /dev/pts/7 (label compat_monitor0)\n&quot; computation_id:&quot;1&quot; level:&quot;debug&quot; timestamp:{seconds:1723410321 nanos:149109340}}
+received agent log
+&amp;{message:&quot;\x1b[2J\x1b[01&quot; computation_id:&quot;1&quot; level:&quot;debug&quot; timestamp:{seconds:1723410321 nanos:566143873}}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410338 nanos:725491805} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;complete&quot;}
+received runRes
+&amp;{agent_port:&quot;6006&quot; computation_id:&quot;1&quot;}
+received agent log
+&amp;{message:&quot;Transition: receivingManifest -&gt; receivingManifest\n&quot; computation_id:&quot;1&quot; level:&quot;DEBUG&quot; timestamp:{seconds:1723410338 nanos:717822747}}
+received agent event
+&amp;{event_type:&quot;receivingAlgorithm&quot; timestamp:{seconds:1723410338 nanos:718187674} computation_id:&quot;1&quot; originator:&quot;agent&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;agent service gRPC server listening at :7002 without TLS&quot; computation_id:&quot;1&quot; level:&quot;INFO&quot; timestamp:{seconds:1723410338 nanos:718373804}}
+</code></pre>
+<h3 id="uploading-artefacts">Uploading artefacts<a class="headerlink" href="#uploading-artefacts" title="Permanent link">#</a></h3>
+<p>From the logs we see agent has been bound to port <code>6006</code> which we can use with agent cli to send the algorithm, datasets and retrieve results. In this case, the <code>AGENT_GRPC_URL</code> will be <code>localhost:6006</code>.</p>
+<p>We export the agent grpc url</p>
+<pre><code class="language-bash">export AGENT_GRPC_URL=localhost:6006
+</code></pre>
+<p>Upload the algorithm</p>
+<pre><code class="language-bash">./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">2024/08/12 00:06:34 Uploading algorithm binary: ./test/manual/algo/addition.py
+Uploading algorithm...  100% [=========================================================================================================================&gt;]
+2024/08/12 00:06:34 Successfully uploaded algorithm
+</code></pre>
+<h3 id="reading-the-results">Reading the results<a class="headerlink" href="#reading-the-results" title="Permanent link">#</a></h3>
+<p>Since this algorithm doesn't have a dataset we can go straight to reading the results</p>
+<pre><code class="language-bash">./build/cocos-cli result ./private.pem
+</code></pre>
+<p>The output will be similar to this:</p>
+<pre><code class="language-bash">2024/08/12 00:06:54 Retrieving computation result file
+2024/08/12 00:06:54 Computation result retrieved and saved successfully!
+</code></pre>
+<p>To read the results</p>
+<pre><code class="language-bash">unzip result.zip -d results
+</code></pre>
+<pre><code class="language-bash">cat results/result.txt
+</code></pre>
+<pre><code class="language-bash">python3 test/manual/algo/addition.py test results/result.txt
+</code></pre>
+<p>Both should return the same result.</p>
+<pre><code class="language-bash">15
+</code></pre>
+<p>The output from the manager will be similar to this:</p>
+<pre><code class="language-bash">{&quot;time&quot;:&quot;2024-08-12T00:05:21.119156392+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \&quot;earlyprintk=serial console=ttyS0\&quot; -initrd img/rootfs.cpio.gz -nographic -monitor pty&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.725566058+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Method Run for computation took 17.591835113s to complete&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727745349+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\&quot;receivingAlgorithm\&quot; timestamp:{seconds:1723410338 nanos:718187674} computation_id:\&quot;1\&quot; originator:\&quot;agent\&quot; status:\&quot;in-progress\&quot;}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727737113+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;Transition: receivingManifest -&gt; receivingManifest\\n\&quot; computation_id:\&quot;1\&quot; level:\&quot;DEBUG\&quot; timestamp:{seconds:1723410338 nanos:717822747}}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:38.727829542+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;agent service gRPC server listening at :7002 without TLS\&quot; computation_id:\&quot;1\&quot; level:\&quot;INFO\&quot; timestamp:{seconds:1723410338 nanos:718373804}}&quot;}
+2024/08/12 00:05:41 traces export: Post &quot;http://localhost:4318/v1/traces&quot;: dial tcp [::1]:4318: connect: connection refused
+{&quot;time&quot;:&quot;2024-08-12T00:06:34.864291735+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\&quot;running\&quot; timestamp:{seconds:1723410394 nanos:848027138} computation_id:\&quot;1\&quot; originator:\&quot;agent\&quot; status:\&quot;in-progress\&quot;}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:34.864338115+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;computation run started\&quot; computation_id:\&quot;1\&quot; level:\&quot;DEBUG\&quot; timestamp:{seconds:1723410394 nanos:847998168}}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:37.39054944+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;Transition: resultsReady -&gt; resultsReady\\n\&quot; computation_id:\&quot;1\&quot; level:\&quot;DEBUG\&quot; timestamp:{seconds:1723410397 nanos:374554947}}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:37.390624125+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\&quot;resultsReady\&quot; timestamp:{seconds:1723410397 nanos:374563534} computation_id:\&quot;1\&quot; originator:\&quot;agent\&quot; status:\&quot;in-progress\&quot;}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:54.575981836+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\&quot;complete\&quot; timestamp:{seconds:1723410414 nanos:561105934} computation_id:\&quot;1\&quot; originator:\&quot;agent\&quot; status:\&quot;in-progress\&quot;}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:54.576028697+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;Transition: complete -&gt; complete\\n\&quot; computation_id:\&quot;1\&quot; level:\&quot;DEBUG\&quot; timestamp:{seconds:1723410414 nanos:561077428}}&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:06:54.583319814+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\&quot;Method Result took 1.403µs to complete without errors\&quot; computation_id:\&quot;1\&quot; level:\&quot;INFO\&quot; timestamp:{seconds:1723410414 nanos:561057047}}&quot;}
+</code></pre>
+<p>The output from the agent will be similar to this:</p>
+<pre><code class="language-bash">{&quot;time&quot;:&quot;2024-08-12T00:05:13.321374245+03:00&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;msg&quot;:&quot;manager_test_server service gRPC server listening at :7001 without TLS&quot;}
+{&quot;time&quot;:&quot;2024-08-12T00:05:21.132925448+03:00&quot;,&quot;level&quot;:&quot;DEBUG&quot;,&quot;msg&quot;:&quot;received who am on ip address [::1]:39498&quot;}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410321 nanos:133669966} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;starting&quot;}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410321 nanos:133914629} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;char device redirected to /dev/pts/7 (label compat_monitor0)\n&quot; computation_id:&quot;1&quot; level:&quot;debug&quot; timestamp:{seconds:1723410321 nanos:149109340}}
+received agent log
+&amp;{message:&quot;\x1b[2J\x1b[01&quot; computation_id:&quot;1&quot; level:&quot;debug&quot; timestamp:{seconds:1723410321 nanos:566143873}}
+received agent event
+&amp;{event_type:&quot;vm-provision&quot; timestamp:{seconds:1723410338 nanos:725491805} computation_id:&quot;1&quot; originator:&quot;manager&quot; status:&quot;complete&quot;}
+received runRes
+&amp;{agent_port:&quot;6006&quot; computation_id:&quot;1&quot;}
+received agent log
+&amp;{message:&quot;Transition: receivingManifest -&gt; receivingManifest\n&quot; computation_id:&quot;1&quot; level:&quot;DEBUG&quot; timestamp:{seconds:1723410338 nanos:717822747}}
+received agent event
+&amp;{event_type:&quot;receivingAlgorithm&quot; timestamp:{seconds:1723410338 nanos:718187674} computation_id:&quot;1&quot; originator:&quot;agent&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;agent service gRPC server listening at :7002 without TLS&quot; computation_id:&quot;1&quot; level:&quot;INFO&quot; timestamp:{seconds:1723410338 nanos:718373804}}
+received agent event
+&amp;{event_type:&quot;running&quot; timestamp:{seconds:1723410394 nanos:848027138} computation_id:&quot;1&quot; originator:&quot;agent&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;computation run started&quot; computation_id:&quot;1&quot; level:&quot;DEBUG&quot; timestamp:{seconds:1723410394 nanos:847998168}}
+received agent log
+&amp;{message:&quot;Transition: resultsReady -&gt; resultsReady\n&quot; computation_id:&quot;1&quot; level:&quot;DEBUG&quot; timestamp:{seconds:1723410397 nanos:374554947}}
+received agent event
+&amp;{event_type:&quot;resultsReady&quot; timestamp:{seconds:1723410397 nanos:374563534} computation_id:&quot;1&quot; originator:&quot;agent&quot; status:&quot;in-progress&quot;}
+received agent event
+&amp;{event_type:&quot;complete&quot; timestamp:{seconds:1723410414 nanos:561105934} computation_id:&quot;1&quot; originator:&quot;agent&quot; status:&quot;in-progress&quot;}
+received agent log
+&amp;{message:&quot;Transition: complete -&gt; complete\n&quot; computation_id:&quot;1&quot; level:&quot;DEBUG&quot; timestamp:{seconds:1723410414 nanos:561077428}}
+received agent log
+&amp;{message:&quot;Method Result took 1.403µs to complete without errors&quot; computation_id:&quot;1&quot; level:&quot;INFO&quot; timestamp:{seconds:1723410414 nanos:561057047}}
+</code></pre>
+<p>These logs provide detailed information about the operations of the manager and agent and can be useful for troubleshooting any issues that may arise.</p>
+<p>For more information on running different algorithms and datasets see the <a href="../algorithms/">algorithms</a> documentation.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright (c) Ultraviolet
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1024 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Cocos AI SMPC Platform">
+      
+      
+      
+        <link rel="canonical" href="https://docs.cocos.ai/developer-guide/">
+      
+      
+        <link rel="prev" href="../algorithms/">
+      
+      
+      
+      <link rel="icon" href="../img/logo.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Developer's Guide - Cocos AI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#developer-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Cocos AI" class="md-header__button md-logo" aria-label="Cocos AI" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cocos AI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Developer's Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Cocos AI" class="md-nav__button md-logo" aria-label="Cocos AI" data-md-component="logo">
+      
+  <img src="../img/logo.png" alt="logo">
+
+    </a>
+    Cocos AI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ultravioletrs/cocos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../computation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Computation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HAL
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../attestation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Attestation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tee/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TEE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Agent
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../algorithms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Algorithms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Developer's Guide
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Developer's Guide
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-cocos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting CoCos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-all-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build All Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-hal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building HAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building HAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testing-hal-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing HAL image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing HAL image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-v-sock" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable V-Sock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launch-the-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch the VM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-agent-independently" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Agent Independently
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Manager
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Manager
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protobuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Protobuf
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mocks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kill-qemu-system-x86_64-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kill qemu-system-x86_64 Processes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-cocos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting CoCos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-all-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build All Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-hal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building HAL
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building HAL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testing-hal-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing HAL image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing HAL image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-v-sock" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable V-Sock
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launch-the-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch the VM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-agent-independently" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Agent Independently
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Manager
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Manager">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Manager
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protobuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      Protobuf
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mocks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kill-qemu-system-x86_64-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kill qemu-system-x86_64 Processes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="developer-guide">Developer Guide<a class="headerlink" href="#developer-guide" title="Permanent link">#</a></h1>
+<h2 id="getting-cocos">Getting CoCos<a class="headerlink" href="#getting-cocos" title="Permanent link">#</a></h2>
+<p>CoCos is found on the <a href="https://github.com/ultravioletrs/cocos">CoCos repository</a>. You should fork the repository in order to make changes to the repository. After forking the repository, you can clone it as follows:</p>
+<pre><code class="language-shell">git clone &lt;forked repository&gt; $SOMEPATH/cocos
+cd $SOMEPATH/cocos
+</code></pre>
+<h2 id="building">Building<a class="headerlink" href="#building" title="Permanent link">#</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h3>
+<ul>
+<li><a href="https://grpc.io/docs/languages/go/quickstart/">Protocol Buffers</a></li>
+<li><a href="https://go.dev/doc/install">Golang</a></li>
+</ul>
+<h3 id="build-all-services">Build All Services<a class="headerlink" href="#build-all-services" title="Permanent link">#</a></h3>
+<p>Use the GNU Make tool to build all CoCos services <code>make</code>. Build artifacts will be put in the build directory.</p>
+<h3 id="building-hal">Building HAL<a class="headerlink" href="#building-hal" title="Permanent link">#</a></h3>
+<p>To build the custom linux image that will host agent, run:</p>
+<pre><code class="language-shell">git clone https://github.com/buildroot/buildroot.git
+cd buildroot
+make BR2_EXTERNAL=../cocos/hal/linux cocos_defconfig
+make menuconfig #optional for additional configuration
+make
+</code></pre>
+<h4 id="testing-hal-image">Testing HAL image<a class="headerlink" href="#testing-hal-image" title="Permanent link">#</a></h4>
+<h5 id="enable-v-sock">Enable V-Sock<a class="headerlink" href="#enable-v-sock" title="Permanent link">#</a></h5>
+<p>The necessary kernel modules must be loaded on the hypervisor.</p>
+<pre><code class="language-shell">sudo modprobe vhost_vsock
+ls -l /dev/vhost-vsock
+# crw-rw-rw- 1 root kvm 10, 241 Jan 16 12:05 /dev/vhost-vsock
+ls -l /dev/vsock
+# crw-rw-rw- 1 root root 10, 121 Jan 16 12:05 /dev/vsock
+</code></pre>
+<h5 id="launch-the-vm">Launch the VM<a class="headerlink" href="#launch-the-vm" title="Permanent link">#</a></h5>
+<p>To launch the virtual machine containing agent for testing purposes, run:</p>
+<pre><code class="language-shell">sudo find / -name OVMF_CODE.fd
+# =&gt; /usr/share/OVMF/OVMF_CODE.fd
+OVMF_CODE=/usr/share/OVMF/OVMF_CODE.fd
+
+sudo find / -name OVMF_VARS.fd
+# =&gt; /usr/share/OVMF/OVMF_VARS.fd
+OVMF_VARS=/usr/share/OVMF/OVMF_VARS.fd
+
+KERNEL=&quot;buildroot/output/images/bzImage&quot;
+INITRD=&quot;buildroot/output/images/rootfs.cpio.gz&quot;
+
+qemu-system-x86_64 \
+-enable-kvm \
+-cpu EPYC-v4 \
+-machine q35 \
+-smp 4 \
+-m 2048M,slots=5,maxmem=10240M \
+-no-reboot \
+-drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
+-netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
+-device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
+-device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 \
+-kernel $KERNEL \
+-append &quot;earlyprintk=serial console=ttyS0&quot; \
+-initrd $INITRD \
+-nographic \
+-monitor pty \
+-monitor unix:monitor,server,nowait
+</code></pre>
+<p>The default password is <code>root</code>.</p>
+<h3 id="testing-agent-independently">Testing Agent Independently<a class="headerlink" href="#testing-agent-independently" title="Permanent link">#</a></h3>
+<p>Agent once started will wait to receive its configuration via v-sock. For testing purposes you can use the script in <code>cocos/test/manual/agent-config</code>. This script sends agent config and also receives logs and events from agent. Once the VM is launched you can send config including computation manifest to agent as follows:</p>
+<pre><code class="language-shell">cd cocos
+go run ./test/manual/agent-config/main.go &lt;data-path&gt; &lt;algo-path&gt; &lt;public-key-path&gt; &lt;attested-tls-bool&gt;
+</code></pre>
+<h3 id="testing-manager">Testing Manager<a class="headerlink" href="#testing-manager" title="Permanent link">#</a></h3>
+<p>Manager is a gRPC client and needs gRPC sever to connect to. We have an example server for testing purposes in <code>test/computations</code>. Run the server as follows:</p>
+<pre><code class="language-shell">go run ./test/computations/main.go /path/to/algo/file /path/to/public/key/file &lt;attested_tls_bool&gt; /path/to/data/file1.zip path/to/data/file2.zip path/to/data/file3.zip
+</code></pre>
+<h4 id="run-manager">Run Manager<a class="headerlink" href="#run-manager" title="Permanent link">#</a></h4>
+<p>Create two directories in <code>cocos/cmd/manager</code>, the directories are <code>img</code> and <code>tmp</code>.
+Copy <code>rootfs.cpio.gz</code> and <code>bzImage</code> from the buildroot output directory files to <code>cocos/cmd/manager/img</code>.</p>
+<p>Next run manager client.</p>
+<pre><code class="language-shell">cd cmd/manager
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_USE_SUDO=false \
+MANAGER_QEMU_ENABLE_SEV=false \
+MANAGER_QEMU_SEV_CBITPOS=51 \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/ovmf/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/ovmf/OVMF_VARS.fd \
+./build/cocos-manager
+</code></pre>
+<p>This will result in manager sending a whoIam request to manager-server. Manager server will then launch a VM with agent running and having received the computation manifest.</p>
+<h2 id="protobuf">Protobuf<a class="headerlink" href="#protobuf" title="Permanent link">#</a></h2>
+<p>If you've made any changes to .proto files, you should call protoc command prior to compiling individual microservices.</p>
+<p>To do this by hand, execute:
+<code>make protoc</code></p>
+<h2 id="mocks">Mocks<a class="headerlink" href="#mocks" title="Permanent link">#</a></h2>
+<p>To run tests, some of the services are mocked and these need to be updated if the function signatures are changed.</p>
+<p>To do this, execute:
+<code>make mocks</code></p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
+<p>If you run <code>ps aux | grep qemu-system-x86_64</code> and it returns give you something like this:</p>
+<pre><code class="language-shell">sammy      13913  0.0  0.0      0     0 pts/2    Z+   20:17   0:00 [qemu-system-x86] &lt;defunct&gt;
+</code></pre>
+<p>means that the a QEMU virtual machine that is currently defunct, meaning that it is no longer running. More precisely, the defunct process in the output is also known as a <a href="https://en.wikipedia.org/wiki/Zombie_process">"zombie" process</a>.</p>
+<h3 id="kill-qemu-system-x86_64-processes">Kill <code>qemu-system-x86_64</code> Processes<a class="headerlink" href="#kill-qemu-system-x86_64-processes" title="Permanent link">#</a></h3>
+<p>To kill any leftover <code>qemu-system-x86_64</code> processes, use
+<code>pkill -f qemu-system-x86_64</code>
+The pkill command is used to kill processes by name or by pattern. The <code>-f</code> flag to specify that we want to kill processes that match the pattern <code>qemu-system-x86_64</code>. It sends the SIGKILL signal to all processes that are running <code>qemu-system-x86_64</code>.</p>
+<p>If this does not work, i.e. if <code>ps aux | grep qemu-system-x86_64</code> still outputs <code>qemu-system-x86_64</code> related process(es), you can kill the unwanted process with <code>kill -9 &lt;PID&gt;</code>, which also sends a SIGKILL signal to the process.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright (c) Ultraviolet
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
