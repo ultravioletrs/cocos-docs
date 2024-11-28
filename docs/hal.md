@@ -4,7 +4,7 @@ HAL is a layer of programming that allows the software to interact with the hard
 
 AMD SEV-SNP creates secure virtual machines (SVMs). VMs are usually used to run an operating system (e.g., Ubuntu and its applications). To avoid using a whole OS, HAL uses:
 
-- Linux kernel v6.6 - vmlinuz archive with the standard Linux kernel v6.6 with support for AMD SEV.
+- Linux kernel v6.12 - vmlinuz archive with the standard Linux kernel v6.12 with support for AMD SEV.
 - File system - the initial RAM file system (initramfs) that is used as the root file system of the VM.
 
 This way, applications can be executed in the SVM, and the whole HAL SVM is entirely in RAM, protected by SEV-SNP. Being a RAM-only SVM means that secrets that are kept in the SVM will be destroyed when the SVM stops working.
