@@ -27,6 +27,7 @@ To build the custom linux image that will host agent, run:
 ```shell
 git clone https://github.com/buildroot/buildroot.git
 cd buildroot
+git checkout 2024.11-rc2 
 make BR2_EXTERNAL=../cocos/hal/linux cocos_defconfig
 make menuconfig #optional for additional configuration
 make
