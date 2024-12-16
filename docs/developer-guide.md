@@ -73,7 +73,7 @@ qemu-system-x86_64 \
 -drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
 -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
--device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 \
+-device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 \
 -kernel $KERNEL \
 -append "earlyprintk=serial console=ttyS0" \
 -initrd $INITRD \
