@@ -10,32 +10,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Secure Collaboration',
+    Svg: require('@site/static/img/smpc.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Cocos's secure multi-party computation (SMPC) platform allows multiple parties to collaboratively process data without exposing sensitive information. Powered by Trusted Execution Environments (TEEs), our platform ensures the confidentiality and privacy of your data exchanges and AI workloads.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Secure VM Provisioning and Management',
+    Svg: require('@site/static/img/provision.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Cocos AI excels in secure VM provisioning, management, and monitoring, ensuring the confidentiality and integrity of virtualized environments. Seamlessly deploy and maintain secure Virtual Machines for your workloads.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'Remote Attestation Mechanism',
+    Svg: require('@site/static/img/rats.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Cocos AI implements a robust remote attestation mechanism, verifying the integrity of remote systems. This ensures that your workloads run in trusted environments, even in untrusted or remote settings.
       </>
     ),
   },

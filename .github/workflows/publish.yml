@@ -6,21 +6,55 @@ on:
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+permissions:
+  contents: write
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    name: Deploy docs
+    name: Build Docusaurus
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout master
-        uses: actions/checkout@v2
 
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        # Or use mhausenblas/mkdocs-deploy-gh-pages@nomaterial to build without the mkdocs-material theme
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build the website
+        run: yarn build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUSTOM_DOMAIN: docs.cocos.ultraviolet.rs
+          github_token: ${{ secrets.GITHUB_TOKEN }}
