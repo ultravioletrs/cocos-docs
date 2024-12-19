@@ -13,15 +13,15 @@ Communication between Computation Management cloud and the Manager is done via g
 
 The picture below shows where the Manager runs in the Cocos system, helping us better understand its role.
 
-![Manager](./img/manager.png){ align=center }
+![Manager](/img/manager.png)
 
-## Manager <> Agent
+## Manager - Agent
 
 When TEE is booted, an Agent is automatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
 
 Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending events back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
 
-## Setup and Test Manager <> Agent
+## Setup and Test Manager  Agent
 
 ```sh
 git clone https://github.com/ultravioletrs/cocos

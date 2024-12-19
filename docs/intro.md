@@ -1,3 +1,7 @@
+---
+slug: /
+---
+
 # What is CocosAI
 
 CocosAI (Confidential Computing System for AI) is a SW system for enabling confidential and privacy-preserving AI/ML, i.e. execution of model training and algorithm inference on confidential data sets. Privacy-preservation is considered a “holy grail” of AI. It opens many possibilities, among which is a collaborative, trustworthy AI.
