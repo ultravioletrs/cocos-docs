@@ -4,7 +4,7 @@ The agent is responsible for the life cycle of the computation, i.e., running th
 
 The picture below shows where the agent runs in the Cocos system, helping us better understand its role.
 
-![Agent](./img/agent.png){ align=center }
+![Agent](/img/agent.png)
 
 ## StateMachine
 

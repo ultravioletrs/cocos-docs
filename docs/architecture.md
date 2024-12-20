@@ -18,7 +18,7 @@ These features are implemented by several independent components of CocosAI syst
 3. EOS (Enclave Operating System)
 4. CLI
 
-![Cocos Arch](./img/arch.png){ align=center }
+![Cocos Arch](/img/arch.png)
 
 > **N.B.** CocosAI open-source project does not provide Computation Management service. It is a cloud component, used to define a Computation (i.e. define computation metadata, like participants list, algorithm and data providers, result recipients, etc...). Ultraviolet provides commercial product [Prism](https://ultraviolet.rs/prism.html), a multi-party computation platform, that implements multi-tenant and scalable Computation Management service, running in the cloud or on premise, and capable to connect and control CocosAI system running on the TEE host.
 
