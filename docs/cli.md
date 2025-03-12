@@ -93,12 +93,16 @@ To fetch attestation report:
 ./build/cocos-cli attestation get <report_data>
 ```
 
-To validate attestation report
-Based on mode:
-validate <attestationreportfilepath> --report_data <reportdata> --product <product data> //default
-validate --mode snp <attestationreportfilepath> --report_data <reportdata> --product <product data>
+There can be three modes used to validate an attestation report as shown below:
+
+```bash
+validate <attestationreportfilepath> --report_data <reportdata> --product <product data>
+validate --mode snp <attestationreportfilepath> --report_data <reportdata> --product <product data> //default
 validate --mode vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>
 validate --mode snp-vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>`,
+```
+
+Here is an example command to run to validate attestation report. The default mode is `snp`:
 
 ```bash
 ./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data> --product <product data>
@@ -193,7 +197,7 @@ The tool will parse the directives in the IGVM file, calculate the launch measur
 
 Here is a sample output
 
-```
+```bash
 91c4929bec2d0ecf11a708e09f0a57d7d82208bcba2451564444a4b01c22d047995ca27f9053f86de4e8063e9f810548
 ```
 
