@@ -41,7 +41,9 @@ Agent sends agent events and logs to the manager via vsock. The manager listens 
 
 ## Attestation
 
-The agent can fetch the [attestation](./attestation.md) report from the host using the AMD SEV guest driver. The attestation report proves that the agent is running inside the secure virtual machine (SVM) and that the SVM is running the expected code on the expected hardware and is configured correctly.
+The Agent performs attestation to verify its execution environment within a Confidential Virtual Machine (CVM). The agent can fetch the [attestation](./attestation.md) report from the host using the AMD SEV guest driver. It interacts with the vTPM to retrieve cryptographic measurements of the enclave’s boot and runtime state. These measurements ensure that the CVM is running the expected code on trusted hardware and is configured correctly.
+
+In addition to vTPM-based attestation, the Agent validates the Initial Guest Virtual Machine (IGVM) file by computing its expected launch measurement and comparing it with attestation data. This step ensures that the enclave’s initial state aligns with predefined security expectations, preventing unauthorized modifications before execution. By combining SEV-SNP attestation, vTPM-based integrity checks, and IGVM validation, the Agent guarantees a trusted execution environment for secure workloads.
 
 ## Algorithm and dataset validation
 

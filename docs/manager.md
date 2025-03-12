@@ -21,7 +21,16 @@ When TEE is booted, an Agent is automatically deployed and is used for outside c
 
 Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending events back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
 
-## Setup and Test Manager  Agent
+## vTPM-Based Attestation & IGVM Validation
+
+The Manager ensures the integrity of the deployed CVM by leveraging vTPM-based attestation and IGVM validation:
+
+- vTPM Attestation: The Agent retrieves cryptographic measurements from the vTPM inside the CVM. These measurements are used to verify the enclave's boot and runtime state, ensuring that it operates on trusted hardware and remains unmodified.
+- IGVM Validation: The Manager verifies the Initial Guest Virtual Machine (IGVM) file by computing its expected launch measurement and comparing it with attestation reports. This process ensures that the CVM’s initial state aligns with security expectations, preventing unauthorized modifications.
+
+By integrating SEV-SNP attestation, vTPM integrity checks, and IGVM validation, the Manager enforces a secure and verifiable execution environment.
+
+## Setup and Test Manager Agent
 
 ```sh
 git clone https://github.com/ultravioletrs/cocos

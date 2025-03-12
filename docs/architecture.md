@@ -24,13 +24,17 @@ These features are implemented by several independent components of CocosAI syst
 
 ## Manager
 
-Manager is a gRPC client that listens to requests sent through gRPC and sends them to Agent via vsock. Manager creates a secure enclave and loads the computation where the agent resides. The connection between Manager and Agent is through vsock, through which channel agent sends events periodically to manager, who forwards these via gRPC.
+Manager is a gRPC client that listens to requests sent through gRPC and sends them to Agent via vsock. Manager creates a secure enclave and loads the computation where the agent resides. It creates a secure enclave by launching a Confidential Virtual Machine (CVM), deploying the Agent inside it, and verifying its integrity using vTPM-based attestation.
+
+vTPM-based attestation is handled by the Agent, which retrieves attestation reports from the Virtual Trusted Platform Module(vTPM) and calculates the launch measurement of an IGVM file to verify that the enclave’s initial state matches the expected measurement before execution. The Manager receives this attestation data from the Agent and can validate enclave integrity before proceeding. Communication between Manager and Agent occurs through vsock, allowing the Agent to send periodic events, which the Manager forwards via gRPC.
 
 For more information on Manager, please refer to [Manager docs](./manager.md).
 
 ## Agent
 
 Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). The Agent contains a gRPC server that listens for requests from gRPC clients. Communication between the Manager and Agent is done via vsock. The Agent sends events to the Manager via vsock, which then forwards these via gRPC. Agent contains a gRPC server that exposes useful functions that can be accessed by other gRPC clients such as the CLI.
+
+The Agent retrieves vTPM measurements from the vTPM device within the Confidential Virtual Machine (CVM) using go-tpm-tools. These measurements, including cryptographic hashes of the enclave’s boot and runtime state, are used to generate attestation reports for integrity verification by the Manager or an external verifier. Additionally, the Agent calculates the expected launch measurement of the Initial Guest Virtual Machine (IGVM) file to verify that the enclave’s state at launch matches the predefined integrity values. An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
 
 For more information on Agent, please refer to [Agent docs](./agent.md).
 
@@ -40,6 +44,6 @@ EOS, or Enclave Operating System, is custom lightweight linux distribution built
 
 ## CLI
 
-CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation, and run to start the computation. It also has functions to fetch and validate the attestation report of the enclave.
+CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation, and run to start the computation. It also supports attestation verification by fetching reports and validating them against IGVM launch measurements, ensuring that only trusted enclaves are executed.
 
 For more information on CLI, please refer to [CLI docs](./cli.md).

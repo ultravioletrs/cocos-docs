@@ -94,12 +94,17 @@ To fetch attestation report:
 ```
 
 To validate attestation report
+Based on mode:
+validate <attestationreportfilepath> --report_data <reportdata> --product <product data> //default
+validate --mode snp <attestationreportfilepath> --report_data <reportdata> --product <product data>
+validate --mode vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>
+validate --mode snp-vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>`,
 
 ```bash
-./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data>
+./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data> --product <product data>
 ```
 
-To validate the report data, the report data flag is compulsory.
+To validate the report data, the report data flag is compulsory and the path to the attestation report file.
 
 Optional Flags:
 
@@ -168,6 +173,28 @@ To fetch the CA bundle for SEV-SNP, use the following commands:
 
 ```bash
 ./build/cocos-cli ca-bundle <path_to_platform_info.json>
+```
+
+#### Measure IGVM file
+
+We assume that our current working directory is the root of the cocos repository, both on the host machine and in the VM.
+
+`igvmmeasure` calculates the launch measurement for an IGVM file and can generate a signed version. It ensures integrity by precomputing the expected launch digest, which can be verified against the attestation report. The tool parses IGVM directives, outputs the measurement as a hex string, or creates a signed file for verification at guest launch.
+
+##### Example
+
+We measure an IGVM file using our measure command, run:
+
+```bash
+./build/cocos-cli igvmmeasure /path/to/igvm/file
+```
+
+The tool will parse the directives in the IGVM file, calculate the launch measurement, and output the computed digest. If successful, it prints the measurement to standard output.
+
+Here is a sample output
+
+```
+91c4929bec2d0ecf11a708e09f0a57d7d82208bcba2451564444a4b01c22d047995ca27f9053f86de4e8063e9f810548
 ```
 
 ## Installation
