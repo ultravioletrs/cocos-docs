@@ -24,15 +24,15 @@ These features are implemented by several independent components of CocosAI syst
 
 ## Manager
 
-Manager is a gRPC client that listens to requests sent through gRPC and sends them to Agent via vsock. Manager creates a secure enclave and loads the computation where the agent resides. It creates a secure enclave by launching a Confidential Virtual Machine (CVM), deploying the Agent inside it, and verifying its integrity using vTPM-based attestation.
+Manager is a server that creates a secure enclave and loads the computation where the agent resides. It creates a secure enclave by launching a Confidential Virtual Machine (CVM) where computations can run.
 
-vTPM-based attestation is handled by the Agent, which retrieves attestation reports from the Virtual Trusted Platform Module(vTPM) and calculates the launch measurement of an IGVM file to verify that the enclave’s initial state matches the expected measurement before execution. The Manager receives this attestation data from the Agent and can validate enclave integrity before proceeding. Communication between Manager and Agent occurs through vsock, allowing the Agent to send periodic events, which the Manager forwards via gRPC.
+vTPM-based attestation is handled by the Agent, which retrieves attestation reports from the Virtual Trusted Platform Module(vTPM) and calculates the launch measurement of an IGVM file to verify that the enclave’s initial state matches the expected measurement before execution. The Manager receives this attestation data from the Agent and uses the cli to validate enclave integrity before proceeding. Communication between Manager and Agent occurs through 9P file-sharing protocol.
 
 For more information on Manager, please refer to [Manager docs](./manager.md).
 
 ## Agent
 
-Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). The Agent contains a gRPC server that listens for requests from gRPC clients. Communication between the Manager and Agent is done via vsock. The Agent sends events to the Manager via vsock, which then forwards these via gRPC. Agent contains a gRPC server that exposes useful functions that can be accessed by other gRPC clients such as the CLI.
+Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). Communication between the Manager and Agent happens via 9P. 9P (Plan 9 Filesystem Protocol) is a distributed file system protocol that enables lightweight, efficient file sharing by exposing remote resources as if they were local files. 
 
 The Agent retrieves vTPM measurements from the vTPM device within the Confidential Virtual Machine (CVM) using go-tpm-tools. These measurements, including cryptographic hashes of the enclave’s boot and runtime state, are used to generate attestation reports for integrity verification by the Manager or an external verifier. Additionally, the Agent calculates the expected launch measurement of the Initial Guest Virtual Machine (IGVM) file to verify that the enclave’s state at launch matches the predefined integrity values. An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
 
