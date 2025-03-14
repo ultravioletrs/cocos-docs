@@ -26,16 +26,22 @@ These features are implemented by several independent components of CocosAI syst
 
 Manager is a server that creates a secure enclave and loads the computation where the agent resides. It creates a secure enclave by launching a Confidential Virtual Machine (CVM) where computations can run.
 
-vTPM-based attestation is handled by the Agent, which retrieves attestation reports from the Virtual Trusted Platform Module(vTPM) and calculates the launch measurement of an IGVM file to verify that the enclave’s initial state matches the expected measurement before execution. The Manager receives this attestation data from the Agent and uses the cli to validate enclave integrity before proceeding. Communication between Manager and Agent occurs through 9P file-sharing protocol.
+*While this documentation uses the term "enclave," it is primarily associated with Intel SGX TEEs but also applies to other TEEs. In this context, "enclave" should be understood as a synonym for CVM.*
+
+The Manager defines the firmware for the Confidential Virtual Machine (CVM), using either the IGVM file for SEV-SNP or the OVMF binary for SEV , depending on whether the CVM is launched with SEV or SEV-SNP. This ensures the CVM is initialized with the appropriate firmware and security policies.
 
 For more information on Manager, please refer to [Manager docs](./manager.md).
 
 ## Agent
 
-Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). Communication between the Manager and Agent happens via 9P. 9P (Plan 9 Filesystem
+The Agent runs inside the Confidential Virtual Machine (CVM) and is responsible for monitoring and managing computations within the TEE. It facilitates secure and encrypted communication with the outside world, enabling data retrieval and result transmission. Communication between the Manager and Agent happens via 9P. 9P (Plan 9 Filesystem
 Protocol) is a distributed file system protocol that enables lightweight, efficient file sharing by exposing remote resources as if they were local files.
 
-The Agent retrieves vTPM measurements from the vTPM device within the Confidential Virtual Machine (CVM) using go-tpm-tools. These measurements, including cryptographic hashes of the enclave’s boot and runtime state, are used to generate attestation reports for integrity verification by the Manager or an external verifier. Additionally, the Agent calculates the expected launch measurement of the Initial Guest Virtual Machine (IGVM) file to verify that the enclave’s state at launch matches the predefined integrity values. An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
+The Agent retrieves vTPM measurements from the vTPM device within the Confidential Virtual Machine (CVM). These measurements, including cryptographic hashes of the enclave’s boot and runtime state, are used to generate attestation reports. Additionally, the Agent calculates the expected launch measurement of the Initial Guest Virtual Machine (IGVM) file to verify that the enclave’s state at launch matches the predefined integrity values.
+
+## IGVM File
+
+ An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
 
 For more information on Agent, please refer to [Agent docs](./agent.md).
 

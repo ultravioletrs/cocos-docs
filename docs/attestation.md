@@ -10,27 +10,18 @@ This document provides an overview of remote attestation, TPM, Platform Configur
 
 Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
 
-Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values. The process consists of two main steps:  
+Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values. This process involves Event Log Verification, which ensures that recorded system events align with the expected platform state.  
 
-### 1. TPM Device Verification
+### Event Log Verification
 
-This step ensures the client has a legitimate TPM.  
+This ensures the platform’s integrity by checking if the recorded events match the expected state.  
 
-1. The client sends its Endorsement Key (EK) and Attestation Key (AK) to the server.  
-2. The server verifies the EK using the TPM vendor's root certificate authority (CA).  
-3. The server generates a random secret, encrypts it with the EK public key, and binds it to the AK before sending it to the client.  
-4. The client decrypts the secret using the EK private key and validates the AK.  
-5. If successful, the server confirms the TPM is genuine and belongs to the client.  
-
-### 2. Event Log Verification
-
-This step ensures the platform’s integrity by checking if the recorded events match the expected state.  
-
-1. The server requests a quote from the client.  
-2. The client asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the server.  
-3. The server verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.  
-4. The server requests the event log from the client, which records boot-time measurements.  
-5. The server replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified as authentic.
+1. The CLI requests a quote from the client.  
+2. The Agent asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the CLI.  
+3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.  
+4. The CLI requests the event log from the Agent, which records boot-time measurements.  
+5. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
+6. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
 
 A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
 
