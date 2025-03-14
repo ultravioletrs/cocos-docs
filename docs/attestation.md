@@ -1,29 +1,53 @@
-# Attestation   
+# Attestation
 
-## Introduction  
 Ensuring system integrity and security is critical in modern computing environments. Confidential computing protects sensitive data during processing, ensuring it remains encrypted and secure. A key component of this security model is remote attestation, which allows one party to verify the integrity of another system before sharing sensitive information.  
 
 The Trusted Platform Module (TPM) plays a fundamental role in this process by providing a tamper-resistant foundation for cryptographic operations, securing sensitive artifacts, measuring system state, and enabling attestation mechanisms.  
 
-This document provides an overview of attestation, TPM, Platform Configuration Registers (PCRs), and runtime measurements, explaining how they work together to ensure a trusted computing environment.  
+This document provides an overview of remote attestation, TPM, Platform Configuration Registers (PCRs), and runtime measurements, explaining how they work together to ensure a trusted computing environment.  
 
-## Attestation  
+## Remote Attestation  
 
-Remote attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. If deemed trustworthy, the relying party can securely send confidential code or data to the attester.  
+Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
 
-A secure communication channel is required between the attester and the relying party, which is established using attested TLS.  
+Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values. The process consists of two main steps:  
 
-### Attestation in Cocos  
-Cocos implements attestation using two key software components:  
+### 1. TPM Device Verification
+
+This step ensures the client has a legitimate TPM.  
+
+1. The client sends its Endorsement Key (EK) and Attestation Key (AK) to the server.  
+2. The server verifies the EK using the TPM vendor's root certificate authority (CA).  
+3. The server generates a random secret, encrypts it with the EK public key, and binds it to the AK before sending it to the client.  
+4. The client decrypts the secret using the EK private key and validates the AK.  
+5. If successful, the server confirms the TPM is genuine and belongs to the client.  
+
+### 2. Event Log Verification
+
+This step ensures the platform’s integrity by checking if the recorded events match the expected state.  
+
+1. The server requests a quote from the client.  
+2. The client asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the server.  
+3. The server verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.  
+4. The server requests the event log from the client, which records boot-time measurements.  
+5. The server replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified as authentic.
+
+A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
+
+## Attestation in Cocos
+
+Cocos implements remote attestation using two key software components:  
 
 1. **Agent** – A software application running inside the CVM. It is responsible for fetching the attestation report, performing vTPM-based attestation, and executing secure computations.  
 2. **Cocos CLI** – A command-line tool used by Secure Multiparty Computation (SMPC) members. It verifies the attestation report and securely transmits confidential code and data to the Agent.  
 
-## Trusted Platform Module (TPM)  
-A TPM is a dedicated security chip designed to perform tamper-resistant cryptographic functions. It securely manages sensitive artifacts such as encryption keys, certificates, and integrity measurements. In scenarios where TPM functionality is implemented via software instead of hardware, it is referred to as a virtual TPM (vTPM).  
+### Trusted Platform Module (TPM)
 
-## Platform Configuration Register (PCR)  
-A Platform Configuration Register (PCR) is a secure memory region within the TPM that records system integrity measurements. Instead of being overwritten, PCR values are extended through a cryptographic hash function: 
+A TPM is a dedicated security chip designed to perform tamper-resistant cryptographic functions. It securely manages sensitive artifacts such as encryption keys, certificates, and integrity measurements. In scenarios where TPM functionality is implemented via software instead of hardware, it is referred to as a virtual TPM (vTPM).
+
+### Platform Configuration Register (PCR)
+
+A Platform Configuration Register (PCR) is a secure memory region within the TPM that records system integrity measurements. Instead of being overwritten, PCR values are extended through a cryptographic hash function:
 
 $$
 PCR[N] = \text{HASH}_{\text{alg}}( PCR[N] \, || \, \text{NewMeasurement} )
@@ -31,16 +55,16 @@ $$
 
 This ensures that all recorded values remain linked and verifiable, making PCRs essential for attestation and system security.  
 
-# Trusted Boot and Integrity Measurement
+### Trusted Boot and Integrity Measurement
 
-## Introduction
-
-System integrity is ensured by measuring and recording each boot component into the Trusted Platform Module (TPM). The firmware acts as the **Static Root of Trust for Measurement (SRTM)**, measuring critical components and storing their hashes in the TPM's Platform Configuration Registers (PCRs). These values are extended immutably, creating a tamper-proof record. 
+System integrity is ensured by measuring and recording each boot component into the Trusted Platform Module (TPM). The firmware acts as the **Static Root of Trust for Measurement (SRTM)**, measuring critical components and storing their hashes in the TPM's Platform Configuration Registers (PCRs). These values are extended immutably, creating a tamper-proof record.
 A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM). In this document we will focus on the usage of PCRs [0-7], as described in the following table.
 
 This process enables secure attestation, ensuring that only verified software executes and detecting unauthorized modifications. The TPM also functions as a **Root of Trust for Storage (RTS)** and **Root of Trust for Reporting (RTR)**, allowing for remote verification of system integrity.
 
 ## What We Verify in Each PCR
+
+A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM).
 
 | **PCR Index** | **What is Stored?** | **What We Verify?** | **Why It Is Important for Integrity?** |
 |--------------|---------------------|---------------------|--------------------------------------|
@@ -69,29 +93,23 @@ This process enables secure attestation, ensuring that only verified software ex
 | **PCR[22]** | Hypervisor integrity measurements. | Ensures hypervisor has not been modified post-boot. | Prevents attacks targeting virtual machine isolation. |
 | **PCR[23]** | Platform-specific attestation data. | Used for custom attestation purposes. | Provides additional flexibility for specific security policies. |
 
- 
-PCRs **8-23** focus on **OS, application, and virtualization security**, extending integrity measurements beyond the firmware and bootloader. These values play a key role in **trusted execution environments**, **secure workloads**, and **virtualization security**—ensuring **Confidential Virtual Machines (CVMs)** operate on trusted hardware with verified software components.
-
-
-
 By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
 
+## Runtime Measurement
 
-## Runtime Measurement  
 A runtime measurement is a cryptographic fingerprint that captures the state of critical system components during execution. These measurements are typically applied to the bootloader and operating system kernel, enabling detection of unauthorized changes and ensuring the system’s integrity.  
 
 By integrating TPM, PCRs, and runtime measurements, attestation mechanisms can ensure that a Confidential Virtual Machine (CVM) is running in a trusted environment, protecting sensitive computations from unauthorized access or tampering.  
 
- ## What are the parts of the attestation report?
+## What are the parts of the attestation report?
 
 The attestation report consists of multiple components that provide cryptographic proof of the CVM’s integrity and security posture.  
- 
+
 1. **Measurement** – Represents the cryptographic hash of the entire CVM or the hash of the [HAL](./hal.md). This enables the client to verify the contents of the CVM.  
 2. **Boot and Hardware Information** – Contains details about the CVM’s boot policy and the SNP firmware’s Trusted Computing Base (TCB) version, ensuring the system is running with the correct security configuration.  
 3. **vTPM-Based Attestation Data** – Provides cryptographic evidence of the enclave's boot and runtime state. The CLient ensures IGVM validation by computing the expected launch measurement of the IGVM file and verifying that it aligns with the attestation report, preventing unauthorized modifications.  
 4. **Report Data** – A 512-bit field that can contain arbitrary data provided by the Agent to the ASP each time the attestation report is generated.  
 5. **Signature** – The AMD SEV-SNP attestation report is signed using the Versioned Chip Endorsement Key (VCEK). The VCEK is derived from chip-unique secrets and the current SNP firmware TCB. The signature is verified using the certificate from the AMD Key Distribution System (KDS), ensuring that the CVM runs on genuine AMD hardware and that the AMD Secure Processor (ASP) generated the attestation report.  
-
 
 ## How is the attestation report fetched?
 

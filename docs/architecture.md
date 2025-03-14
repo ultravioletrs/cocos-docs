@@ -32,7 +32,8 @@ For more information on Manager, please refer to [Manager docs](./manager.md).
 
 ## Agent
 
-Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). Communication between the Manager and Agent happens via 9P. 9P (Plan 9 Filesystem Protocol) is a distributed file system protocol that enables lightweight, efficient file sharing by exposing remote resources as if they were local files. 
+Agent defines firmware which goes into the TEE and is used to control and monitor computation within TEE and enable secure and encrypted communication with the outside world (in order to fetch the data and provide the result of the computation). Communication between the Manager and Agent happens via 9P. 9P (Plan 9 Filesystem
+Protocol) is a distributed file system protocol that enables lightweight, efficient file sharing by exposing remote resources as if they were local files.
 
 The Agent retrieves vTPM measurements from the vTPM device within the Confidential Virtual Machine (CVM) using go-tpm-tools. These measurements, including cryptographic hashes of the enclave’s boot and runtime state, are used to generate attestation reports for integrity verification by the Manager or an external verifier. Additionally, the Agent calculates the expected launch measurement of the Initial Guest Virtual Machine (IGVM) file to verify that the enclave’s state at launch matches the predefined integrity values. An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
 
