@@ -23,8 +23,6 @@ Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends
 
 ## vTPM-Based Attestation & IGVM Validation
 
-The Manager ensures the integrity of the deployed CVM by leveraging vTPM-based attestation and IGVM validation:
-
 - vTPM Attestation: The Agent retrieves cryptographic measurements from the vTPM inside the CVM. These measurements are used to verify the enclave's boot and runtime state, ensuring that it operates on trusted hardware and remains unmodified.
 - IGVM Validation: The Manager verifies the Initial Guest Virtual Machine (IGVM) file by computing its expected launch measurement and comparing it with attestation reports. This process ensures that the CVM’s initial state aligns with security expectations, preventing unauthorized modifications.
 
