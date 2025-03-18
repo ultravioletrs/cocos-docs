@@ -28,7 +28,7 @@ Manager is a server that creates a secure enclave and loads the computation wher
 
 *While this documentation uses the term "enclave," it is primarily associated with Intel SGX TEEs but also applies to other TEEs. In this context, "enclave" should be understood as a synonym for CVM.*
 
-The Manager defines the firmware for the Confidential Virtual Machine (CVM), using either the IGVM file for SEV-SNP or the OVMF binary for SEV , depending on whether the CVM is launched with SEV or SEV-SNP. This ensures the CVM is initialized with the appropriate firmware and security policies.
+The Manager defines the firmware for the Confidential Virtual Machine (CVM), using either the [IGVM file](#igvm-file) for SEV-SNP or the OVMF binary for SEV, depending on whether the CVM is launched with SEV or SEV-SNP. This ensures the CVM is initialized with the appropriate firmware and security policies.
 
 For more information on Manager, please refer to [Manager docs](./manager.md).
 
@@ -40,7 +40,7 @@ The Agent runs inside the Confidential Virtual Machine (CVM) and is responsible 
 
 ## IGVM File
 
- An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
+An IGVM file defines the immutable initial state of a guest VM in an enclave, specifying memory and system configurations. This ensures that any modifications are detected, preventing unauthorized changes and maintaining the enclave’s security before execution.
 
 For more information on Agent, please refer to [Agent docs](./agent.md).
 
@@ -50,6 +50,6 @@ EOS, or Enclave Operating System, is custom lightweight linux distribution built
 
 ## CLI
 
-CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation, and run to start the computation. It also supports attestation verification by fetching reports and validating them against IGVM launch measurements, ensuring that only trusted enclaves are executed.Verification is performed for both vTPM and SEV-SNP attestation reports to ensure the integrity and authenticity of the CVM
+CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation, and run to start the computation. It also supports attestation verification by fetching reports and validating them against IGVM launch measurements, ensuring that only trusted enclaves are executed. Verification is performed for both vTPM and SEV-SNP attestation reports to ensure the integrity and authenticity of the CVM.
 
 For more information on CLI, please refer to [CLI docs](./cli.md).

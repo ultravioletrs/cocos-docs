@@ -18,10 +18,9 @@ This ensures the platform’s integrity by checking if the recorded events match
 
 1. The CLI requests a quote from the client.  
 2. The Agent asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the CLI.  
-3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.  
-4. The CLI requests the event log from the Agent, which records boot-time measurements.  
-5. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
-6. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
+3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.    
+4. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
+5. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
 
 A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
 
@@ -49,40 +48,27 @@ This ensures that all recorded values remain linked and verifiable, making PCRs 
 ### Trusted Boot and Integrity Measurement
 
 System integrity is ensured by measuring and recording each boot component into the Trusted Platform Module (TPM). The firmware acts as the **Static Root of Trust for Measurement (SRTM)**, measuring critical components and storing their hashes in the TPM's Platform Configuration Registers (PCRs). These values are extended immutably, creating a tamper-proof record.
-A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM). In this document we will focus on the usage of PCRs [0-7], as described in the following table.
+A typical TPM has 24 PCRs. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM). In this document we will focus on the usage of PCRs [0-7], as described in the following table.
 
 This process enables secure attestation, ensuring that only verified software executes and detecting unauthorized modifications. The TPM also functions as a **Root of Trust for Storage (RTS)** and **Root of Trust for Reporting (RTR)**, allowing for remote verification of system integrity.
 
 ## What We Verify in Each PCR
 
-A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM).
+A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0. PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system. PCR [16] is for debug usage. PCR [23] is for application support. PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM). Based on our measurements on our server, we only have PCR registers 0 to7 and PCR 9 in the vTPM quote.
 
-| **PCR Index** | **What is Stored?** | **What We Verify?** | **Why It Is Important for Integrity?** |
-|--------------|---------------------|---------------------|--------------------------------------|
-| **PCR[0]** | BIOS/firmware, embedded option ROMs, and platform initialization (PI) drivers. | Ensures the BIOS and firmware have not been tampered with. | Prevents unauthorized firmware modifications that could compromise the boot process. |
-| **PCR[1]** | Hardware configuration settings. | Ensures critical hardware settings remain unchanged. | Prevents attackers from modifying security-critical hardware configurations. |
-| **PCR[2]** | Hashes of UEFI drivers and pre-boot applications. | Verifies that UEFI drivers loaded into memory are from a trusted source. | Prevents firmware-level attacks such as rootkits. |
-| **PCR[3]** | Configuration settings for UEFI drivers. | Ensures no unauthorized modifications to UEFI driver settings. | Prevents malicious driver configuration changes that could alter system behavior. |
-| **PCR[4]** | Boot manager and bootloader code. | Verifies the correct bootloader is executed. | Prevents bootloader hijacking, ensuring a trusted boot process. |
-| **PCR[5]** | Boot configuration and partition information. | Ensures the partition layout and boot configurations are unchanged. | Prevents unauthorized modifications to the disk that could enable persistence of malware. |
-| **PCR[6]** | Manufacturer-specific data. | Verifies vendor-defined integrity checks are satisfied. | Ensures additional security policies and firmware checks are enforced. |
-| **PCR[7]** | Secure Boot policies, certificates, and signing keys. | Verifies that only signed and authorized components are loaded during boot. | Prevents the execution of unsigned or malicious software. |
-| **PCR[8]**  | Boot components related to third-party applications. | Ensures third-party applications loaded at boot are unmodified. | Prevents unauthorized software from executing in the early boot stage. |
-| **PCR[9]**  | Secure Boot variables and policies. | Confirms Secure Boot settings are enforced correctly. | Ensures only trusted, signed software is executed during boot. |
-| **PCR[10]** | Reserved for OS-specific uses. | OS-specific verification (depends on platform and implementation). | Used for OS-level security policies and attestation. |
-| **PCR[11]** | Trusted platform data used by virtualization or hypervisors. | Ensures virtualized environments load expected security policies. | Prevents tampering with virtualized workloads and hypervisors. |
-| **PCR[12]** | Reserved for dynamic launch measurement (measured by DRTM). | Verifies system state after a dynamic launch event. | Ensures platform security is intact even after runtime modifications. |
-| **PCR[13]** | Application-specific measurements. | Ensures certain applications are trusted and unchanged. | Allows attestation of user-defined or platform-specific applications. |
-| **PCR[14]** | Reserved for future use by TCG standards. | Typically unused or reserved for future expansion. | Reserved for security enhancements in newer TPM specifications. |
-| **PCR[15]** | Reserved for future use by TCG standards. | Same as PCR[14]. | Future security mechanisms may utilize this. |
-| **PCR[16]** | Debugging and manufacturer-specific measurements. | Verifies if debugging tools are active. | Helps detect unauthorized debugging or forensic analysis. |
-| **PCR[17]** | TPM firmware and microcode updates. | Ensures TPM firmware has not been downgraded or tampered with. | Protects against rollback attacks on the TPM firmware. |
-| **PCR[18]** | System integrity logs and extended boot metrics. | Verifies integrity logs from boot measurements. | Helps forensic analysis and runtime integrity checks. |
-| **PCR[19]** | Kernel and OS runtime measurements. | Ensures kernel integrity at runtime. | Prevents kernel tampering and runtime exploits. |
-| **PCR[20]** | Kernel modules and drivers. | Verifies that only authorized kernel modules are loaded. | Protects against kernel-level rootkits and unauthorized drivers. |
-| **PCR[21]** | Measured launch environment (MLE) for secure workloads. | Verifies integrity of measured environments like SGX or CVMs. | Ensures trusted execution of confidential workloads. |
-| **PCR[22]** | Hypervisor integrity measurements. | Ensures hypervisor has not been modified post-boot. | Prevents attacks targeting virtual machine isolation. |
-| **PCR[23]** | Platform-specific attestation data. | Used for custom attestation purposes. | Provides additional flexibility for specific security policies. |
+| PCR Index    | What is Stored?                                                                               | What We Verify?                                           | Why It Is Important for Integrity?                                      |
+|-------------|----------------------------------------------------------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------|
+| PCR[0]      | Firmware, including BIOS, embedded option ROMs, and platform initialization (PI) drivers.    | Ensures the BIOS and firmware have not been tampered with. | Prevents unauthorized firmware modifications that could compromise the boot process. |
+| PCR[1]      | Boot order and boot variables.                                                               | Ensures critical boot settings remain unchanged.         | Prevents attackers from modifying boot parameters that could affect system startup. |
+| PCR[2]      | /                                                                                            | /                                                        | / |
+| PCR[3]      | /                                                                                            | /                                                        | / |
+| PCR[4]      | Kernel                                                                                       | Verifies that the correct kernel is loaded.              | Prevents kernel-level attacks and ensures a trusted execution environment. |
+| PCR[5]      | Finish boot service.                                                                         | Ensures boot services complete without unauthorized changes. | Prevents tampering with boot processes that could enable persistent threats. |
+| PCR[6]      | (OEM-specific data; not applicable)                                                        | /                                                        | / |
+| PCR[7]      | Secure Boot policies, certificates, and signing keys.                                        | Verifies that only signed and authorized components are loaded during boot. | Prevents the execution of unsigned or malicious software. |
+| PCR[9]      | initramfs                                                                                    | Ensures the integrity of the initial RAM filesystem.      | Prevents unauthorized modifications that could impact early user-space execution. |
+| PCR[15]     | Public TLS key used for attested TLS.                                                        | Verifies the integrity of the TLS public key used for attestation. | Ensures secure, authenticated communication and prevents unauthorized key modifications. |
+
 
 By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
 
