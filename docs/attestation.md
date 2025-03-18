@@ -18,7 +18,7 @@ This ensures the platform’s integrity by checking if the recorded events match
 
 1. The CLI requests a quote from the client.  
 2. The Agent asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the CLI.  
-3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.    
+3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.
 4. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
 5. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
 
@@ -68,7 +68,6 @@ A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated wit
 | PCR[7]      | Secure Boot policies, certificates, and signing keys.                                        | Verifies that only signed and authorized components are loaded during boot. | Prevents the execution of unsigned or malicious software. |
 | PCR[9]      | initramfs                                                                                    | Ensures the integrity of the initial RAM filesystem.      | Prevents unauthorized modifications that could impact early user-space execution. |
 | PCR[15]     | Public TLS key used for attested TLS.                                                        | Verifies the integrity of the TLS public key used for attestation. | Ensures secure, authenticated communication and prevents unauthorized key modifications. |
-
 
 By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
 
