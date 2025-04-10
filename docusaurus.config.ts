@@ -3,6 +3,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+import math from 'remark-math';
+import katex from 'rehype-katex';
 
 const config: Config = {
   title: 'COCOS AI',
@@ -42,6 +44,8 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          remarkPlugins: [math],
+          rehypePlugins: [katex],
         },
         blog: false,
         theme: {
@@ -49,6 +53,16 @@ const config: Config = {
         },
       } satisfies Preset.Options,
     ],
+  ],
+
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css',
+      type: 'text/css',
+      integrity:
+        'sha384-KI1CcbBaGdBrw9FjD0oaWZ8i3tYtU4WnFGOwJKhRZ7QkKQ+0r8zAaepK3QKX5F2y',
+      crossorigin: 'anonymous',
+    }
   ],
 
   themeConfig: {
