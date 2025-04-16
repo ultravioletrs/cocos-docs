@@ -35,10 +35,6 @@ The picture below shows where the agent runs in the Cocos system, helping us bet
 
 As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client. Events sent to the manager are based on the agent state as defined by the statemachine.
 
-## Vsock Connection Between Agent & Manager
-
-Agent sends agent events and logs to the manager via vsock. The manager listens to the vsock and forwards the events via gRPC. The agent events and logs are used to show the status of the computation inside the TEE so that a user can be aware of what is happening inside the TEE.
-
 ## Attestation
 
 The agent can fetch the [SNP attestation](./attestation.md) report from the SNP firmware that is running on the AMD Secure Processor (ASP or PSP) and the vTPM attestation report. It interacts with the vTPM to retrieve cryptographic measurements of the CVM’s boot and runtime state. These reports ensure that the CVM is running the expected code on trusted hardware and is configured correctly.

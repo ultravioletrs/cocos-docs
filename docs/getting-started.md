@@ -64,12 +64,32 @@ The output will be similar to this:
 
 The keys will be saved as `public.pem` and `private.pem` in the current directory.
 
-### Starting Computations Server
+### Starting Cvms Server
 
-The manager is a gRPC client and needs a gRPC server to connect to. We have an example server for testing purposes in `test/computations`. Run the server as follows:
+The agent has a cvms gRPC client and needs a gRPC server to connect to. We have an example server for testing purposes in `test/cvms`. Run the server as follows:
+
+#### Finding Your IP Address
+When running the CVMS server, you'll need to use an IP address that is accessible from the VM rather than using localhost. To find your machine's IP address:
 
 ```bash
-go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
+ip -a
+```
+
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+
+```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. You'll use this IP address when running the CVMS server and configuring the cvm using manager.
+
+#### Run the Server
+Run the server as follows:
+
+```bash
+HOST=<externally_accessibly_ip> go run ./test/cvms/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
 ```
 
 `data-paths` can be empty, a single file or multiple files depending on the nature of the algorithm and type of data.
@@ -77,7 +97,7 @@ go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-b
 For example
 
 ```bash
-go run ./test/computations/main.go ./test/manual/algo/addition.py ./public.pem false
+HOST="192.168.1.100" go run ./test/cvms/main.go ./test/manual/algo/addition.py ./public.pem false
 ```
 
 Since this is an addition example, the data paths are empty.
@@ -85,7 +105,7 @@ Since this is an addition example, the data paths are empty.
 The output will be similar to this:
 
 ```bash
-{"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
+{"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
 ```
 
 The test server uses the paths to the algorithm and datasets to obtain the file and include the file hashes in the computation manifest. The files are uploaded to the agent via cli. The public key provided can be generated using OpenSSL or cocos-cli.
@@ -93,38 +113,6 @@ The test server uses the paths to the algorithm and datasets to obtain the file 
 ### Running Manager
 
 Next, we need to start manager. But first, we'll need to install some prerequisites.
-
-#### Vsock
-
-[Virtio-vsock](https://wiki.qemu.org/Features/VirtioVsock) is a host/guest communications device. It allows applications in the guest and host to communicate. In this case, it is used to communicate between the manager and the agent. To enable it run the following on the host:
-
-```bash
-sudo modprobe vhost_vsock
-```
-
-to confirm that it is enabled run:
-
-```bash
-ls -l /dev/vsock
-```
-
-The output will be similar to this:
-
-```bash
-crw-rw-rw- 1 root root 10, 122 Aug 11 23:47 /dev/vsock
-```
-
-and
-
-```bash
-ls -l /dev/vhost-vsock
-```
-
-The output will be similar to this:
-
-```bash
-crw-rw-rw- 1 root kvm 10, 241 Aug 11 23:47 /dev/vhost-vsock
-```
 
 #### OVMF
 
@@ -156,9 +144,8 @@ the output will be similar to this
 /usr/share/OVMF/OVMF_VARS.fd
 ```
 
-#### Run
-
-When the manager connects to the computations server, the server then sends a computation manifest. In response, the manager will send logs and events from the computation both from the manager and the agent. To start run:
+#### Start Manager
+To start run:
 
 ```bash
 cd cmd/manager
@@ -167,7 +154,8 @@ cd cmd/manager
 ```bash
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -178,7 +166,7 @@ go run main.go
 The output of the manager will be similar to this:
 
 ```bash
-{"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
+{"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile=  -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
 {"time":"2024-08-12T00:05:38.725566058+03:00","level":"INFO","msg":"Method Run for computation took 17.591835113s to complete"}
 {"time":"2024-08-12T00:05:38.727745349+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\"receivingAlgorithm\" timestamp:{seconds:1723410338 nanos:718187674} computation_id:\"1\" originator:\"agent\" status:\"in-progress\"}"}
 {"time":"2024-08-12T00:05:38.727737113+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Transition: receivingManifest -> receivingManifest\\n\" computation_id:\"1\" level:\"DEBUG\" timestamp:{seconds:1723410338 nanos:717822747}}"}
@@ -186,7 +174,17 @@ The output of the manager will be similar to this:
 2024/08/12 00:05:41 traces export: Post "http://localhost:4318/v1/traces": dial tcp [::1]:4318: connect: connection refused
 ```
 
-The output on the manager test server will be similar to this:
+##### Create a cvm
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
+
+The output on the cvms test server will be similar to this:
 
 ```bash
 {"time":"2024-08-12T00:05:13.321374245+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
@@ -273,7 +271,7 @@ Both should return the same result.
 The output from the manager will be similar to this:
 
 ```bash
-{"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
+{"time":"2024-08-12T00:05:21.119156392+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile=  -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
 {"time":"2024-08-12T00:05:38.725566058+03:00","level":"INFO","msg":"Method Run for computation took 17.591835113s to complete"}
 {"time":"2024-08-12T00:05:38.727745349+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\"receivingAlgorithm\" timestamp:{seconds:1723410338 nanos:718187674} computation_id:\"1\" originator:\"agent\" status:\"in-progress\"}"}
 {"time":"2024-08-12T00:05:38.727737113+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Transition: receivingManifest -> receivingManifest\\n\" computation_id:\"1\" level:\"DEBUG\" timestamp:{seconds:1723410338 nanos:717822747}}"}
@@ -330,3 +328,9 @@ received agent log
 These logs provide detailed information about the operations of the manager and agent and can be useful for troubleshooting any issues that may arise.
 
 For more information on running different algorithms and datasets see the [algorithms](./algorithms.md) documentation.
+
+### Deleting the cvm
+Once done the cvm can be destroyed by running:
+```bash
+./build/cocos-cli remove-vm <cvm_id>
+```

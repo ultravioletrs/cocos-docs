@@ -19,8 +19,6 @@ One user can have several roles - for example, an Algorithm Provider can also be
 
 ## Computation Manifest
 
-Computation Manifest represents the Computation description and is sent upon `run` command to the Manager.
-
-Manager fetches the Computation Manifest and sends it into the TEE to Agent, via vsock.
+Computation Manifest represents the Computation description and is sent upon `run` request to the cvms gRPC client on agent.
 
 The first thing that Agent does upon boot, is that it fetches the Computation Manifest and reads it. For this Manifest, Agent understands who are the participants in the computation adn with wich role, i.e. from whom it can accept the connections and what data they will send. Agent also learns from the Manifest what algorithm is used and how many datasets will be provided. This way it knows when it received all necessary files to start the execution. Finally, Agent learns from the Manifest to whom it needs to send the Result of the computation.
