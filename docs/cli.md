@@ -202,6 +202,7 @@ Here is a sample output
 ```
 
 ### Create and Remove CVM
+
 CLI can be used to create and remove cvms from manager:
 
 ```bash
