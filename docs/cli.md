@@ -179,13 +179,13 @@ To fetch the CA bundle for SEV-SNP, use the following commands:
 ./build/cocos-cli ca-bundle <path_to_platform_info.json>
 ```
 
-#### Measure IGVM file
+### Measure IGVM file
 
 We assume that our current working directory is the root of the cocos repository, both on the host machine and in the VM.
 
 `igvmmeasure` calculates the launch measurement for an IGVM file and can generate a signed version. It ensures integrity by precomputing the expected launch digest, which can be verified against the attestation report. The tool parses IGVM directives, outputs the measurement as a hex string, or creates a signed file for verification at guest launch.
 
-##### Example
+#### Example
 
 We measure an IGVM file using our measure command, run:
 
@@ -199,6 +199,15 @@ Here is a sample output
 
 ```bash
 91c4929bec2d0ecf11a708e09f0a57d7d82208bcba2451564444a4b01c22d047995ca27f9053f86de4e8063e9f810548
+```
+
+### Create and Remove CVM
+
+CLI can be used to create and remove cvms from manager:
+
+```bash
+./build/cocos-cli create-vm --log-level debug --server-url <server_host:server_port>
+./build/cocos-cli remove-vm <cvm_id>
 ```
 
 ## Installation

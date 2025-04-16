@@ -9,8 +9,6 @@ Manager exposes an API for control, based on gRPC, and is controlled by Computat
 
 Computation Management service is used to to configure computation metadata. Once a computation is created by a user and the invited users have uploaded their public certificates (used later for identification and data exchange in the enclave), a run request is sent. The Manager is responsible for creating the TEE in which computation will be ran and managing the computation lifecycle.
 
-Communication between Computation Management cloud and the Manager is done via gRPC, while communication between Manager and Agent is done via [Virtio Vsock](https://wiki.qemu.org/Features/VirtioVsock). Vsock is used to send Agent events from the computation in the Agent to the Manager. The Manager then sends the events back to Computation Mangement cloud via gRPC, and these are visible to the end user.
-
 The picture below shows where the Manager runs in the Cocos system, helping us better understand its role.
 
 ![Manager](/img/manager.png)
@@ -19,7 +17,7 @@ The picture below shows where the Manager runs in the Cocos system, helping us b
 
 When TEE is booted, an Agent is automatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
 
-Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager sends the Computation Manifest to the Agent via vsock and the Agent runs the computation, according to the Computation Manifest, while sending events back to manager on the status. The Manager then sends the events it receives from agent via vsock to Computation Mangement cloud through gRPC.
+Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager configures the Agent's CVMS gRPC client with URL, certificates, and other configuration settings to connect to the cloud CVMS server. The cloud CVMS server sends the Computation Manifest to the Agent, which runs the computation according to the Manifest, while sending events back to CVMS server on the status via gRPC.
 
 ## vTPM-Based Attestation & IGVM Validation
 
@@ -52,18 +50,6 @@ sudo apt install qemu-kvm
 ```
 
 Create `img` directory in `cmd/manager`. Create `tmp` directory in `cmd/manager`.
-
-#### Add V-sock
-
-The necessary kernel modules must be loaded on the hypervisor.
-
-```shell
-sudo modprobe vhost_vsock
-ls -l /dev/vhost-vsock
-# crw-rw-rw- 1 root kvm 10, 241 Jan 16 12:05 /dev/vhost-vsock
-ls -l /dev/vsock
-# crw-rw-rw- 1 root root 10, 121 Jan 16 12:05 /dev/vsock
-```
 
 ### Prepare Cocos HAL
 

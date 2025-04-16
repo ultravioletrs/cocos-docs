@@ -35,18 +35,6 @@ make
 
 #### Testing HAL image
 
-##### Enable V-Sock
-
-The necessary kernel modules must be loaded on the hypervisor.
-
-```shell
-sudo modprobe vhost_vsock
-ls -l /dev/vhost-vsock
-# crw-rw-rw- 1 root kvm 10, 241 Jan 16 12:05 /dev/vhost-vsock
-ls -l /dev/vsock
-# crw-rw-rw- 1 root root 10, 121 Jan 16 12:05 /dev/vsock
-```
-
 ##### Launch the VM
 
 To launch the virtual machine containing agent for testing purposes, run:
@@ -63,23 +51,26 @@ OVMF_VARS=/usr/share/OVMF/OVMF_VARS.fd
 KERNEL="buildroot/output/images/bzImage"
 INITRD="buildroot/output/images/rootfs.cpio.gz"
 
-qemu-system-x86_64 \
--enable-kvm \
--cpu EPYC-v4 \
--machine q35 \
--smp 4 \
--m 2048M,slots=5,maxmem=10240M \
--no-reboot \
--drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
--netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
--device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
--device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 \
--kernel $KERNEL \
--append "earlyprintk=serial console=ttyS0" \
--initrd $INITRD \
--nographic \
--monitor pty \
--monitor unix:monitor,server,nowait
+qemu-system-x86_64 \ 
+    -enable-kvm \
+    -cpu EPYC-v4 \
+    -machine q35 \
+    -smp 4 \
+    -m 25G,slots=5,maxmem=30G \
+    -no-reboot \
+    -drive if=pflash,format=raw,unit=0,file=$OVMF_CODE,readonly=on \
+    -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 \
+    -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,romfile= \
+    -kernel $KERNEL \
+    -append "earlyprintk=serial console=ttyS0" \
+    -initrd $INITRD \
+    -nographic \
+    -monitor pty \
+    -monitor unix:monitor,server,nowait \
+    -fsdev local,id=cert_fs,path=/home/sammyk/Documents/certs,security_model=mapped \
+    -device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share \
+    -fsdev local,id=env_fs,path=/home/sammyk/Documents/env,security_model=mapped \
+    -device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share
 ```
 
 The default password is `root`.
