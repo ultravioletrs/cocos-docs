@@ -89,7 +89,7 @@ In this example, the IP address is 192.168.1.100. You'll use this IP address whe
 Run the server as follows:
 
 ```bash
-HOST=<externally_accessibly_ip> go run ./test/cvms/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
+HOST=<externally_accessible_ip> go run ./test/cvms/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
 ```
 
 `data-paths` can be empty, a single file or multiple files depending on the nature of the algorithm and type of data.
