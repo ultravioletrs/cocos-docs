@@ -17,7 +17,7 @@ The picture below shows where the Manager runs in the Cocos system, helping us b
 
 When TEE is booted, an Agent is automatically deployed and is used for outside communication with the enclave (via the API) and for computation orchestration (data and algorithm upload, start of the computation and retrieval of the result).
 
-Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager configures the Agent's CVMS gRPC client with URL, certificates, and other configuration settings to connect to the cloud CVMS server. The cloud CVMS server sends the Computation Manifest to the Agent, which runs the computation according to the Manifest, while sending events back to CVMS server on the status via gRPC. 
+Agent is a gRPC server, and CLI is a gRPC client of the Agent. The Manager configures the Agent's CVMS gRPC client with URL, certificates, and other configuration settings to connect to the cloud CVMS server. The cloud CVMS server sends the Computation Manifest to the Agent, which runs the computation according to the Manifest, while sending events back to CVMS server on the status via gRPC.
 
 ## vTPM-Based Attestation & IGVM Validation
 

@@ -69,6 +69,7 @@ The keys will be saved as `public.pem` and `private.pem` in the current director
 The agent has a cvms gRPC client and needs a gRPC server to connect to. We have an example server for testing purposes in `test/cvms`. Run the server as follows:
 
 #### Finding Your IP Address
+
 When running the CVMS server, you'll need to use an IP address that is accessible from the VM rather than using localhost. To find your machine's IP address:
 
 ```bash
@@ -86,6 +87,7 @@ Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) an
 In this example, the IP address is 192.168.1.100. You'll use this IP address when running the CVMS server and configuring the cvm using manager.
 
 #### Run the Server
+
 Run the server as follows:
 
 ```bash
@@ -145,6 +147,7 @@ the output will be similar to this
 ```
 
 #### Start Manager
+
 To start run:
 
 ```bash
@@ -175,6 +178,7 @@ The output of the manager will be similar to this:
 ```
 
 ##### Create a cvm
+
 To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
 
 ```bash
@@ -330,7 +334,9 @@ These logs provide detailed information about the operations of the manager and 
 For more information on running different algorithms and datasets see the [algorithms](./algorithms.md) documentation.
 
 ### Deleting the cvm
+
 Once done the cvm can be destroyed by running:
+
 ```bash
 ./build/cocos-cli remove-vm <cvm_id>
 ```
