@@ -35,6 +35,12 @@ The picture below shows where the agent runs in the Cocos system, helping us bet
 
 As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client. Events sent to the manager are based on the agent state as defined by the statemachine.
 
+## Certificates
+
+When started the agent will generate a CSR ana use a CA to generate a certificate which will be used for TLS communication.
+The URL of CA is configured through environment varibles.
+This certificate will then be extended with the attestation report.
+
 ## Attestation
 
 The agent can fetch the [SNP attestation](./attestation.md) report from the SNP firmware that is running on the AMD Secure Processor (ASP or PSP) and the vTPM attestation report. It interacts with the vTPM to retrieve cryptographic measurements of the CVM’s boot and runtime state. These reports ensure that the CVM is running the expected code on trusted hardware and is configured correctly.

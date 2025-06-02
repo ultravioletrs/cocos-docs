@@ -25,4 +25,4 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: run markdownlint
-        run: markdownlint --disable MD013 -- docs
+        run: markdownlint --disable MD013 MD059 -- docs

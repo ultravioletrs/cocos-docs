@@ -95,8 +95,10 @@ Additionally, the Agent interacts with the vTPM inside the CVM using go-tpm-tool
 
 ## Attested TLS
 
-For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report. The CVM is the server in Cocos. The Agent generates a self-signed x.509 certificate extended with the attestation report. When fetching the attestation report, the Agent inserts the hash of the public key into it using the field report data. The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
+For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report. The CVM is the server in Cocos. The Agent extends its own x.509 certificate with the attestation report. When fetching the attestation report, the Agent inserts the hash of the public key into it using the field report data. The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
 
 ![Attested TLS](/img/atls.png)
 
 The relying party uses the Cocos CLI to verify the self-signed certificate and the attestation report that is part of it. Successful verification proves to the relying party that the certificate is generated inside the SVM because the certificate's public key is part of the attestation report.
+
+It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS (described above).
