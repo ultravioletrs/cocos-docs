@@ -210,6 +210,19 @@ CLI can be used to create and remove cvms from manager:
 ./build/cocos-cli remove-vm <cvm_id>
 ```
 
+### Linux IMA
+
+The Linux VM, which is used has, has [IMA](https://ima-doc.readthedocs.io/en/latest/ima-concepts.html) enalbed.
+During the boot process every file is measured.
+Users can download these measurements with the following command:
+
+```bash
+./build/cocos-cli ima-measurements <optional_file_name>
+```
+
+The file is verified using the TPM PCR10 SHA1 value.
+Measurements of each file must be verified by user since we can't control everything tha goes in the image.
+
 ## Installation
 
 To install the CLI locally, i.e. for the current user:
