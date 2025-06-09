@@ -95,7 +95,9 @@ Additionally, the Agent interacts with the vTPM inside the CVM using go-tpm-tool
 
 ## Attested TLS
 
-For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report. The CVM is the server in Cocos. The Agent extends its own x.509 certificate with the attestation report. When fetching the attestation report, the Agent inserts the hash of the public key into it using the field report data. The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
+For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report. 
+In Cocos, the CVM acts as the server, and the Agent extends the x.509 certificate it uses for TLS with the attestation report. When generating the report, the Agent embeds the hash of its public key into the `report_data` field.
+The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
 
 ![Attested TLS](/img/atls.png)
 
