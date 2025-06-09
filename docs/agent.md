@@ -37,9 +37,12 @@ As the computation in the agent undergoes different operations, it sends events 
 
 ## Certificates
 
-When started the agent will generate a CSR ana use a CA to generate a certificate which will be used for TLS communication.
+When started, the agent will generate a certificate in one of two ways.
+If the CA URL and CVM ID are not specified, the agent will generate a self-signed certificate.
+If the CA URL and CVM ID are specified, the agent generate a CSR and use a CA to issue a certificate which will be used for TLS communication.
 The URL of CA is configured through environment varibles.
-This certificate will then be extended with the attestation report.
+By default the agent uses [Abstract Machine Certificate service](https://github.com/absmach/certs) as its CA.
+In both cases, the generated certificate will then be extended with the attestation report.
 
 ## Attestation
 

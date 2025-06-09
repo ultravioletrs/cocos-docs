@@ -127,7 +127,14 @@ sudo make run
 NB: To verify that the manager successfully launched the VM, you need to open three terminals on the same machine. In one terminal, you need to launch the computations server by executing (with the environment variables of choice):
 
 ```bash
-go run ./test/computations/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
+HOST=<externally_accessible_ip> go run ./test/cvms/main.go \
+    -algo-path <algo-path> \
+    -public-key-path <public-key-path> \
+    -data-paths <data-paths> \
+    -attested-tls-bool <attested-tls-bool> \
+    -ca-url <ca_url> \
+    -cmv-id <cvm_uuid> \
+    -client-ca-file <path_to_client_ca_file_within_the_CVM>
 ```
 
 and in the second the manager by executing (with the environment variables of choice):
