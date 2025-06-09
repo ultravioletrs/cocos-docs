@@ -12,6 +12,39 @@ To build the CLI, follow these steps:
 
 ## Usage
 
+### Environment variables
+
+#### Set Agent URL
+
+For commands involving sending data to agent (data and algo upload, result fetching), the agent url is required since cli uses this to connect to the specified agent.
+
+```shell
+export AGENT_GRPC_URL=<agent_host:agent_port>
+```
+
+Agent port is found from the manager logs after the TEE has been provisioned and agent inserted.
+
+#### Set certifacte paths for mTLS (optional)
+
+To use mTLS when communicating with Agent, paths to CLI certificate and key and Agents CA root certificate need to be set.
+
+```shell
+export AGENT_GRPC_CLIENT_CERT=<path_to_CLI_certificate_file>
+export AGENT_GRPC_CLIENT_KEY=<path_to_CLI_key_file>
+export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
+```
+
+#### Set attestation options for aTLS (optional)
+
+If the CLI is intended to use aTLS (Attested TLS), it is necessary to specify the attestation boolean flag as well as provide the path to the attestation policy JSON file.
+
+```shell
+export AGENT_GRPC_ATTESTED_TLS=true
+export AGENT_GRPC_ATTESTATION_POLICY=<path_to_attestation_policy_json_file>                       
+```
+
+If the CLI is intended to use maTLS (Mutually Attested TLS), it is necessary to specify variables for both mTLS and aTLS.
+
 ### Generate Keys
 
 To generate a public & private key pair, run the following command:
@@ -25,16 +58,6 @@ This will generate a key pair of type rsa. Different key types can be generated 
 ```bash
 ./build/cocos-cli keys -k ecdsa
 ```
-
-### Set Agent URL
-
-For commands involving sending data to agent (data and algo upload, result fetching), the agent url is required since cli uses this to connect to the specified agent.
-
-```shell
-export AGENT_GRPC_URL=<agent_host:agent_port>
-```
-
-Agent port is found from the manager logs after the TEE has been provisioned and agent inserted.
 
 ### Upload Algorithm
 
