@@ -52,7 +52,7 @@ export AGENT_GRPC_ATTESTED_TLS=true
 export AGENT_GRPC_ATTESTATION_POLICY=<path_to_attestation_policy_json_file>                       
 ```
 
-If the Agent is configured to use a self-signed certificate (default), the path to Agents CA root certificate file can be [omitted](/docs/agent.md#certificates).
+If the Agent is configured to use a self-signed certificate (default), the path to Agents CA root certificate file can be [omitted](https://docs.cocos.ultraviolet.rs/agent/#certificates).
 
 #### Set options for maTLS (optional)
 
