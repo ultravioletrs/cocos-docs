@@ -24,26 +24,47 @@ export AGENT_GRPC_URL=<agent_host:agent_port>
 
 Agent port is found from the manager logs after the TEE has been provisioned and agent inserted.
 
-#### Set certifacte paths for mTLS (optional)
+#### Set Agent CA certificate path for TLS (optional)
 
-To use mTLS when communicating with Agent, paths to CLI certificate and key and Agents CA root certificate need to be set.
+To use TLS when communicating with Agent, paths to Agents CA root certificate needs to be specified.
 
 ```shell
+export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
+```
+
+#### Set certificate paths for mTLS (optional)
+
+To use mTLS when communicating with Agent, paths to CLI certificate and key files and Agents CA root certificate file need to be set.
+
+```shell
+export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
 export AGENT_GRPC_CLIENT_CERT=<path_to_CLI_certificate_file>
 export AGENT_GRPC_CLIENT_KEY=<path_to_CLI_key_file>
-export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
 ```
 
 #### Set attestation options for aTLS (optional)
 
-If the CLI is intended to use aTLS (Attested TLS), it is necessary to specify the attestation boolean flag as well as provide the path to the attestation policy JSON file.
+If the CLI is intended to use aTLS (Attested TLS), it is necessary to specify the path to Agents CA root certificate file, the attestation boolean flag as well as provide the path to the attestation policy JSON file.
 
 ```shell
+export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
 export AGENT_GRPC_ATTESTED_TLS=true
 export AGENT_GRPC_ATTESTATION_POLICY=<path_to_attestation_policy_json_file>                       
 ```
 
+If the Agent is configured to use a self-signed certificate (default), the path to Agents CA root certificate file can be [omitted](/docs/agent.md#certificates).
+
+#### Set options for maTLS (optional)
+
 If the CLI is intended to use maTLS (Mutually Attested TLS), it is necessary to specify variables for both mTLS and aTLS.
+
+```shell
+export AGENT_GRPC_SERVER_CA_CERTS=<path_to_Agents_CA_root_certificate>
+export AGENT_GRPC_CLIENT_CERT=<path_to_CLI_certificate_file>
+export AGENT_GRPC_CLIENT_KEY=<path_to_CLI_key_file>
+export AGENT_GRPC_ATTESTED_TLS=true
+export AGENT_GRPC_ATTESTATION_POLICY=<path_to_attestation_policy_json_file>                       
+```
 
 ### Generate Keys
 
