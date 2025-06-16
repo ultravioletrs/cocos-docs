@@ -91,15 +91,31 @@ In this example, the IP address is 192.168.1.100. You'll use this IP address whe
 Run the server as follows:
 
 ```bash
-HOST=<externally_accessible_ip> go run ./test/cvms/main.go <algo-path> <public-key-path> <attested-tls-bool> <data-paths>
+HOST=<externally_accessible_ip> go run ./test/cvms/main.go \
+    -algo-path <algo-path> \
+    -public-key-path <public-key-path> \
+    -data-paths <data-paths> \
+    -attested-tls-bool <attested-tls-bool> \
+    -ca-url <ca_url> \
+    -cmv-id <cvm_uuid> \
+    -client-ca-file <path_to_client_ca_file_within_the_CVM>
 ```
 
-`data-paths` can be empty, a single file or multiple files depending on the nature of the algorithm and type of data.
+`-data-paths` can be empty, a single file or multiple files depending on the nature of the algorithm and type of data.
+
+`-attested-tls-bool` must be `true` if aTLS is expected, otherwise `false`.
+
+`-ca-url` and `-cvm-id` need to be specified if the Agent needs to use certificates issued by a CA, otherwise the Agent will use self-signed certificate.
+
+`-client-ca-file` needs to be specified if the Agent needs to use mTLS or maTLS.
 
 For example
 
 ```bash
-HOST="192.168.1.100" go run ./test/cvms/main.go ./test/manual/algo/addition.py ./public.pem false
+HOST="192.168.1.100" go run ./test/cvms/main.go \
+    -algo-path ./test/manual/algo/addition.py \
+    -public-key-path ./public.pem \
+    -attested-tls-bool false
 ```
 
 Since this is an addition example, the data paths are empty.
