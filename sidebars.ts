@@ -30,7 +30,20 @@ const sidebars: SidebarsConfig = {
     'cli',
     'hal',
     'tee',
-    'developer-guide'
+    'developer-guide',
+    {
+      type: 'category',
+      label: 'Technical Overview',
+      items: [
+        {
+          type: 'category',
+          label: 'Hardware Abstraction Layer',
+          items: [
+            'cloud',
+          ],
+        },
+      ],
+    },
   ],
   
 };
