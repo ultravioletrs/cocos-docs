@@ -29,7 +29,7 @@ The picture below show the overall flow of the computation.
 ### Events
 
 - `Start`: Triggers the computation startup process.
-- `ManifestReceived`: Indicates computation manifest has been received. 
+- `ManifestReceived`: Indicates computation manifest has been received.
 - `AlgorithmReceived`: Indicates the algorithm has been received. During the upload the hash of the incoming algorithm is compared to the hash of the algorithm sent in the manifest. If datasets are expected the Agent moves into `ReceivingData` state, otherwise it moves in `Running` state.
 - `DataReceived`: Indicates all dataset data has been received.
 - `RunComplete`: Signals the completion of the computation execution.
@@ -37,12 +37,12 @@ The picture below show the overall flow of the computation.
 
 ## Agent Events
 
-As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client. 
+As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client.
 Events sent to the manager are based on the agent state as defined by the statemachine.
 Each event includes the current state of the agent.
 These events are:
 
-- `IdleState`: This event is sent upon agent startup. 
+- `IdleState`: This event is sent upon agent startup.
 - `InProgress`: This event is sent when the agent is in `ReceivingAlgorithm` or `ReceivingData` state. This event is also sent when the actual computation is started.
 - `Starting`: This event is sent when the agent is starting the computation. During this phase (before the `InProgress` event) the agent is performing computation setup.
 - `Ready`: This event is sent when the agent is in `ConsumingResults` state.
