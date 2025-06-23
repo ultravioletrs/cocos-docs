@@ -7,6 +7,7 @@ Cocos AI deploys confidential computing workloads across multi-cloud environment
 ## Architecture Components
 
 ### Agent Runtime Environment
+
 The Cocos agent operates as the core computational engine within each CVM, providing a secure execution context for collaborative confidential computing algorithms. The agent supports multiple execution runtimes:
 
 - **Docker Containers**: Containerized workloads with hardware-encrypted memory isolation
@@ -17,9 +18,11 @@ The Cocos agent operates as the core computational engine within each CVM, provi
 ### Multi-Cloud Deployment Strategy
 
 #### Microsoft Azure Implementation
+
 Azure deployment leverages Confidential VM SKUs (`Standard_DC*ads_v5`) with VMGuestStateOnly encryption and customer-managed disk encryption sets (DES) supported by SEV-SNP (Secure Encrypted Virtualization with Secure Nested Paging) for memory encryption and integrity protection.
 
 **Key Vault Configuration**:
+
 ```hcl
 resource "azurerm_key_vault" "encryption_vault" {
   sku_name                   = "premium"          # FIPS 140-2 Level 2 HSMs
@@ -29,6 +32,7 @@ resource "azurerm_key_vault" "encryption_vault" {
 ```
 
 **Confidential VM Specification**:
+
 ```hcl
 resource "azurerm_linux_virtual_machine" "confidential" {
   size = "Standard_DC${var.vcpu}ads_v5"           # Confidential compute SKU
@@ -44,9 +48,11 @@ resource "azurerm_linux_virtual_machine" "confidential" {
 ```
 
 #### Google Cloud Platform Implementation
+
 GCP deployment utilizes AMD Milan-based N2D instances with SEV-SNP (Secure Encrypted Virtualization with Secure Nested Paging) for memory encryption and integrity protection.
 
 **Confidential Computing Configuration**:
+
 ```hcl
 resource "google_compute_instance" "confidential" {
   machine_type     = "n2d-standard-${var.vcpu}"
@@ -95,6 +101,7 @@ ima_policy=tcb    # Trusted Computing Base measurement
 ```
 
 **IMA Implementation Details**:
+
 - **Boot-time Measurement**: All critical system components are measured during boot sequence
 - **Runtime Monitoring**: Continuous measurement of executed files and loaded libraries
 - **Attestation Support**: Generates cryptographic proofs of system integrity state
@@ -103,9 +110,11 @@ ima_policy=tcb    # Trusted Computing Base measurement
 ## Agent Provisioning Pipeline
 
 ### Cloud-Init Orchestration
+
 The agent deployment utilizes a multi-stage Cloud-Init configuration that implements security hardening alongside functional provisioning.
 
-**Stage 1: Base System Hardening**
+#### Stage 1: Base System Hardening
+
 ```yaml
 # Disable remote access vectors
 - systemctl disable ssh.service sshd.service
@@ -117,7 +126,8 @@ if [ $NUM_OF_IFACE -gt $NUM_OF_PERMITED_IFACE ]; then
 fi
 ```
 
-**Stage 2: Runtime Environment Setup**
+#### Stage 2: Runtime Environment Setup
+
 ```yaml
 # WasmEdge Runtime Installation
 curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.13.5
@@ -126,7 +136,8 @@ curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/insta
 Environment=DOCKER_RAMDISK=true  # Ephemeral container storage
 ```
 
-**Stage 3: Agent Service Configuration**
+#### Stage 3: Agent Service Configuration
+
 ```yaml
 [Service]
 Type=simple
@@ -141,6 +152,7 @@ StartLimitBurst=5
 ```
 
 ### Certificate and Credential Management
+
 Agent authentication utilizes mutual TLS with certificate-based authentication for communication with the cloud:
 
 ```yaml
@@ -156,9 +168,11 @@ write_files:
 ## Network Security Configuration
 
 ### Firewall and Access Control
+
 Network access is restricted to essential agent communication channels:
 
 **GCP Firewall Rule**:
+
 ```hcl
 resource "google_compute_firewall" "allow-agent" {
   name = "allow-agent-${var.vm_name}"
@@ -174,6 +188,7 @@ resource "google_compute_firewall" "allow-agent" {
 ```
 
 ### Interface Validation and Host Discovery
+
 The agent startup script enforces network topology constraints:
 
 ```bash
@@ -190,6 +205,7 @@ AGENT_GRPC_HOST=$(ip -4 addr show $DEFAULT_IFACE | grep inet |
 ## Operational Resilience
 
 ### Service Recovery and State Management
+
 The agent implements automatic recovery mechanisms with state preservation:
 
 - **Automatic Restart**: `Restart=always` with exponential backoff (10s base, 5 burst attempts)
@@ -197,6 +213,7 @@ The agent implements automatic recovery mechanisms with state preservation:
 - **Docker Daemon Management**: Ramdisk configuration with dependency-aware startup sequencing
 
 ### Monitoring and Observability
+
 Comprehensive logging infrastructure captures system and agent state:
 
 ```bash
@@ -205,6 +222,7 @@ StandardError=file:/var/log/cocos/agent.stderr
 ```
 
 **Log Categories**:
+
 - **Setup Logs**: `/var/log/cocos/setup.log` - Initial provisioning status
 - **IMA Logs**: `/var/log/cocos/ima_setup.log` - Integrity measurement configuration
 - **Agent Logs**: `/var/log/cocos/agent.log` - Runtime operation and GRPC communication
@@ -213,11 +231,13 @@ StandardError=file:/var/log/cocos/agent.stderr
 ## Performance Optimizations
 
 ### Memory and Storage Efficiency
+
 - **Docker Ramdisk**: Eliminates persistent container storage overhead and forensic artifacts
 - **IMA Cache Warming**: Pre-measurement of system files reduces runtime measurement latency
 - **Filesystem Expansion**: Automatic root partition resizing maximizes available compute storage
 
 ### Boot Sequence Optimization
+
 - **Conditional Reboot Logic**: IMA policy activation triggers single reboot when required
 - **Dependency Management**: Service ordering ensures network and Docker availability before agent startup
 - **Resource Validation**: Pre-flight checks prevent failed deployments due to missing dependencies
