@@ -1,0 +1,351 @@
+# Attestation
+
+Ensuring system integrity and security is critical in modern computing environments. Confidential computing protects sensitive data during processing, ensuring it remains encrypted and secure. A key component of this security model is remote attestation, which allows one party to verify the integrity of another system before sharing sensitive information.  
+
+This document provides an overview of remote attestation, TPM, Platform Configuration Registers (PCRs), and runtime measurements, explaining how they work together to ensure a trusted computing environment.  
+
+## Remote Attestation  
+
+Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. 
+Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. 
+If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
+
+Several models of remote attestation exist, with two main models: Passport Model and Backgroud-Check Model.
+![Attested TLS](/img/attestation/attestation_models.png)
+
+In Passport Model (left side of the figure above) the attester sends evidence to the verifier and receives an attestation result that it can use to prove its trustworthiness to relying parties.
+
+In the Background-Check Model (right side of the figure above) the attester sends evidence to the relying party, who forwards it to the verifier for appraisal.
+The verifier then sends the attestation results to the relying party, who makes the final decision about trusting the attester based on the comparison of its own appraisal policy against the attestation result.
+
+## Attestation in Cocos
+
+Cocos implements the Background-Check model of remote attestation using two key software components:  
+
+1. **Agent** – A software application running inside the CVM. It is responsible for fetching the attestation report and executing secure computations.  
+2. **Cocos CLI** – A command-line tool used by Secure Multiparty Computation (SMPC) members. It verifies the attestation report and securely transmits confidential code and data to the Agent.  
+
+The attestation report consists of several components which will be described in the remainder of the document.
+
+## SEV-SNP attestation
+
+AMD SEV-SNP (Secure Encrypted Virtualization - Secure Nested Paging) provides hardware-based memory encryption and integrity protection for virtual machines (VMs), allowing them to run securely even on untrusted hypervisors.
+A core feature of SEV-SNP is its attestation capability, which enables a VM to cryptographically prove its integrity and configuration to a remote verifier.
+
+### Attestation Workflow
+The SEV-SNP attestation process involves several key components:
+
+- **Guest VM (Attester)**: Runs inside a secure VM with SEV-SNP enabled.
+- **VMM/Hypervisor**: Facilitates access to attestation interfaces but is considered untrusted.
+- **AMD Secure Processor (ASP)**: A trusted firmware component that handles attestation logic and signs attestation reports.
+- **Remote Verifier**: External party that verifies the integrity and identity of the attested VM.
+- **AMD Attestation Signing Service (ASK/ARK)**: AMD-operated certificate infrastructure that signs attestation keys and allows verifiers to validate signatures.
+
+The typical workflow includes:
+
+- The guest VM requests an attestation report by issuing an `SNP_GUEST_REQUEST_REPORT` instruction.
+- The request includes a user-supplied nonce to guarantee freshness and may include additional runtime data (e.g., measurements).
+- The Secure Processor returns a binary attestation report, signed with AMD’s device-specific key.
+- The VM sends the report to the remote verifier.
+- The verifier uses AMD’s ARK (AMD Root Key) and ASK (AMD Signing Key) certificate chain to validate the report signature and verify platform integrity and configuration.
+
+### Attestation Report Structure
+The SEV-SNP attestation report is a binary structure (typically ~4 KB) that contains the following fields:
+
+| Offset [Byte] | Bits       | Name               | Description                                                                                   |
+|---------------|------------|--------------------|-----------------------------------------------------------------------------------------------|
+| 00h           | 31:0       | Version            | The current value is 2 or 3, but we will focus on version 2.                                  |
+| 04h           | 31:0       | Guest SVN          | The Guest SVN. Can be set when launching the CVM.                                             |
+| 08h           | 63:0       | Policy             | The policy of the CVM. The launch will fail if the platform does not match the launch policy. |
+| 10h           | 127:0      | Family ID          | Arbitrary number that can be set when launching the CVM.                                      |
+| 20h           | 127:0      | Image ID           | Arbitrary number that can be set when launching the CVM.                                      |
+| 30h           | 31:0       | VMPL               | Virtual Machine Privilege Level (VMPL) from which the attestation report was fetched.         |
+| 34h           | 31:0       | Signature algo     | The signature algorithm that was used to sign the report.                                     |
+| 38h           | 63:0       | Current TCB        | The current TCB value.                                                                        |
+| 40h           | 63:0       | Platform info      | Various information about the platform.                                                       |
+| 48h           | 31:5       | -                  | Reserved field. Must be 0.                                                                    |
+| 48h           | 4:2        | Signing key        | Encoding of the keys that are used to sign the report. If the value is 0, VCEK is used.       |
+| 48h           | 1          | Mask chip key.     | The attestation report is not signed if the mask chip key is 0.                               |
+| 48h           | 0          | Author key en.     | Indicates if the digest of the guest owner key is part of the report.                         |
+| 4Ch           | 31:0       | -                  | Reserved field. Must be 0.                                                                    |
+| 50h           | 511:0      | Report data        | CVM-provided data at the moment the attestation report is requested.                          |
+| 90h           | 383:0      | Measurement        | The hash of initial guest memory.                                                             |
+| C0h           | 255:0      | Host data          | Data provided by the hypervisor to the guest at the time of CVM launch.                       |
+| E0h           | 383:0      | ID key digest      | SHA-384 digest of the ID public key that signed the ID block.                                 |
+| 110h          | 383:0      | Author key digest  | SHA-384 digest of the Author public key that certified the ID key.                            |
+| 140h          | 255:0      | Report ID          | Report ID of the guest.                                                                       |
+| 160h          | 255:0      | Report ID of MA    | Report ID of the Migration Agent (MA).                                                        |
+| 180h          | 63:0       | Reported TCB       | The reported TCB value.                                                                       |
+| 188h-19Fh     | -          | -                  | Reserved field.                                                                               |
+| 1A0h-1DFh     | 511:0      | Chip ID            | Unique identifier of the platform chip.                                                       |
+| 1E0h          | 63:0       | Committed TCB      | The committed TCB value.                                                                      |
+| 1E8h          | 7:0        | Current Build      | Build number of the current firmware.                                                         |
+| 1E9h          | 7:0        | Current Minor      | Minor number of the current firmware.                                                         |
+| 1EAh          | 7:0        | Current Major      | Major number of the current firmware.                                                         |
+| 1EBh          | 7:0        | -                  | Reserved field.                                                                               |
+| 1ECh          | 7:0        | Committed Build    | Build number of the committed firmware.                                                       |
+| 1EDh          | 7:0        | Committed Minor    | Minor number of the committed firmware.                                                       |
+| 1EEh          | 7:0        | Committed Major    | Major number of the committed firmware.                                                       |
+| 1EFh          | 7:0        | -                  | Reserved field.                                                                               |
+| 1F0h          | 63:0       | Launch TCB         | The TCB valued at the time the CVM was launched.                                              |
+| 1F8h-29Fh     | -          | -                  | Reserved field.                                                                               |
+| 2A0h-49Fh     | -          | Signature          | Signature of the report. Bytes from 0h to 29Fh.                                               |
+
+### Security Guarantees
+The report allows a verifier to validate:
+
+- **Platform authenticity**, via the AMD certificate chain.
+- **Guest integrity**, via the measurement field (comparable to a PCR hash).
+- **Freshness**, via the report_data which should contain a hash of the verifier’s nonce.
+- **Configuration policy**, ensuring the guest runs with secure settings (e.g., no debug access).
+- **Key binding**, where the attestation report binds the measurement to a public key used later for secure communication (e.g., TLS or key wrapping).
+
+## Trusted Platform Module (TPM)
+
+A TPM is a dedicated security chip designed to perform tamper-resistant cryptographic functions.
+It securely manages sensitive artifacts such as encryption keys, certificates, and integrity measurements.
+In scenarios where TPM functionality is implemented via software instead of hardware, it is referred to as a virtual TPM (vTPM).
+
+The Trusted Platform Module (TPM) plays a fundamental role in the process of attestation by providing a tamper-resistant foundation for cryptographic operations, securing sensitive artifacts, measuring system state, and enabling attestation mechanisms.
+
+Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values.
+This process involves Event Log Verification, which ensures that recorded system events align with the expected platform state.
+
+<!--
+    Ovo isto nije istina za sve slucajeve. Ovo vazi za HAL, kod GCP i Azure dobijas vec gotovo
+-->
+To enable vTPM on AMD SEV-SNP CPUs we use firmware from [COCONUT Secure VM Service Module](https://github.com/coconut-svsm/svsm).
+
+### Platform Configuration Register (PCR)
+
+A Platform Configuration Register (PCR) is a secure memory region within the TPM that records system integrity measurements.
+Instead of being overwritten, PCR values are extended through a cryptographic hash function:
+
+$$
+PCR[N] = \text{HASH}_{\text{alg}}( PCR[N] \, || \, \text{NewMeasurement} )
+$$
+
+This ensures that all recorded values remain linked and verifiable, making PCRs essential for attestation and system security.  
+
+### Trusted Boot and Integrity Measurement
+
+System integrity is ensured by measuring and recording each boot component into the Trusted Platform Module (TPM).
+The firmware acts as the **Static Root of Trust for Measurement (SRTM)**, measuring critical components and storing their hashes in the TPM's Platform Configuration Registers (PCRs).
+These values are extended immutably, creating a tamper-proof record.
+
+This process enables secure attestation, ensuring that only verified software executes and detecting unauthorized modifications.
+The TPM also functions as a **Root of Trust for Storage (RTS)** and **Root of Trust for Reporting (RTR)**, allowing for remote verification of system integrity.
+
+### What We Verify in Each PCR
+
+A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0.
+PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system.
+PCR [16] is for debug usage.
+PCR [23] is for application support.
+PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM).
+Based on our measurements on our server, we only have PCR registers 0 to 7, 9, 10 and 15 in the vTPM quote.
+
+<!---
+    I ova tabela se razlikuje za Azure, GCP, ova trenutna je za HAL, treba dodati jos dve za Azure i GCP
+
+    pogledaj: https://docs.edgeless.systems/constellation/architecture/attestation#runtime-measurements
+
+    pogledaj i ovu sekciju verifikacije
+--->
+
+| PCR Index    | What is Stored?                                                                               | What We Verify?                                           | Why It Is Important for Integrity?                                      |
+|-------------|----------------------------------------------------------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------|
+| PCR[0]      | Firmware, including BIOS, embedded option ROMs, and platform initialization (PI) drivers.    | Ensures the BIOS and firmware have not been tampered with. | Prevents unauthorized firmware modifications that could compromise the boot process. |
+| PCR[1]      | Boot order and boot variables.                                                               | Ensures critical boot settings remain unchanged.         | Prevents attackers from modifying boot parameters that could affect system startup. |
+| PCR[2]      | /                                                                                            | /                                                        | / |
+| PCR[3]      | /                                                                                            | /                                                        | / |
+| PCR[4]      | Kernel                                                                                       | Verifies that the correct kernel is loaded.              | Prevents kernel-level attacks and ensures a trusted execution environment. |
+| PCR[5]      | Finish boot service.                                                                         | Ensures boot services complete without unauthorized changes. | Prevents tampering with boot processes that could enable persistent threats. |
+| PCR[6]      | (OEM-specific data; not applicable)                                                        | /                                                        | / |
+| PCR[7]      | Secure Boot policies, certificates, and signing keys.                                        | Verifies that only signed and authorized components are loaded during boot. | Prevents the execution of unsigned or malicious software. |
+| PCR[9]      | initramfs                                                                                    | Ensures the integrity of the initial RAM filesystem.      | Prevents unauthorized modifications that could impact early user-space execution. |
+| PCR[15]     | Public TLS key used for attested TLS.                                                        | Verifies the integrity of the TLS public key used for attestation. | Ensures secure, authenticated communication and prevents unauthorized key modifications. |
+
+By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
+
+### Event Log Verification
+
+In addition to the PCR values, the vTPM quote also includes a log of all significant events that happened during the boot process.
+This ensures the platform’s integrity by checking if the recorded events match the expected state.
+
+1. The CLI requests a quote from the client.
+2. The Agent asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the CLI.
+3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.
+4. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
+5. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
+
+A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
+
+## Runtime Measurement
+
+A runtime measurement is a cryptographic fingerprint that captures the state of critical system components during execution. These measurements are typically applied to the bootloader and operating system kernel, enabling detection of unauthorized changes and ensuring the system’s integrity.  
+
+By integrating TPM, PCRs, and runtime measurements, attestation mechanisms can ensure that a Confidential Virtual Machine (CVM) is running in a trusted environment, protecting sensitive computations from unauthorized access or tampering.  
+
+## What are the parts of the attestation report?
+
+The attestation report consists of multiple components that provide cryptographic proof of the CVM’s integrity and security posture.  
+<!---
+
+Tri odeljka za HAL, Azure i GCP
+
+1. Measuremnt 
+    - Kod HAL u ovu sekciju ulazi hes vTPM i OVMF fajla, ovo su nasi fajlovi dobijeni pomocu Coconut SVSM
+    - Za GCP je samo OVMF, oni imaju svoj neki SW TPM koji dobijes uz VM, o tom SW TPM vodi racuna hipervizor, GCP OVMF moze da se skine ali je zatvoren
+    - Azure je isto hes vTPM i OVMF, nista ne moze da se skine, moras da im verujes
+
+2. VTPM-Based attestation data se razlikuje u sva tri slucaja, pogledaj Constellation da vidis kako izgleda
+
+3. promeni ovo poglavlje tako da pise da je izvestaj sacinjen od SEV-SNP atestacije, vTPM atestacije, onda opises ove razlike i kako reprodukovati vrednosti u izvestaju ako je to neophodno
+
+4. Dodaj tekst u kojem opisujes kako se za svaku platformu verifikuju ovi podaci.
+
+Ovo poglavlje moze da obrise, nije azurno
+--->
+
+1. **Measurement** – Represents the cryptographic hash of the entire CVM or the hash of the [HAL](./hal.md). This enables the client to verify the contents of the CVM.  
+ The CLient ensures IGVM validation by computing the expected launch measurement of the IGVM file and verifying that it aligns with the attestation report, preventing unauthorized modifications.
+
+2. **Boot and Hardware Information** – Contains details about the CVM’s boot policy and the SNP firmware’s Trusted Computing Base (TCB) version, ensuring the system is running with the correct security configuration.  
+3. **vTPM-Based Attestation Data** – Provides cryptographic evidence of the enclave's boot and runtime state.
+4. **Report Data** – A 512-bit field that can contain arbitrary data provided by the Agent to the ASP each time the attestation report is generated.  
+5. **Signature** – The AMD SEV-SNP attestation report is signed using the Versioned Chip Endorsement Key (VCEK). The VCEK is derived from chip-unique secrets and the current SNP firmware TCB. The signature is verified using the certificate from the AMD Key Distribution System (KDS), ensuring that the CVM runs on genuine AMD hardware and that the AMD Secure Processor (ASP) generated the attestation report.  
+
+## How is the attestation report fetched?
+
+The Agent is responsible for fetching the attestation report from the CVM. This procedure is safe because the Kernel and the ASP can exchange encrypted messages that can only be decrypted by the Kernel and the ASP. The keys used for the encryption/decryption are inserted by the ASP into the memory of the CVM during boot, thus ensuring that only the ASP and the CVM have the keys for safe communication.
+
+Additionally, the Agent interacts with the vTPM inside the CVM using go-tpm-tools to retrieve attestation data, which includes cryptographic measurements of the enclave’s boot and runtime state. These measurements are used to generate the attestation report, which the Manager or an external verifier can validate to ensure the enclave’s integrity.
+
+## Attested TLS
+
+For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report.
+In Cocos, the CVM acts as the server, and the Agent extends the x.509 certificate it uses for TLS with the attestation report. When generating the report, the Agent embeds the hash of its public key into the `report_data` field.
+The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
+
+![Attested TLS](/img/attestation/atls.png)
+
+The relying party uses the Cocos CLI to verify the self-signed certificate and the attestation report that is part of it. Successful verification proves to the relying party that the certificate is generated inside the SVM because the certificate's public key is part of the attestation report.
+
+It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS (described above).
+
+## Linux IMA (Integrity Measurement Architecture)
+
+Linux Integrity Measurement Architecture (IMA) is a Linux kernel feature that provides a mechanism to record and verify the integrity of files and other system objects at load or access time.
+At a high level, IMA computes cryptographic hashes of files (or other data) when they are used, maintains a log of these measurements, and can optionally enforce appraisal policies (e.g., signature checks) before allowing execution or access.
+This helps detect unauthorized modifications and supports building trust in the system state.
+
+### Overview
+
+Primary objectives of Linux IMA are:
+
+ - **Detection of Unauthorized Modifications**: By computing hashes of files and comparing them to known-good values or verifying signatures, IMA can detect tampering.
+ - **Support for Remote Attestation**: Measurements can be extended into TPM PCRs (typically PCR 10 on AMD SEV-SNP setups) to allow a remote party to verify the boot-time and runtime integrity state of the system.
+ - **Policy-Driven Measurement and Appraisal**: Flexible policy allows administrators to specify which files or operations to measure or appraise, balancing performance and security needs.
+ - **Integration with Extended Attributes (EVM)**: Ensures integrity metadata (e.g., security labels, signatures stored as xattrs) cannot themselves be tampered with without detection.
+
+Key aspects of IMA in general terms:
+
+- **Measurement**: When a file (such as an executable, shared library, or configuration file) is opened, mapped, or otherwise used in a way covered by policy, the kernel computes a hash of its contents (and possibly metadata) and appends that measurement to an in-memory log. This log can be exposed to user space for auditing or further processing.
+
+- **Policy-Driven**: Which files or operations are measured (or appraised) is determined by a policy. Administrators define simple rules (e.g., “measure all ELF binaries” or “appraise scripts under /usr/local/bin”) so that only relevant objects incur overhead.
+
+- **Appraisal (Optional Enforcement)**: Beyond just measuring, IMA can verify that a file carries a valid digital signature (with the public key provisioned in the kernel) before permitting its use. If appraisal fails, the kernel can refuse to open or execute the file, or log a warning depending on configuration.
+
+- **Logging and Auditing**: The sequence of measurements is kept in a log that can be read or exported. This enables administrators or automated systems to review which files were loaded and whether any unexpected changes occurred.
+
+- **Integration with TPM/Attestation (Contextual Use)**: While IMA itself computes and logs hashes, in many deployments those measurements are extended into a TPM’s Platform Configuration Registers (PCRs). A remote verifier can then obtain a TPM quote including these PCR values, providing evidence that the system booted and ran only approved components. (Note: this integration is set up separately, but IMA provides the runtime measurements that feed into it.)
+
+- **Performance Considerations**: Measuring every access can introduce overhead, so policies usually target only critical binaries or first-time loads. Subsequent accesses of immutable files may skip rehashing. Appraisal (signature checks) also adds cost, so it’s applied selectively.
+
+- **Extended Metadata Protection**: IMA often works alongside EVM (Extended Verification Module), which protects integrity-related extended attributes (e.g., signatures stored in xattrs) so that metadata tampering is also detectable.
+
+In essence, IMA provides a flexible, policy-driven way to observe and enforce file integrity at runtime in Linux.
+It does not by itself decide trustworthiness—that comes from how measurements are evaluated (e.g., comparing hashes to a whitelist or verifying signatures)—but it ensures that each file’s state when accessed is recorded and, if configured, checked before use.
+This mechanism underpins many integrity and attestation solutions by supplying reliable, tamper-evident records of what code and data have actually been loaded on the system.
+
+### Integration with CocosAI
+
+Eventhough IMA offers an appraise feature, CocosAI doesn't use.
+The reason for this decision is the fact that many public cloud provider offer images that don't have file measurements.
+In these cases the VM doesn't boot since some of the critital binaries (system services etc.) are not executed because of the missing measurements.
+Rather than relying on kernel-enforced appraisal, CocosAI adopts a local verification approach:
+
+- An in-VM agent can fetch the current IMA measurement log.
+- A CLI tool can request that data and combine it with TPM PCR10 values (or quotes).
+- Verification is performed in user space (either locally or by forwarding to a remote attestation service). This design avoids boot failures on images without built-in measurements, while still leveraging IMA’s tamper-evident logs for post-boot integrity checking.
+
+Linux IMA is enabled through grub command line arguments.
+The command line needs to include `ima_policy=tcb` for IMA to be enabled.
+On VM startup, CocosAI applies a configuration file (in `YAML` format) that changes the grub command line.
+The change is made by editing `/etc/grub/default/ file.
+Afterwards grub is update and the VM is rebooted in order to activate IMA kernel feature.
+
+To ensure every file on the filesystem is measured (so that the log contains entries for all root-owned binaries and other critical files), CocosAI uses a command that accesses each file without reading its contents:
+
+```bash
+sudo find / -fstype ext4 -type f -uid 0 -exec dd if='{}' of=/dev/null count=0 status=none \;
+```
+What this does:
+
+- `find /`: Traverse from the root directory.
+- `-fstype ext4`: Restrict to filesystems of type ext4 (adjust if other filesystem types are used).
+- `-type f -uid 0`: Match regular files owned by root.
+- `-exec dd if='{}' of=/dev/null count=0 status=none \;`: For each path, open it via dd but copy zero blocks (`count=0`), which causes the kernel to open the file (triggering IMA measurement) without reading data, minimizing I/O overhead.
+Each matched file is opened exactly once, causing IMA to compute and record its hash in the runtime measurement list.
+After the reboot all files in the system are measured and their measurements are stored in the `/sys/kernel/security/integrity/ima/ascii_runtime_measurements` file.
+
+When the VM boots and the Agent starts, the measurements can be fetche with CLI tool.
+Every IMA mesurement extends PCR 10 register value.
+This means that the value of that register can be used to verify that the content of the file with measurements is not tampered with.
+When fetched, the measurements can be verified locally.
+
+<!-- 
+    Dodaj poglavlje u kojem ces za sce tri varijnte (HAL, Azure i GCP) da napises kako izgleda lanac odgvornosit, odnosno sta se meri i ko ga meri i kako mozemo da budemo sigrni da je sve ok.
+
+    Procitaj: https://docs.edgeless.systems/constellation/architecture/attestation#cvm-verification
+-->
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Example: Tables in Tabs
+
+This page shows how to present different tables or content under clickable tabs.
+
+<Tabs>
+  <TabItem value="users" label="Users">
+  
+  | Name    | Email              | Role   |
+  |---------|--------------------|--------|
+  | Alice   | alice@example.com  | Admin  |
+  | Bob     | bob@example.com    | Editor |
+  | Charlie | charlie@domain.com | Viewer |
+  
+  </TabItem>
+
+  <TabItem value="settings" label="Settings">
+  
+  | Setting        | Default | Description                          |
+  |----------------|---------|--------------------------------------|
+  | enable_feature | true    | Enable or disable the main feature   |
+  | timeout        | 30      | Timeout in seconds                   |
+  | log_level      | info    | Logging verbosity (e.g., info, debug)|
+  
+  </TabItem>
+
+</Tabs>
+  
+  Here is a code snippet example:
+  
+  ```js
+  // Example JavaScript snippet
+  function greet(name) {
+    console.log(`Hello, ${name}!`);
+  }
+  greet('CocosAI');
