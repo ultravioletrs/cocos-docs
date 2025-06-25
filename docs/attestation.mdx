@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Attestation
 
 Ensuring system integrity and security is critical in modern computing environments. Confidential computing protects sensitive data during processing, ensuring it remains encrypted and secure. A key component of this security model is remote attestation, which allows one party to verify the integrity of another system before sharing sensitive information.  
@@ -113,7 +116,7 @@ This process involves Event Log Verification, which ensures that recorded system
 
 To enable vTPM follow instructions in the table below.
 
-<Tabs className="myTabs">
+<Tabs>
   <TabItem value="private_cloud" label="Private cloud">
     Private cloud should include AMD SEV-SNP CPUs. 
     To enable vTPM on these CPUs use the firmware from [COCONUT Secure VM Service Module](https://github.com/coconut-svsm/svsm).
@@ -128,7 +131,7 @@ To enable vTPM follow instructions in the table below.
   </TabItem>
 
   <TabItem value="azure" label="Azure">
-    Constellation uses the [vTPM](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#vtpm) feature of Azure CVMs for runtime measurements.
+    Cocos uses the [vTPM](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#vtpm) feature of Azure CVMs for runtime measurements.
     This vTPM adheres to the [TPM 2.0](https://trustedcomputinggroup.org/resource/tpm-library-specification/) specification.
     It provides a [measured boot](https://learn.microsoft.com/en-us/azure/security/fundamentals/measured-boot-host-attestation#measured-boot) verification that's based on the trusted launch feature of [Trusted Launch VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch).
   </TabItem>
@@ -156,35 +159,52 @@ These values are extended immutably, creating a tamper-proof record.
 This process enables secure attestation, ensuring that only verified software executes and detecting unauthorized modifications.
 The TPM also functions as a **Root of Trust for Storage (RTS)** and **Root of Trust for Reporting (RTR)**, allowing for remote verification of system integrity.
 
-### What We Verify in Each PCR
+### What is Verified in Each PCR
 
-A typical TPM has 24 PCRs. PCRs [0-15] represent the SRTM and are associated with Locality 0.
-PCRs [0-7] are used for platform firmware and PCRs [8-15] are used for the operating system.
-PCR [16] is for debug usage.
-PCR [23] is for application support.
-PCRs [17-22] represent the platform's dynamic root of trust for measurement (DRTM).
-Based on our measurements on our server, we only have PCR registers 0 to 7, 9, 10 and 15 in the vTPM quote.
+A typical TPM has 24 PCRs.
+What is verified in each PCR depends on the platform and the specific implementation of the TPM.
+The table below shows the PCRs used in CocosAI and what is verified in each of them for a different platform.
 
-<!---
-    I ova tabela se razlikuje za Azure, GCP, ova trenutna je za HAL, treba dodati jos dve za Azure i GCP
+<Tabs>
+  <TabItem value="private_cloud" label="Private cloud">
+    | PCR Index | What is Stored?                                                                                           | What We Verify?                                                                                                     | Why It Is Important for Integrity?                                                                                                |
+    | --------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | Firmware measurements: CRTM version and EFI platform firmware blobs                                       | Ensures the measured firmware components (CRTM, UEFI firmware) match expected hashes.                               | Prevents unauthorized or tampered firmware from running, which could compromise the entire boot chain.                            |
+    | PCR\[1]   | Platform configuration flags and boot variables (e.g., BootOrder, Boot#### entries)                       | Ensures that critical UEFI variables and boot settings haven’t been altered.                                        | Stops attackers from changing boot parameters or order to load malicious components.                                              |
+    | PCR\[4]   | EFI Boot Services Application image (e.g., bootloader or kernel image loaded via UEFI)                    | Verifies that the correct bootloader/kernel image is measured before execution.                                     | Prevents unsigned or altered boot applications from being launched, ensuring a trusted OS load.                                   |
+    | PCR\[5]   | EFI Actions around Exit Boot Services (e.g., “Exit BootServices Invocation/Return”)                       | Ensures that the transition from firmware to OS (via Exit Boot Services) is unmodified.                             | Guards the handoff phase so that no unauthorized hooks or code injections occur just before OS runtime.                           |
+    | PCR\[7]   | EFI variable configurations related to Secure Boot: SecureBoot flag, PK, KEK, db, dbx, and authority data | Verifies that Secure Boot keys and policy databases are exactly as expected (no rogue keys or removed revocations). | Crucial for ensuring only signed, authorized binaries can load; prevents boot-time attacks via unauthorized keys or certificates. |
+    | PCR\[9]   | Event tags for loaded images and initramfs options (e.g., “LOADED\_IMAGE::loadOptions”, “Linux initrd”)   | Ensures that the load options or initrd identifiers provided to the OS are as intended.                             | Protects early user-space setup by detecting tampering in initramfs or kernel command-line inputs.                                |
+  </TabItem>
 
-    pogledaj: https://docs.edgeless.systems/constellation/architecture/attestation#runtime-measurements
+  <TabItem value="azure" label="Azure">
+    | PCR Index | What is Stored?                                                                                                                    | What We Verify?                                                                                                             | Why It Is Important for Integrity?                                                                                                      |
+    | --------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | Firmware measurements: S-CRTM version and EFI platform firmware blobs (hashed with sha1/sha256/sha384)                             | Ensures measured firmware components (CRTM, UEFI firmware regions) match expected values across all hash algorithms.        | Prevents tampering of the foundational firmware layers that could subvert the entire boot chain.                                        |
+    | PCR\[1]   | Boot variables: BootOrder and Boot#### entries (with full variable data for Boot0000)                                              | Verifies critical UEFI boot settings and boot entries remain unchanged (detects insertion or modification of boot entries). | Stops unauthorized modifications to boot order or parameters, thwarting attempts to load untrusted OS loaders or kernels.               |
+    | PCR\[4]   | EFI application launch actions: Calling EFI Application from Boot Option and measured boot services applications                   | Confirms the exact bootloader or EFI application image being invoked is the expected one.                                   | Ensures the correct bootloader is measured before execution, preventing tampered or rogue boot code from launching.                     |
+    | PCR\[5]   | EFI actions around Exit Boot Services (Invocation/Return)                                                                          | Checks that the transition from firmware to OS was not altered (no unexpected hooks inserted).                              | Protects the critical handoff phase to the operating system, preventing runtime compromises at boot.                                    |
+    | PCR\[6]   | Compact hash event: compact hash of identifiers (e.g., UEFI variable GUID or similar)                                              | Verifies specific compact-hash measurements of components or identifiers essential for subsequent phases.                   | Ensures integrity of measured components or data that may influence boot flow (e.g., verifying integrity of certain UEFI events).       |
+    | PCR\[7]   | Secure Boot-related UEFI variables and authorities (SecureBoot flag, PK, KEK, db, dbx, SbatLevel, MokList, MokListRT)              | Verifies Secure Boot keys, policies, revocations, SBAT level, and MOK lists exactly as expected.                            | Crucial for ensuring only signed binaries load; prevents unauthorized keys or revoked certificates from permitting malicious code.      |
+    | PCR\[9]   | Event tags for loaded images or initrd flags (e.g., “LOADED\_IMAGE::loadOptions”, “Linux initrd”, “linux initrd”, “uname”, “sbat”) | Ensures load options and initial RAM filesystem identifiers passed to the OS match intended values.                         | Protects early user-space setup by detecting tampering in initramfs, kernel command-line, or load options that could subvert OS.        |
+    | PCR\[11]  | IPL events: measurements of bootloader command-line components (e.g., filenames, loader options, initrd names)                     | Verifies that the exact bootloader path, command-line entries, and initramfs filenames are unchanged.                       | Detects unauthorized changes to the bootloader invocation, kernel parameters, or initramfs, which could alter system behavior at boot.  |
+    | PCR\[14]  | EV\_IPL strings (e.g., MokList, MokListX, MokListTrusted)                                                                          | Verifies the integrity of secure boot MokList entries and other early boot integrity policy strings.                        | Ensures the platform’s trust management lists (MOK) and related policy strings are intact, guarding against unauthorized trust changes. |
+  </TabItem>
 
-    pogledaj i ovu sekciju verifikacije
---->
-
-| PCR Index    | What is Stored?                                                                               | What We Verify?                                           | Why It Is Important for Integrity?                                      |
-|-------------|----------------------------------------------------------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------|
-| PCR[0]      | Firmware, including BIOS, embedded option ROMs, and platform initialization (PI) drivers.    | Ensures the BIOS and firmware have not been tampered with. | Prevents unauthorized firmware modifications that could compromise the boot process. |
-| PCR[1]      | Boot order and boot variables.                                                               | Ensures critical boot settings remain unchanged.         | Prevents attackers from modifying boot parameters that could affect system startup. |
-| PCR[2]      | /                                                                                            | /                                                        | / |
-| PCR[3]      | /                                                                                            | /                                                        | / |
-| PCR[4]      | Kernel                                                                                       | Verifies that the correct kernel is loaded.              | Prevents kernel-level attacks and ensures a trusted execution environment. |
-| PCR[5]      | Finish boot service.                                                                         | Ensures boot services complete without unauthorized changes. | Prevents tampering with boot processes that could enable persistent threats. |
-| PCR[6]      | (OEM-specific data; not applicable)                                                        | /                                                        | / |
-| PCR[7]      | Secure Boot policies, certificates, and signing keys.                                        | Verifies that only signed and authorized components are loaded during boot. | Prevents the execution of unsigned or malicious software. |
-| PCR[9]      | initramfs                                                                                    | Ensures the integrity of the initial RAM filesystem.      | Prevents unauthorized modifications that could impact early user-space execution. |
-| PCR[15]     | Public TLS key used for attested TLS.                                                        | Verifies the integrity of the TLS public key used for attestation. | Ensures secure, authenticated communication and prevents unauthorized key modifications. |
+  <TabItem value="gcp" label="GCP">
+    | PCR Index | What is Stored?                                                                                                                                                         | What We Verify?                                                                                                                       | Why It Is Important for Integrity?                                                                                                            |
+    | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | **CRTM & early firmware**: the Virtual Firmware (UEFI/BIOS) code version (EV\_S\_CRTM\_VERSION) plus ancillary “GC E NonHostInfo” records.                              | That the Core Root of Trust for Measurement (CRTM) and the platform firmware hashes are exactly what your golden-measure set expects. | Any alteration of the very first instructions the CPU executes would let an attacker subvert every later stage of the boot chain.             |
+    | PCR\[1]   | **Platform configuration & boot variables**: ACPI/firmware flags (EV\_PLATFORM\_CONFIG\_FLAGS) and UEFI variables such as `BootOrder`, `Boot0000–3`, etc.               | That critical UEFI settings and the selected boot entries haven’t been tampered with between reboots.                                 | Prevents silent changes that could redirect the boot flow to malicious loaders or change kernel parameters.                                   |
+    | PCR\[4]   | **Boot-services applications**: “Calling EFI Application from Boot Option”, the GRUB EFI binary, and the Linux kernel image (EV\_EFI\_BOOT\_SERVICES\_APPLICATION).     | That the measured hash of the bootloader/kernel matches the signed, approved version.                                                 | Protects the hand-off from firmware to the OS so only trusted binaries are executed.                                                          |
+    | PCR\[5]   | **Exit Boot Services + disk layout**: GPT partition map (EV\_EFI\_GPT\_EVENT) and the paired “Exit Boot Services Invocation/Return” records.                            | That neither the partition table nor the final pre-OS firmware code path has been altered.                                            | Stops “last-second” attacks that hook the OS after Secure Boot checks are finished.                                                           |
+    | PCR\[6]   | **Separator + runtime driver gap**: an EV\_SEPARATOR (no extra data) indicates no additional EFI drivers loaded after GPT.                                              | Confirms the expected absence of late-loaded drivers.                                                                                 | Any unexpected runtime driver could patch memory before the kernel starts.                                                                    |
+    | PCR\[7]   | **Secure Boot state**: `SecureBoot` flag and the current PK, KEK, db, dbx databases (four large EV\_EFI\_VARIABLE\_DRIVER\_CONFIG events).                              | That the platform key hierarchy and revocation lists exactly match those for which you generated reference values.                    | Guarantees that only binaries signed by trusted keys—and with no revoked signatures—can run at boot.                                          |
+    | PCR\[8]   | **GRUB command-line & shim “grub\_cmd” strings**: dozens of EV\_IPL events recording each parameter passed to GRUB/shim (e.g., `set default=0`, `save_env recordfail`). | That kernel command-line options and GRUB environment are untouched.                                                                  | Early-userspace settings here influence root FS, initrd, and security modules; tampering could disable protections or load alternate kernels. |
+    | PCR\[9]   | **Kernel/initramfs load options**: final GRUB path of the Linux kernel (`(hd0,gpt15)/EFI/…`) captured as EV\_IPL.                                                       | That the kernel and initramfs referenced on disk are the ones whose hashes you expect.                                                | Prevents attackers from substituting an unsigned or outdated kernel/initrd after GRUB starts.                                                 |
+    | PCR\[14]  | **Shim/Mok measurements & SBAT**: `MokList`, `MokListTrusted`, `SbatLevel`, etc.—all user-managed trust anchors measured by shim.                                       | That the machine-owner keys (MOK) and SBAT vulnerability revocation list are unmodified.                                              | Protects against local administrators (or malware) installing untrusted keys or rolling back SBAT to re-enable vulnerable shims/kernels.      |
+  </TabItem>
+</Tabs>
 
 By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
 
@@ -201,40 +221,28 @@ This ensures the platform’s integrity by checking if the recorded events match
 
 A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
 
-## Runtime Measurement
+## Attestation Report Verification
 
-A runtime measurement is a cryptographic fingerprint that captures the state of critical system components during execution. These measurements are typically applied to the bootloader and operating system kernel, enabling detection of unauthorized changes and ensuring the system’s integrity.  
+Regardless of the provider, the attestation report always consists of a vTPM quote and SEV-SNP quote.
+SEV-SNP quote can always be verfied.
+However, verifying the vTPM quote differs across platforms.
 
-By integrating TPM, PCRs, and runtime measurements, attestation mechanisms can ensure that a Confidential Virtual Machine (CVM) is running in a trusted environment, protecting sensitive computations from unauthorized access or tampering.  
+<Tabs>
+  <TabItem value="private_cloud" label="Private cloud">
+    Since all components of the CVM are known in advance, all the values present in the attestation report can be verified against the values calculated in advance.
+  </TabItem>
+  
+  <TabItem value="azure" label="Azure">
+    Azure does not provide access to the OVMF file or the Image, so the vTPM quote cannot be verified.
+    However, Azure providec its own MAA (Microsoft Azure Attestation) service for attestation verification, which can be used to verify the vTPM quote.
+  </TabItem>
 
-## What are the parts of the attestation report?
-
-The attestation report consists of multiple components that provide cryptographic proof of the CVM’s integrity and security posture.  
-<!---
-
-Tri odeljka za HAL, Azure i GCP
-
-1. Measuremnt 
-    - Kod HAL u ovu sekciju ulazi hes vTPM i OVMF fajla, ovo su nasi fajlovi dobijeni pomocu Coconut SVSM
-    - Za GCP je samo OVMF, oni imaju svoj neki SW TPM koji dobijes uz VM, o tom SW TPM vodi racuna hipervizor, GCP OVMF moze da se skine ali je zatvoren
-    - Azure je isto hes vTPM i OVMF, nista ne moze da se skine, moras da im verujes
-
-2. VTPM-Based attestation data se razlikuje u sva tri slucaja, pogledaj Constellation da vidis kako izgleda
-
-3. promeni ovo poglavlje tako da pise da je izvestaj sacinjen od SEV-SNP atestacije, vTPM atestacije, onda opises ove razlike i kako reprodukovati vrednosti u izvestaju ako je to neophodno
-
-4. Dodaj tekst u kojem opisujes kako se za svaku platformu verifikuju ovi podaci.
-
-Ovo poglavlje moze da obrise, nije azurno
---->
-
-1. **Measurement** – Represents the cryptographic hash of the entire CVM or the hash of the [HAL](./hal.md). This enables the client to verify the contents of the CVM.  
- The CLient ensures IGVM validation by computing the expected launch measurement of the IGVM file and verifying that it aligns with the attestation report, preventing unauthorized modifications.
-
-2. **Boot and Hardware Information** – Contains details about the CVM’s boot policy and the SNP firmware’s Trusted Computing Base (TCB) version, ensuring the system is running with the correct security configuration.  
-3. **vTPM-Based Attestation Data** – Provides cryptographic evidence of the enclave's boot and runtime state.
-4. **Report Data** – A 512-bit field that can contain arbitrary data provided by the Agent to the ASP each time the attestation report is generated.  
-5. **Signature** – The AMD SEV-SNP attestation report is signed using the Versioned Chip Endorsement Key (VCEK). The VCEK is derived from chip-unique secrets and the current SNP firmware TCB. The signature is verified using the certificate from the AMD Key Distribution System (KDS), ensuring that the CVM runs on genuine AMD hardware and that the AMD Secure Processor (ASP) generated the attestation report.  
+  <TabItem value="GCP" label="GCP">
+    GCPs OVMF file is closed, but it can be downloaded.
+    In addition, GCP also uses standard Linux distributions.
+    Therefore the values in the attestation report can be verified against the OVMF file and the Linux distribution.
+  </TabItem>
+</Tabs>
 
 ## How is the attestation report fetched?
 
@@ -324,48 +332,3 @@ When the VM boots and the Agent starts, the measurements can be fetche with CLI 
 Every IMA mesurement extends PCR 10 register value.
 This means that the value of that register can be used to verify that the content of the file with measurements is not tampered with.
 When fetched, the measurements can be verified locally.
-
-<!-- 
-    Dodaj poglavlje u kojem ces za sce tri varijnte (HAL, Azure i GCP) da napises kako izgleda lanac odgvornosit, odnosno sta se meri i ko ga meri i kako mozemo da budemo sigrni da je sve ok.
-
-    Procitaj: https://docs.edgeless.systems/constellation/architecture/attestation#cvm-verification
--->
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-# Example: Tables in Tabs
-
-This page shows how to present different tables or content under clickable tabs.
-
-<Tabs>
-  <TabItem value="users" label="Users">
-  
-  | Name    | Email              | Role   |
-  |---------|--------------------|--------|
-  | Alice   | alice@example.com  | Admin  |
-  | Bob     | bob@example.com    | Editor |
-  | Charlie | charlie@domain.com | Viewer |
-  
-  </TabItem>
-
-  <TabItem value="settings" label="Settings">
-  
-  | Setting        | Default | Description                          |
-  |----------------|---------|--------------------------------------|
-  | enable_feature | true    | Enable or disable the main feature   |
-  | timeout        | 30      | Timeout in seconds                   |
-  | log_level      | info    | Logging verbosity (e.g., info, debug)|
-  
-  </TabItem>
-
-</Tabs>
-  
-  Here is a code snippet example:
-  
-  ```js
-  // Example JavaScript snippet
-  function greet(name) {
-    console.log(`Hello, ${name}!`);
-  }
-  greet('CocosAI');

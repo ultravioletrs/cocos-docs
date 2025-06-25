@@ -17,7 +17,7 @@ HAL configuration for Buildroot also includes Python runtime and agent software 
 
 ## How does it work?
 
-HAL is combined with AMD SEV-SNP to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation.md).
+HAL is combined with AMD SEV-SNP to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation.mdx).
 
 Cocos uses QEMU and Open Virtual Machine Firmware (OVMF) to boot the confidential VM. During boot with SEV-SNP, the AMD Secure Processor (AMD SP) measures (calculates the hash) of the contents of the VM to insert that hash into the attestation report. This measurement is proof of what is currently running inside the VM. The problem with SEV is that it only measures the Open Virtual Machine Firmware (OVMF). To solve this, we have built OVMF so that OVMF contains hashes of the vmlinuz and initrams. Once the OVMF is loaded, it will load the vmlinuz and initramfs into memory, but it will continue the boot process only if the hashes of the vmlinuz and initramfs match the hashes stored in OVMF. This way, the attestation report will contain the measurement of OVMF, with the hashes, and OVMF will guarantee that the correct kernel and file system are booted. The whole process can be seen in the following diagram. The green color represents the trusted part of the system, while the red is untrusted:
 
