@@ -299,7 +299,7 @@ This mechanism underpins many integrity and attestation solutions by supplying r
 
 ### Integration with CocosAI
 
-Eventhough IMA offers an appraise feature, CocosAI doesn't use.
+Eventhough IMA offers an appraise feature, CocosAI doesn't use it.
 The reason for this decision is the fact that many public cloud provider offer images that don't have file measurements.
 In these cases the VM doesn't boot since some of the critital binaries (system services etc.) are not executed because of the missing measurements.
 Rather than relying on kernel-enforced appraisal, CocosAI adopts a local verification approach:
