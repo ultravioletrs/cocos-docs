@@ -28,3 +28,11 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+.myTabs .tabItemButton:focus,
+.myTabs .tabItemButton--active {
+  outline-width: 3px !important;
+  outline-style: solid !important;
+  outline-color: var(--ifm-color-primary) !important;
+  outline-offset: 2px;
+}

@@ -111,10 +111,30 @@ The Trusted Platform Module (TPM) plays a fundamental role in the process of att
 Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values.
 This process involves Event Log Verification, which ensures that recorded system events align with the expected platform state.
 
-<!--
-    Ovo isto nije istina za sve slucajeve. Ovo vazi za HAL, kod GCP i Azure dobijas vec gotovo
--->
-To enable vTPM on AMD SEV-SNP CPUs we use firmware from [COCONUT Secure VM Service Module](https://github.com/coconut-svsm/svsm).
+To enable vTPM follow instructions in the table below.
+
+<Tabs className="myTabs">
+  <TabItem value="private_cloud" label="Private cloud">
+    Private cloud should include AMD SEV-SNP CPUs. 
+    To enable vTPM on these CPUs use the firmware from [COCONUT Secure VM Service Module](https://github.com/coconut-svsm/svsm).
+  </TabItem>
+
+  <TabItem value="gcp" label="GCP">
+    Cocos uses the vTPM feature of CVMs on GCP for runtime measurements. 
+    Note that this [vTPM](https://docs.edgeless.systems/constellation/architecture/attestation#trusted-platform-module-tpm) doesn't run inside the hardware-protected CVM context, but is emulated by the hypervisor.
+
+    The vTPM adheres to the [TPM 2.0](https://trustedcomputinggroup.org/resource/tpm-library-specification/) specification.
+    It provides a [launch attestation report](https://cloud.google.com/confidential-computing/confidential-vm/docs/monitor-integrity#about_launch_attestation_report_events) that's based on the measured boot feature of [Shielded VMs](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#measured-boot).
+  </TabItem>
+
+  <TabItem value="azure" label="Azure">
+    Constellation uses the [vTPM](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#vtpm) feature of Azure CVMs for runtime measurements.
+    This vTPM adheres to the [TPM 2.0](https://trustedcomputinggroup.org/resource/tpm-library-specification/) specification.
+    It provides a [measured boot](https://learn.microsoft.com/en-us/azure/security/fundamentals/measured-boot-host-attestation#measured-boot) verification that's based on the trusted launch feature of [Trusted Launch VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch).
+  </TabItem>
+
+</Tabs>
+
 
 ### Platform Configuration Register (PCR)
 
