@@ -2,9 +2,11 @@
 
 The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from the manager, manager creates a VM where the agent is found and sends the computation manifest to the agent.
 
-The picture below shows where the agent runs in the Cocos system, helping us better understand its role.
+The picture below shows where the agent runs in the Cocos system on an AMD SEV-SNP CPU, helping us better understand its role.
 
 ![Agent](/img/agent/overview.png)
+
+In addition, the Agent (and Cocos) can run on any system that supports TEEs, as long as there is an adequate abstraction in the Hardware Abstratcion Layer.
 
 ## StateMachine
 
@@ -30,7 +32,7 @@ The picture below show the overall flow of the computation.
 
 - `Start`: Triggers the computation startup process.
 - `ManifestReceived`: Indicates computation manifest has been received.
-- `AlgorithmReceived`: Indicates the algorithm has been received. During the upload the hash of the incoming algorithm is compared to the hash of the algorithm sent in the manifest. If datasets are expected the Agent moves into `ReceivingData` state, otherwise it moves in `Running` state.
+- `AlgorithmReceived`: Indicates the algorithm has been received. During the upload the hash of the incoming algorithm is compared to the hash of the algorithm sent in the manifest. After this event, the Agent moves into `ReceivingData` state if the computaion has datasets, otherwise it moves in `Running` state.
 - `DataReceived`: Indicates all dataset data has been received.
 - `RunComplete`: Signals the completion of the computation execution.
 - `ResultsConsumed`: Indicates all consumers have retrieved the results.
@@ -49,9 +51,22 @@ These events are:
 - `Completed`: This event is sent when the agent is in `Complete` state.
 - `Failed`: This event is sent when the agent is in `Failed` state.
 
-## Algorithm and dataset validation
+## User authentication
 
-Before execution, algorithms and datasets are validated against the computation manifest to ensure integrity and compatibility. This includes the sha3 256 hash of the dataset and algorithm, which are validated against the value set in the manifest. The algorithm and dataset provider ID are also validated against the manifest during the uploading of the dataset and algorithm.
+There are multiple users that interact with the computation.
+Users are either dataset providers, alogrithm providers or result consumers.
+Each user, regardless of his role, has public/private key pair.
+Users public keys and associated roles are sent to the Agent as a part of the computation manifest.
+Every request sent to the Agent using CLI that involes some kind of asset (datasets, algorithms or results) is signed by the users private key.
+Upon receiving the request, the Agent always verifies the signature of the and confirms that the user has the required role before allowing access to a particular asset.
+
+## Algorithm and dataset validation and management
+
+Before execution, algorithms and datasets are validated against the computation manifest to ensure integrity and compatibility.
+This includes the sha3 256 hash of the dataset and algorithm, which are validated against the value set in the manifest. 
+For datasets, in addition to hash validation, the Agent also checks if the provided filename matches the filename sent in the manifest.
+
+After the computation is run or the computation is stopped, the Agent removes all assets from the server.
 
 ## Supported Algorithm types
 
