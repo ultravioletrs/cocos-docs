@@ -66,7 +66,7 @@ Before execution, algorithms and datasets are validated against the computation 
 This includes the sha3 256 hash of the dataset and algorithm, which are validated against the value set in the manifest.
 For datasets, in addition to hash validation, the Agent also checks if the provided filename matches the filename sent in the manifest.
 
-After the computation is run or the computation is stopped, the Agent removes all assets from the server.
+After the computation is run or the computation is stopped, the Agent removes all assets from the CVM.
 
 ## Supported Algorithm types
 
