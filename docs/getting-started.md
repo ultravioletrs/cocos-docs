@@ -40,13 +40,11 @@ If are using the latest version of Cocos, refer to the [Developer guide](develop
 
 To enable secure communication between the user and the agent via the CLI, you need to generate a public/private RSA key pair.
 
-
 Navigate to the project root and build the CLI tool:
+
 ```bash
 cd cocos
-```
 
-```bash
 make cli
 ```
 
@@ -69,9 +67,10 @@ The generated keys will be saved in the current directory as:
 - private.pem — the private key
 
 
-
 ### Starting Cvms Server
+
 The agent includes a CVMS gRPC client, which requires a corresponding gRPC server to communicate with. For testing purposes, an example server is provided in the `test/cvms` directory. You can run the server using the following commands:
+
 #### Finding Your IP Address
 
 When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine’s IP address, you can run:
@@ -104,14 +103,16 @@ HOST=<externally_accessible_ip> go run ./test/cvms/main.go \
     -cmv-id <cvm_uuid> \
     -client-ca-file <path_to_client_ca_file_within_the_CVM>
 ```
- #### Parameter Descriptions 
+
+#### Parameter Descriptions 
+
 `-data-paths`: May be left empty, or provided as a single file or a list of files, depending on the algorithm and data type.
 
 `-attested-tls-bool`: Set to true if Attested TLS (aTLS) is required; otherwise, use false.
 `-ca-url` and `-cvm-id`: Required if the agent must obtain a certificate from a Certificate Authority (CA), otherwise the agent will use a self-signed certificate.
 `-client-ca-file` Required for mutual TLS (mTLS) or mutual attested TLS (maTLS).
 
-For example
+For example:
 
 ```bash
 HOST="192.168.1.41" go run ./test/cvms/main.go \
@@ -149,7 +150,6 @@ The output will be similar to this:
 /usr/share/edk2/x64/OVMF_CODE.fd
 /usr/share/OVMF/OVMF_CODE.fd
 ```
-
 
 Locating OVMF.fd files:
 
@@ -197,17 +197,23 @@ MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd  \
 MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
+
 The output of the manager will be similar to this:
+
 ```bash
 {"time":"2025-06-25T17:21:44.3400595+02:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
 {"time":"2025-06-25T17:22:02.397631955+02:00","level":"INFO","msg":"Method CreateVM for id e71cdcf5-21c0-4e1d-9471-ac6b4389d5f3 on port 6100 took 751.884µs to complete"}
 ```
+
 ##### Create a cvm
+
 To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
 ```bash
 export MANAGER_GRPC_URL=localhost:7002
 ./build/cocos-cli create-vm --log-level debug --server-url ""localhost:7002""
 ```
+
 When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
 
 The output on the cvms test server will be similar to this:
@@ -217,62 +223,84 @@ The output on the cvms test server will be similar to this:
 🔗 Creating a new virtual machine
 ✅ Virtual machine created successfully with id e71cdcf5-21c0-4e1d-9471-ac6b4389d5f3 and port 6100
 ```
+
 ### Checking for Running QEMU Processes
+
 To check if a QEMU virtual machine is currently running, use:
+
 ```bash
 ps aux | grep qemu
 ```
+
 You might see output similar to the following:
+
 ```bash
 root      290254  4.6  3.6 2927088 1172652 pts/5 Sl+  17:22   0:11 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS-f889cada-4fc2-44bb-b6e2-99def75c5df8.fd -netdev user,id=vmnic-f889cada-4fc2-44bb-b6e2-99def75c5df8,hostfwd=tcp::6100-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic-f889cada-4fc2-44bb-b6e2-99def75c5df8,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append "quiet console=null" -initrd img/rootfs.cpio.gz -nographic -monitor pty -fsdev local,id=cert_fs,path=/tmp/e71cdcf5-21c0-4e1d-9471-ac6b4389d5f33730550812,security_model=mapped -device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share -fsdev local,id=env_fs,path=/tmp/e71cdcf5-21c0-4e1d-9471-ac6b4389d5f32869802710,security_model=mapped -device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share
 filip     294852  0.0  0.0   6460  3892 pts/3    S+   17:26   0:00 grep qemu
 ```
+
 ### Uploading assets
-The logs indicate that the agent is bound to port `6100`. This port is used by the Agent CLI to upload algorithms and datasets, and to retrieve results. In this case, the `AGENT_GRPC_URL` is set to `localhost:6100`.
+
+The logs indicate that the agent is bound to port 6100. This port is used by the Agent CLI to upload algorithms and datasets, and to retrieve results. In this case, the AGENT_GRPC_URL is set to localhost:6100.
+
 We export the agent grpc url
+
 ```bash
 export AGENT_GRPC_URL=localhost:6100
 ```
+
 Upload the algorithm
+
 ```bash
 ./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python
 ```
+
 A successful upload will produce output similar to the following:
+
 ```bash
 🔗 Connected to agent  without TLS
 Uploading algorithm file: ./test/manual/algo/addition.py
 🚀 Uploading algorithm [███████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
 Successfully uploaded algorithm! ✔ 
 ```
+
 ### Reading the results
+
 Since this algorithm does not require a dataset, the results can be retrieved immediately after the upload. Use the following command to read the output:
 
 ```bash
 ./build/cocos-cli result ./private.pem
 ```
+
 The output will be similar to this:
+
 ```bash
 🔗 Connected to agent  without TLS
 ⏳ Retrieving computation result file
 📥 Downloading result [████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
 Computation result retrieved and saved successfully as results.zip! ✔ 
 ```
+
 To read the results
 
 ```bash
 unzip results.zip -d results
 ```
+
 ```bash
 cat results/results.txt
 ```
+
 ```bash
 python3 test/manual/algo/addition.py test results/result.txt
 ```
 
 Both should return the same result.
+
 ```bash
 15
 ```
+
 The output from the manager will be similar to this:
 
 ```bash
@@ -319,11 +347,14 @@ These logs provide detailed information about the operations of the manager and 
 For more information on running different algorithms and datasets see the [algorithms](./algorithms.md) documentation.
 
 ### Deleting the cvm
+
 After completion, the CVM can be safely destroyed using the following command:
+
 
 ```bash
 ./build/cocos-cli remove-vm <cvm_id>
 ```
+
 ```bash
 🔗 Connected to agent  without TLS
 🔗 Connected to manager using  without TLS
