@@ -66,7 +66,6 @@ The generated keys will be saved in the current directory as:
 
 - private.pem — the private key
 
-
 ### Starting Cvms Server
 
 The agent includes a CVMS gRPC client, which requires a corresponding gRPC server to communicate with. For testing purposes, an example server is provided in the `test/cvms` directory. You can run the server using the following commands:
@@ -104,7 +103,7 @@ HOST=<externally_accessible_ip> go run ./test/cvms/main.go \
     -client-ca-file <path_to_client_ca_file_within_the_CVM>
 ```
 
-#### Parameter Descriptions 
+#### Parameter Descriptions
 
 `-data-paths`: May be left empty, or provided as a single file or a list of files, depending on the algorithm and data type.
 
@@ -156,6 +155,7 @@ Locating OVMF.fd files:
 ```bash
 sudo find / -name OVMF.fd
 ```
+
 The output will be similar to this:
 
 ```bash
@@ -349,7 +349,6 @@ For more information on running different algorithms and datasets see the [algor
 ### Deleting the cvm
 
 After completion, the CVM can be safely destroyed using the following command:
-
 
 ```bash
 ./build/cocos-cli remove-vm <cvm_id>
