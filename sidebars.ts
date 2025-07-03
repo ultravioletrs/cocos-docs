@@ -28,7 +28,6 @@ const sidebars: SidebarsConfig = {
     'agent',
     'manager',
     'cli',
-    'hal',
     'tee',
     'developer-guide',
     {
@@ -40,6 +39,20 @@ const sidebars: SidebarsConfig = {
           label: 'Hardware Abstraction Layer',
           items: [
             'cloud',
+            'hal',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Attestation',
+          items: [
+            {
+              type: 'category',
+              label: 'Verification',
+              items: [
+                'public-cloud-attestation-verification',
+              ],
+            },
           ],
         },
       ],
