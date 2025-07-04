@@ -39,7 +39,7 @@ Azure uses the Microsoft Azure Attestation (MAA) service as a centralized attest
 **Attestation Process:**
 
 1. CVM generates combined SEV-SNP and vTPM attestation report
-2. Report is submitted to MAA service endpoint (`sharedeus2.eus2.attest.azure.net`)
+2. Report is submitted to MAA service endpoint (example: `sharedeus2.eus2.attest.azure.net`)
 3. MAA validates report against Azure's known configurations
 4. Service returns signed JWT token with security claims
 
@@ -301,11 +301,12 @@ Config:
 - Dependency on Azure key management and PKI
 - Reliance on Azure's internal verification processes
 - Token-based trust with JWT signature validation
+- Trust in closed source Microsoft virtal machine firmware and vTPM
 
 **GCP Security Model:**
 
 - Independent verification capability with golden measurements
-- Direct access to launch endorsements and OVMF files
+- Direct access to launch endorsements and OVMF files, but the implementation is closed source
 - Reduced dependency on cloud provider attestation services
 - Transparent verification process with public measurement data
 
