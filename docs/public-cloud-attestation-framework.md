@@ -8,7 +8,7 @@ Cocos provides attestation capabilities for Confidential Virtual Machines (CVMs)
 
 Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
 
-Cocos implements the Background-Check model of remote attestation. In this model, the attester sends evidence to the relying party, who forwards it to the verifier for appraisal. The verifier then sends the attestation results to the relying party, who makes the final decision about trusting the attester based on the comparison of its own appraisal policy against the attestation result.
+Cocos implements the Background-Check model of remote attestation. In this model, the attester sends evidence to the relying party, who forwards it to the verifier for appraisal. The verifier then sends the attestation results to the relying party, who makes the final decision about trusting the attester based on the comparison of its own appraisal policy against the attestation result. For more detailed information about this model and remote attestation architectures, see [RFC 9334 - Remote ATtestation procedureS (RATS) Architecture](https://doi.org/10.17487/RFC9334).
 
 ## Trusted Computing Base (TCB)
 
@@ -79,7 +79,6 @@ The firmware layer serves as the SRTM, responsible for:
 - Software-based TPM functionality
 - PCR extend operations for boot measurements
 - Attestation Key (AK) generation and management
-- Event log generation and maintenance
 - Secure storage of cryptographic artifacts
 
 **SEV-SNP Attestation:**
@@ -104,6 +103,13 @@ The firmware layer serves as the SRTM, responsible for:
 - Initial RAM filesystem validation
 - Kernel module loading verification
 - System call table integrity
+
+**Event Log Maintenance**
+
+- TPM event log handover from UEFI firmware
+- Continuous event log extension during runtime
+- Event log integrity and tamper detection
+- Integration with measurement subsystems
 
 ### TCB Verification Models
 
@@ -219,7 +225,6 @@ Azure uses the Microsoft Azure Attestation (MAA) service as a centralized attest
 1. **Evidence Generation:**
 
    - The CVM generates a combined SEV-SNP attestation report and a vTPM quote
-   - A `teeNonce` is provided by the client to ensure freshness and prevent replay attacks
    - The SEV-SNP report is obtained by interacting with the underlying hardware
    - The vTPM quote is fetched from the virtual TPM
 
