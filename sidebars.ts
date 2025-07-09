@@ -48,6 +48,13 @@ const sidebars: SidebarsConfig = {
           items: [
             {
               type: 'category',
+              label: 'Technical Overview',
+              items: [
+                'public-cloud-attestation-framework'
+              ],
+            },
+            {
+              type: 'category',
               label: 'Verification',
               items: [
                 'public-cloud-attestation-verification',
