@@ -225,7 +225,7 @@ Azure uses the Microsoft Azure Attestation (MAA) service as a centralized attest
 1. **Evidence Generation:**
 
    - The CVM generates a combined SEV-SNP attestation report and a vTPM quote
-   - The SEV-SNP report is obtained by interacting with the underlying hardware
+   - The SEV-SNP report is obtained by interacting with the underlying hardware and kept inside vTPM Non-Nolatile (NV) memory
    - The vTPM quote is fetched from the virtual TPM
 
 2. **Service Submission:**
@@ -277,11 +277,11 @@ GCP provides direct access to golden measurements and launch endorsements, enabl
    - Both `teeNonce` and `vTpmNonce` are provided to ensure freshness
    - vTPM quote is fetched by opening a connection to the TPM device (`/dev/tpmrm0` or `/dev/tpm0`)
    - TPM attestation key is used to retrieve the quote, including PCR values and event log
+   - The SEV-SNP report is fetched directly from the guest environment
 
 2. **Event Log Processing:**
 
    - Event log is read from `/sys/kernel/security/tpm0/binary_bios_measurements`
-   - The SEV-SNP report is fetched directly from the guest environment
    - Combined attestation is marshaled for transmission
 
 3. **Verification Process:**
