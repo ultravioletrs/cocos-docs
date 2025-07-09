@@ -46,6 +46,8 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Attestation',
           items: [
+            'attestation-introduction',
+            'attestation-attestation-report',
             {
               type: 'category',
               label: 'Technical Overview',

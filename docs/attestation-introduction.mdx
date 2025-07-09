@@ -1,0 +1,31 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Introduction
+
+Ensuring system integrity and security is critical in modern computing environments. Confidential computing protects sensitive data during processing, ensuring it remains encrypted and secure. A key component of this security model is remote attestation, which allows one party to verify the integrity of another system before sharing sensitive information.  
+
+This document provides an overview of remote attestation, TPM, Platform Configuration Registers (PCRs), and runtime measurements, explaining how they work together to ensure a trusted computing environment.  
+
+## Remote Attestation  
+
+Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. 
+Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. 
+If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
+
+Several models of remote attestation exist, with two main models: Passport Model and Backgroud-Check Model.
+![Attested TLS](/img/attestation/attestation_models.png)
+
+In Passport Model (left side of the figure above) the attester sends evidence to the verifier and receives an attestation result that it can use to prove its trustworthiness to relying parties.
+
+In the Background-Check Model (right side of the figure above) the attester sends evidence to the relying party, who forwards it to the verifier for appraisal.
+The verifier then sends the attestation results to the relying party, who makes the final decision about trusting the attester based on the comparison of its own appraisal policy against the attestation result.
+
+## Attestation in Cocos
+
+Cocos implements the Background-Check model of remote attestation using two key software components:  
+
+1. **Agent** – A software application running inside the CVM. It is responsible for fetching the attestation report and executing secure computations.  
+2. **Cocos CLI** – A command-line tool used by Secure Multiparty Computation (SMPC) members. It verifies the attestation report and securely transmits confidential code and data to the Agent.  
+
+The attestation report consists of several components which will be described in the remainder of the document.
