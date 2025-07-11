@@ -90,21 +90,21 @@ The firmware layer serves as the SRTM, responsible for:
 
 #### 4. Operating System Layer
 
-**Linux Integrity Measurement Architecture (IMA):**
+##### Linux Integrity Measurement Architecture (IMA)
 
 - File system integrity measurements (PCR 10)
 - Runtime file access monitoring
 - Executable and library verification
 - Configuration file integrity
 
-**Kernel and Initramfs Integrity:**
+##### Kernel and Initramfs Integrity
 
 - Kernel image measurement and verification
 - Initial RAM filesystem validation
 - Kernel module loading verification
 - System call table integrity
 
-**Event Log Maintenance**
+##### Event Log Maintenance
 
 - TPM event log handover from UEFI firmware
 - Continuous event log extension during runtime

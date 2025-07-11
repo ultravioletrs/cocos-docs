@@ -21,11 +21,9 @@ const sidebars: SidebarsConfig = {
   tutorialSidebar: [
     'intro',
     'getting-started',
-    'computation',
     'algorithms',
     'attestation',
     'architecture',
-    'agent',
     'manager',
     'cli',
     'tee',
@@ -34,6 +32,8 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Technical Overview',
       items: [
+        'computation',
+        'agent',
         {
           type: 'category',
           label: 'Hardware Abstraction Layer',
