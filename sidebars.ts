@@ -24,7 +24,6 @@ const sidebars: SidebarsConfig = {
     'algorithms',
     'attestation',
     'architecture',
-    'agent',
     'manager',
     'cli',
     'tee',
@@ -34,6 +33,7 @@ const sidebars: SidebarsConfig = {
       label: 'Technical Overview',
       items: [
         'computation',
+        'agent',
         {
           type: 'category',
           label: 'Hardware Abstraction Layer',

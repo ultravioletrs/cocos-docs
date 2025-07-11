@@ -1,83 +1,84 @@
 # Agent
 
-The agent is responsible for the life cycle of the computation, i.e., running the computation and sending events about the status of the computation within the TEE. The agent is found inside the VM (TEE), and each computation within the TEE has its own agent. When a computation run request is sent from the manager, manager creates a VM where the agent is found and sends the computation manifest to the agent.
+The Agent serves as the core execution and lifecycle management component within a Trusted Execution Environment (TEE), specifically designed for secure computation workloads. The Agent is located inside the Confidential Virtual Machine (CVM), and each computation instance within a TEE is managed by its dedicated Agent. It orchestrates the computation's execution and reports its status to a central computation management server. The Manager provisions a CVM where the Agent is found. Upon receiving a computation manifest from the cloud management server agent starts its service awaiting upload of computation assets.
 
-The picture below shows where the agent runs in the Cocos system on an AMD SEV-SNP CPU, helping us better understand its role.
+The following diagram illustrates the Agent's operational context within the Cocos system, specifically on an AMD SEV-SNP CPU:
 
 ![Agent](/img/agent/overview.png)
 
-In addition, the Agent (and Cocos) can run on any system that supports TEEs, as long as there is an adequate abstraction in the Hardware Abstratcion Layer.
+The Agent, and by extension the Cocos system, is designed for portability across various TEE-supporting platforms, provided an adequate Hardware Abstraction Layer (HAL) is in place.
 
 ## StateMachine
 
-The agent operates like a state machine.
-This state machine defines valid states, transitions between these states based on received events and functions associated with these transitions.
+The Agent's operational behavior is governed by a robust state machine, which rigorously defines valid states, permissible transitions between these states triggered by external events, and the associated functions executed during these transitions.
 
-The picture below show the overall flow of the computation.
+The overall flow of a computation managed by the Agent is depicted below:
 
 ![Agent](/img/agent/state_machine.png)
 
 ### States
 
-- `Idle`: Initial state, waiting for the computation to start.
-- `ReceivingManifest`: Receives the initial computation manifest. The computation manifest contains all the information necessary for the computaion run. Most important pieces of information are the hash of the algorithm, number of datasets and the hash of each dataset.
-- `ReceivingAlgorithm`: Receives the algorithm for the computation.
-- `ReceivingData`: Receives dataset data for the computation. The agent remains in this state until it receives all the datasets. The number of datasets is determined by the computaion manifest. Upon each upload, the hash of the incoming dataset is compared to the hash of the dataset sent in the manifest.
-- `Running`: Executes the computation using received algorithms and data.
-- `ConsumingResults`: Computation has finished, results are available.
-- `Complete`: All results have been consumed, computation lifecycle ends.
-- `Failed`: An error was encountered during the computation run.
+The Agent transitions through the following well-defined states:
+
+- `Idle`: The initial state, where the Agent awaits the initiation of a computation.
+- `ReceivingManifest`: The Agent is actively receiving the initial computation manifest. This manifest is a critical data structure containing all requisite information for the computation run, including, but not limited to, the cryptographic hash of the algorithm, the number of datasets, and the cryptographic hash of each individual dataset.
+- `ReceivingAlgorithm`: The Agent is in the process of receiving the computation algorithm.
+- `ReceivingData`: The Agent remains in this state until all required datasets for the computation have been successfully received. The number of expected datasets is specified within the computation manifest. Upon each dataset upload, the cryptographic hash of the incoming data is validated against the corresponding hash provided in the manifest.
+- `Running`: The Agent is actively executing the computation using the received algorithm and validated datasets.
+- `ConsumingResults`: The computation has completed its execution, and the results are now available for retrieval by authorized consumers.
+- `Complete`: All computation results have been successfully consumed, signifying the termination of the computation's lifecycle.
+- `Failed`: An unrecoverable error occurred during the computation run, leading to an abnormal termination.
 
 ### Events
 
-- `Start`: Triggers the computation startup process.
-- `ManifestReceived`: Indicates computation manifest has been received.
-- `AlgorithmReceived`: Indicates the algorithm has been received. During the upload the hash of the incoming algorithm is compared to the hash of the algorithm sent in the manifest. After this event, the Agent moves into `ReceivingData` state if the computaion has datasets, otherwise it moves in `Running` state.
-- `DataReceived`: Indicates all dataset data has been received.
-- `RunComplete`: Signals the completion of the computation execution.
-- `ResultsConsumed`: Indicates all consumers have retrieved the results.
+State transitions within the Agent are triggered by the following events:
 
-## Agent Events
+- `Start`: Initiates the computation startup sequence.
+- `ManifestReceived`: Signals the successful reception of the computation manifest.
+- `AlgorithmReceived`: Indicates that the algorithm has been successfully received. During the upload process, the cryptographic hash of the incoming algorithm is compared against the hash specified in the manifest. Following this event, the Agent transitions to the ReceivingData state if the computation requires datasets; otherwise, it directly moves to the Running state.
+- `DataReceived`: Signifies that all dataset data has been successfully received.
+- `RunComplete`: Signals the successful completion of the computation's execution.
+- `ResultsConsumed`: Indicates that all authorized consumers have retrieved the computation results.
 
-As the computation in the agent undergoes different operations, it sends events to the manager so that the user can monitor the computation from either the UI or other client.
-Events sent to the manager are based on the agent state as defined by the statemachine.
-Each event includes the current state of the agent.
-These events are:
 
-- `IdleState`: This event is sent upon agent startup.
-- `InProgress`: This event is sent when the agent is in `ReceivingAlgorithm` or `ReceivingData` state. This event is also sent when the actual computation is started.
-- `Starting`: This event is sent when the agent is starting the computation. During this phase (before the `InProgress` event) the agent is performing computation setup.
-- `Ready`: This event is sent when the agent is in `ConsumingResults` state.
-- `Completed`: This event is sent when the agent is in `Complete` state.
-- `Failed`: This event is sent when the agent is in `Failed` state.
 
-## User authentication
+## Agent-Cloud Eventing
 
-There are multiple users that interact with the computation.
-Users are either dataset providers, alogrithm providers or result consumers.
-Each user, regardless of his role, has public/private key pair.
-Users public keys and associated roles are sent to the Agent as a part of the computation manifest.
-Every request sent to the Agent using CLI that involes some kind of asset (datasets, algorithms or results) is signed by the users private key.
-Upon receiving the request, the Agent always verifies the signature of the and confirms that the user has the required role before allowing access to a particular asset.
+To facilitate real-time monitoring of computation progress, the Agent emits events to the cloud computation management sever. These events are directly correlated with the Agent's state machine transitions and always include the current state of the Agent. Along with events agent also transmits logs from agent operations.
+The following events are transmitted to the Manager:
+
+- `IdleState`: Emitted immediately upon Agent startup.
+- `InProgress`: Sent when the Agent is in the `ReceivingAlgorithm` or `ReceivingData` states, and also when the actual computation execution commences.
+- `Starting`: Emitted during the initial computation setup phase, prior to the `InProgress` event for execution.
+- `Ready`: Sent when the Agent enters the `ConsumingResults` state, indicating result availability.
+- `Completed`: Emitted when the Agent reaches the `Complete` state, signifying successful computation lifecycle termination.
+- `Failed`: Sent when the Agent enters the `Failed` state, indicating an error during computation.
+
+## User authentication and authorization
+
+The computation environment involves multiple user roles, including dataset providers, algorithm providers, and result consumers. Each user possesses a public/private key pair. User public keys and their associated roles are securely transmitted to the Agent as part of the computation manifest.
+Every request received by the Agent that involves an asset (datasets, algorithms, or results) is cryptographically signed using the user's private key. Upon receiving such a request, the Agent performs a rigorous verification of the signature and confirms that the requesting user possesses the necessary role-based access control (RBAC) permissions before granting access to the specified asset.
 
 ## Algorithm and dataset validation and management
 
-Before execution, algorithms and datasets are validated against the computation manifest to ensure integrity and compatibility.
-This includes the sha3 256 hash of the dataset and algorithm, which are validated against the value set in the manifest.
-For datasets, in addition to hash validation, the Agent also checks if the provided filename matches the filename sent in the manifest.
-
-After the computation is run or the computation is stopped, the Agent removes all assets from the CVM.
+Prior to execution, all algorithms and datasets undergo stringent validation against the computation manifest to ensure data integrity and compatibility. This validation process includes, but is not limited to, the verification of the SHA3-256 cryptographic hash of both the dataset and the algorithm against the values specified in the manifest. For datasets, an additional check is performed to ensure that the provided filename matches the filename stipulated in the manifest.
+Upon completion or termination of a computation, the Agent securely purges all associated assets from the CVM, ensuring data confidentiality and resource hygiene.
 
 ## Supported Algorithm types
 
-There are four supported algorithm types, binaries, python files, docker images and wasm modules. The default algorithm type is binaries, which is uploaded to agent using CLI. Instructions on how to provide a python file are provided in [CLI](./cli.md). More information on how to run the other types of algorithms can be found [here](algorithms.md).
+The Agent supports four distinct algorithm types:
+
+- **Binaries**: The default algorithm type, typically uploaded to the Agent.
+- **Python Files**: Python algorithms provide flexibility and ease of development, with automatic dependency management within the secure enclave.
+- **Docker Images**: Docker containers provide the most comprehensive packaging solution, including the complete runtime environment, system tools, and dependencies.
+- **WASM Modules**: WebAssembly modules offer portable, high-performance execution with strong security isolation.
+
+More information on how to run algorithms can be found [here](algorithms.md).
 
 ## Agent workflow
 
-The agent is implemented as a system service and is started upon CVM creation.
-The agent is configured through CVMs environment variables.
-Below you can find a table of environment variables used by the Agent.
-These are all set automatically, but can be changed manually.
+The Agent is implemented as a system service, automatically initiated upon CVM creation. Its behavior is configured through environment variables within the CVM. While these variables are automatically set, they can be manually overridden for specific deployments.
+The following table details the environment variables utilized by the Agent:
 
 | Variable                       | Description                                                                                                   | Default                                      |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
