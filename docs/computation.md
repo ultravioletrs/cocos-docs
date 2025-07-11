@@ -8,8 +8,6 @@ The `Computation` entity itself is a structured representation encapsulating all
 - **Execution Backend**: Specifying the environment where the computation will be performed (e.g., a secure enclave).
 - **Cryptographic Certificates**: Essential for establishing secure communication channels and verifying identities.
 
-
-
 ## Computation Roles
 
 Each participant in a CocosAI computation is assigned one or more distinct roles, which dictate their privileges and responsibilities within the secure workflow:

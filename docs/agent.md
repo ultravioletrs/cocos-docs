@@ -40,8 +40,6 @@ State transitions within the Agent are triggered by the following events:
 - `RunComplete`: Signals the successful completion of the computation's execution.
 - `ResultsConsumed`: Indicates that all authorized consumers have retrieved the computation results.
 
-
-
 ## Agent-Cloud Eventing
 
 To facilitate real-time monitoring of computation progress, the Agent emits events to the cloud computation management sever. These events are directly correlated with the Agent's state machine transitions and always include the current state of the Agent. Along with events agent also transmits logs from agent operations.
