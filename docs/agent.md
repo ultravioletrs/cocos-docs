@@ -42,7 +42,7 @@ State transitions within the Agent are triggered by the following events:
 
 ## Agent-Cloud Eventing
 
-To facilitate real-time monitoring of computation progress, the Agent emits events to the cloud computation management sever. These events are directly correlated with the Agent's state machine transitions and always include the current state of the Agent. Along with events agent also transmits logs from agent operations.
+To facilitate real-time monitoring of computation progress, the Agent emits events to the cloud computation management server. These events are directly correlated with the Agent's state machine transitions and always include the current state of the Agent. Along with events agent also transmits logs from agent operations.
 The following events are transmitted to the Manager:
 
 - `IdleState`: Emitted immediately upon Agent startup.
