@@ -1,0 +1,278 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Measured boot
+
+This chapter will go over a feature called "measured boot" and how it fits in the whole process of attestation. 
+It will separately describe AMD SEV-SNP measured boot which relies on TPMs and Intel TDX measured which relies on RTMR registers.
+In addition, it will describe Linux Integrity Measurement Architecture (IMA) and how it is used to measure the integrity of the system after the kernel is loaded.
+
+## Trusted Platform Module (TPM)
+
+A TPM is a dedicated security chip designed to perform tamper-resistant cryptographic functions.
+It securely manages sensitive artifacts such as encryption keys, certificates, and integrity measurements.
+In scenarios where TPM functionality is implemented via software instead of hardware, it is referred to as a virtual TPM (vTPM).
+
+The Trusted Platform Module (TPM) plays a fundamental role in the process of attestation by providing a tamper-resistant foundation for cryptographic operations, securing sensitive artifacts, measuring system state, and enabling attestation mechanisms.
+
+Remote attestation verifies the integrity of a client platform by retrieving a quote from the TPM, which includes signed Platform Configuration Register (PCR) values.
+This process involves Event Log Verification, which ensures that recorded system events align with the expected platform state.
+
+To enable vTPM follow instructions in the table below.
+
+<Tabs>
+  <TabItem value="private_cloud" label="Private cloud">
+    Private cloud should include AMD SEV-SNP CPUs. 
+    To enable vTPM on these CPUs use the firmware from [COCONUT Secure VM Service Module](https://github.com/coconut-svsm/svsm).
+  </TabItem>
+
+  <TabItem value="gcp" label="GCP">
+    Cocos uses the vTPM feature of CVMs on GCP for runtime measurements. 
+    Note that this [vTPM](https://docs.edgeless.systems/constellation/architecture/attestation#trusted-platform-module-tpm) doesn't run inside the hardware-protected CVM context, but is emulated by the hypervisor.
+
+    The vTPM adheres to the [TPM 2.0](https://trustedcomputinggroup.org/resource/tpm-library-specification/) specification.
+    It provides a [launch attestation report](https://cloud.google.com/confidential-computing/confidential-vm/docs/monitor-integrity#about_launch_attestation_report_events) that's based on the measured boot feature of [Shielded VMs](https://cloud.google.com/compute/shielded-vm/docs/shielded-vm#measured-boot).
+  </TabItem>
+
+  <TabItem value="azure" label="Azure">
+    Cocos uses the [vTPM](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#vtpm) feature of Azure CVMs for runtime measurements.
+    This vTPM adheres to the [TPM 2.0](https://trustedcomputinggroup.org/resource/tpm-library-specification/) specification.
+    It provides a [measured boot](https://learn.microsoft.com/en-us/azure/security/fundamentals/measured-boot-host-attestation#measured-boot) verification that's based on the trusted launch feature of [Trusted Launch VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch).
+  </TabItem>
+
+</Tabs>
+
+
+### Platform Configuration Register (PCR)
+
+A Platform Configuration Register (PCR) is a secure memory region within the TPM that records system integrity measurements.
+Instead of being overwritten, PCR values are extended through a cryptographic hash function:
+
+$$
+PCR[N] = \text{HASH}_{\text{alg}}( PCR[N] \, || \, \text{NewMeasurement} )
+$$
+
+This ensures that all recorded values remain linked and verifiable, making PCRs essential for attestation and system security.  
+
+### Trusted Boot and Integrity Measurement
+
+System integrity is ensured by measuring and recording each boot component into the Trusted Platform Module (TPM).
+The firmware acts as the **Static Root of Trust for Measurement (SRTM)**, measuring critical components and storing their hashes in the TPM's Platform Configuration Registers (PCRs).
+These values are extended immutably, creating a tamper-proof record.
+
+This process enables secure attestation, ensuring that only verified software executes and detecting unauthorized modifications.
+The TPM also functions as a **Root of Trust for Storage (RTS)** and **Root of Trust for Reporting (RTR)**, allowing for remote verification of system integrity.
+
+### What is Verified in Each PCR
+
+A typical TPM has 24 PCRs.
+The specific content verified in each PCR depends on the platform and implementation, however most implementations follow a common structure:
+
+#### Static PCRs (0-7) - SRTM Measurements
+
+- **PCR 0:** Core Root of Trust for Measurement (CRTM) and UEFI firmware
+- **PCR 1:** Platform and motherboard configuration
+- **PCR 2:** UEFI driver and ROM code
+- **PCR 3:** UEFI driver and ROM code configuration
+- **PCR 4:** UEFI Boot Manager code
+- **PCR 5:** UEFI Boot Manager configuration and GPT table
+- **PCR 6:** Host platform manufacturer control
+- **PCR 7:** Secure Boot state and certificates
+
+#### Dynamic PCRs (8-15) - OS and Application Measurements
+
+- **PCR 8:** Boot loader (GRUB, systemd-boot)
+- **PCR 9:** Kernel and initramfs
+- **PCR 10:** Linux IMA measurements
+- **PCR 11:** BitLocker access control
+- **PCR 12:** Boot events and configuration
+- **PCR 13:** Module signature verification
+- **PCR 14:** MokList (Machine Owner Keys)
+- **PCR 15:** System firmware updates
+
+#### Debug and Locality PCRs (16-23)
+
+- **PCR 16:** Debug and development use
+- **PCR 17-22:** Dynamic Root of Trust for Measurement (DRTM)
+- **PCR 23:** Application-specific measurements
+
+The table below shows the PCRs used in CocosAI and what is verified in each of them for a different platform.
+
+<Tabs>
+  <TabItem value="private_cloud" label="Private cloud">
+    | PCR Index | What is Stored?                                                                                           | What We Verify?                                                                                                     | Why It Is Important for Integrity?                                                                                                |
+    | --------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | Firmware measurements: CRTM version and EFI platform firmware blobs                                       | Ensures the measured firmware components (CRTM, UEFI firmware) match expected hashes.                               | Prevents unauthorized or tampered firmware from running, which could compromise the entire boot chain.                            |
+    | PCR\[1]   | Platform configuration flags and boot variables (e.g., BootOrder, Boot#### entries)                       | Ensures that critical UEFI variables and boot settings haven’t been altered.                                        | Stops attackers from changing boot parameters or order to load malicious components.                                              |
+    | PCR\[4]   | EFI Boot Services Application image (e.g., bootloader or kernel image loaded via UEFI)                    | Verifies that the correct bootloader/kernel image is measured before execution.                                     | Prevents unsigned or altered boot applications from being launched, ensuring a trusted OS load.                                   |
+    | PCR\[5]   | EFI Actions around Exit Boot Services (e.g., “Exit BootServices Invocation/Return”)                       | Ensures that the transition from firmware to OS (via Exit Boot Services) is unmodified.                             | Guards the handoff phase so that no unauthorized hooks or code injections occur just before OS runtime.                           |
+    | PCR\[7]   | EFI variable configurations related to Secure Boot: SecureBoot flag, PK, KEK, db, dbx, and authority data | Verifies that Secure Boot keys and policy databases are exactly as expected (no rogue keys or removed revocations). | Crucial for ensuring only signed, authorized binaries can load; prevents boot-time attacks via unauthorized keys or certificates. |
+    | PCR\[9]   | Event tags for loaded images and initramfs options (e.g., “LOADED\_IMAGE::loadOptions”, “Linux initrd”)   | Ensures that the load options or initrd identifiers provided to the OS are as intended.                             | Protects early user-space setup by detecting tampering in initramfs or kernel command-line inputs.                                |
+  </TabItem>
+
+  <TabItem value="azure" label="Azure">
+    | PCR Index | What is Stored?                                                                                                                    | What We Verify?                                                                                                             | Why It Is Important for Integrity?                                                                                                      |
+    | --------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | Firmware measurements: S-CRTM version and EFI platform firmware blobs (hashed with sha1/sha256/sha384)                             | Ensures measured firmware components (CRTM, UEFI firmware regions) match expected values across all hash algorithms.        | Prevents tampering of the foundational firmware layers that could subvert the entire boot chain.                                        |
+    | PCR\[1]   | Boot variables: BootOrder and Boot#### entries (with full variable data for Boot0000)                                              | Verifies critical UEFI boot settings and boot entries remain unchanged (detects insertion or modification of boot entries). | Stops unauthorized modifications to boot order or parameters, thwarting attempts to load untrusted OS loaders or kernels.               |
+    | PCR\[4]   | EFI application launch actions: Calling EFI Application from Boot Option and measured boot services applications                   | Confirms the exact bootloader or EFI application image being invoked is the expected one.                                   | Ensures the correct bootloader is measured before execution, preventing tampered or rogue boot code from launching.                     |
+    | PCR\[5]   | EFI actions around Exit Boot Services (Invocation/Return)                                                                          | Checks that the transition from firmware to OS was not altered (no unexpected hooks inserted).                              | Protects the critical handoff phase to the operating system, preventing runtime compromises at boot.                                    |
+    | PCR\[6]   | Compact hash event: compact hash of identifiers (e.g., UEFI variable GUID or similar)                                              | Verifies specific compact-hash measurements of components or identifiers essential for subsequent phases.                   | Ensures integrity of measured components or data that may influence boot flow (e.g., verifying integrity of certain UEFI events).       |
+    | PCR\[7]   | Secure Boot-related UEFI variables and authorities (SecureBoot flag, PK, KEK, db, dbx, SbatLevel, MokList, MokListRT)              | Verifies Secure Boot keys, policies, revocations, SBAT level, and MOK lists exactly as expected.                            | Crucial for ensuring only signed binaries load; prevents unauthorized keys or revoked certificates from permitting malicious code.      |
+    | PCR\[9]   | Event tags for loaded images or initrd flags (e.g., “LOADED\_IMAGE::loadOptions”, “Linux initrd”, “linux initrd”, “uname”, “sbat”) | Ensures load options and initial RAM filesystem identifiers passed to the OS match intended values.                         | Protects early user-space setup by detecting tampering in initramfs, kernel command-line, or load options that could subvert OS.        |
+    | PCR\[11]  | IPL events: measurements of bootloader command-line components (e.g., filenames, loader options, initrd names)                     | Verifies that the exact bootloader path, command-line entries, and initramfs filenames are unchanged.                       | Detects unauthorized changes to the bootloader invocation, kernel parameters, or initramfs, which could alter system behavior at boot.  |
+    | PCR\[14]  | EV\_IPL strings (e.g., MokList, MokListX, MokListTrusted)                                                                          | Verifies the integrity of secure boot MokList entries and other early boot integrity policy strings.                        | Ensures the platform’s trust management lists (MOK) and related policy strings are intact, guarding against unauthorized trust changes. |
+  </TabItem>
+
+  <TabItem value="gcp" label="GCP">
+    | PCR Index | What is Stored?                                                                                                                                                         | What We Verify?                                                                                                                       | Why It Is Important for Integrity?                                                                                                            |
+    | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+    | PCR\[0]   | **CRTM & early firmware**: the Virtual Firmware (UEFI/BIOS) code version (EV\_S\_CRTM\_VERSION) plus ancillary “GC E NonHostInfo” records.                              | That the Core Root of Trust for Measurement (CRTM) and the platform firmware hashes are exactly what your golden-measure set expects. | Any alteration of the very first instructions the CPU executes would let an attacker subvert every later stage of the boot chain.             |
+    | PCR\[1]   | **Platform configuration & boot variables**: ACPI/firmware flags (EV\_PLATFORM\_CONFIG\_FLAGS) and UEFI variables such as `BootOrder`, `Boot0000–3`, etc.               | That critical UEFI settings and the selected boot entries haven’t been tampered with between reboots.                                 | Prevents silent changes that could redirect the boot flow to malicious loaders or change kernel parameters.                                   |
+    | PCR\[4]   | **Boot-services applications**: “Calling EFI Application from Boot Option”, the GRUB EFI binary, and the Linux kernel image (EV\_EFI\_BOOT\_SERVICES\_APPLICATION).     | That the measured hash of the bootloader/kernel matches the signed, approved version.                                                 | Protects the hand-off from firmware to the OS so only trusted binaries are executed.                                                          |
+    | PCR\[5]   | **Exit Boot Services + disk layout**: GPT partition map (EV\_EFI\_GPT\_EVENT) and the paired “Exit Boot Services Invocation/Return” records.                            | That neither the partition table nor the final pre-OS firmware code path has been altered.                                            | Stops “last-second” attacks that hook the OS after Secure Boot checks are finished.                                                           |
+    | PCR\[6]   | **Separator + runtime driver gap**: an EV\_SEPARATOR (no extra data) indicates no additional EFI drivers loaded after GPT.                                              | Confirms the expected absence of late-loaded drivers.                                                                                 | Any unexpected runtime driver could patch memory before the kernel starts.                                                                    |
+    | PCR\[7]   | **Secure Boot state**: `SecureBoot` flag and the current PK, KEK, db, dbx databases (four large EV\_EFI\_VARIABLE\_DRIVER\_CONFIG events).                              | That the platform key hierarchy and revocation lists exactly match those for which you generated reference values.                    | Guarantees that only binaries signed by trusted keys—and with no revoked signatures—can run at boot.                                          |
+    | PCR\[8]   | **GRUB command-line & shim “grub\_cmd” strings**: dozens of EV\_IPL events recording each parameter passed to GRUB/shim (e.g., `set default=0`, `save_env recordfail`). | That kernel command-line options and GRUB environment are untouched.                                                                  | Early-userspace settings here influence root FS, initrd, and security modules; tampering could disable protections or load alternate kernels. |
+    | PCR\[9]   | **Kernel/initramfs load options**: final GRUB path of the Linux kernel (`(hd0,gpt15)/EFI/…`) captured as EV\_IPL.                                                       | That the kernel and initramfs referenced on disk are the ones whose hashes you expect.                                                | Prevents attackers from substituting an unsigned or outdated kernel/initrd after GRUB starts.                                                 |
+    | PCR\[14]  | **Shim/Mok measurements & SBAT**: `MokList`, `MokListTrusted`, `SbatLevel`, etc.—all user-managed trust anchors measured by shim.                                       | That the machine-owner keys (MOK) and SBAT vulnerability revocation list are unmodified.                                              | Protects against local administrators (or malware) installing untrusted keys or rolling back SBAT to re-enable vulnerable shims/kernels.      |
+  </TabItem>
+</Tabs>
+
+By leveraging PCR measurements, systems maintain **trusted execution environments**, ensuring the integrity of Confidential Virtual Machines (CVMs) and other secure workloads.
+
+### Event Log Verification
+
+In addition to the PCR values, the vTPM quote also includes a log of all significant events that happened during the boot process.
+This ensures the platform’s integrity by checking if the recorded events match the expected state.
+
+1. The CLI requests a quote from the client.
+2. The Agent asks the TPM to sign the current PCR values using the AK private key and sends the signed quote to the CLI.
+3. The CLI verifies the quote’s signature using the AK public key, ensuring the PCR values are legitimate.
+4. The CLI replays the event log to reconstruct the PCR values. If the recalculated values match the received PCRs, the event log is verified.
+5. The verified PCR values are then compared against predefined golden(good) values for the TPM. If they match the expected values in the vTPM quote, the platform's integrity is confirmed.
+
+A secure communication channel is required between the attester and the relying party, which is established using attested TLS.
+
+## RTMR registers
+
+Intel TDX has four Run-Time Measurement Registers (RTMR 0-3) inside every Trust Domain; they are SHA-384 registers that form the TD’s equivalent of TPM PCRs.
+Each register starts at zero and can be extended only from within the guest, so the hypervisor can never spoof or reset them.
+This makes the RTMR set an ideal anchor for a measured-boot chain: you bind every software layer that executes after TD creation—virtual firmware data, boot loader, kernel, initrd, and policy blobs—to a specific register and later expose the resulting hashes in the TD Quote that the verifier will consume.
+
+The TDX firmware design guide uses a simple mapping that works well in practice:
+
+| RTMR | Typical contents                                     |
+| ---- | ---------------------------------------------------- |
+| 0    | Firmware (TDVF) & first-stage bootloader/shim        |
+| 1    | OS loader + kernel image                             |
+| 2    | initrd, kernel-cmdline, device-tree or ACPI overlays |
+| 3    | Late-boot applications or policy blobs               |
+
+
+Keeping each class of artifact in its own register lets verifiers accept kernel updates without re-signing the firmware hash while still failing the quote if an attacker swaps the kernel command line.
+To record a measurement you compute a SHA-384 digest of the component, then call TDCALL [TDG.MR.RTMR.EXTEND].
+The call takes the RTMR index in RDX and the guest-physical address of a 48-byte buffer holding the digest in RCX; the TDX Module then automatically performs 
+
+$$
+RTMR[i] = \text{SHA}_{\text{384}}( RTMR[i] \, ‖ \, \text{digest} )
+$$
+
+Because the ABI insists on 64-byte alignment and rejects invalid indices, an unprivileged TD process cannot corrupt the chain, and the host cannot interfere because only TDX non-root mode may issue the leaf.
+Most deployments pair that hashing step with ordinary UEFI Secure Boot.
+TD-specific firmware (TDVF) verifies the signatures of shim/GRUB and the kernel and immediately after a signature succeeds it extends the digest of the verified binary into the appropriate RTMR.
+Intel’s virtual-firmware design guide recommends storing immutable boot firmware in the MRTD build-time measurement and reserving RTMR 0 for configuration firmware volumes, RTMR 1 for the kernel and loader, RTMR 2 for the initrd and kernel command line, and RTMR 3 for late-boot policies—allowing you to roll kernel updates without re-signing the firmware baseline.
+During attestation the guest first converts its local TD report into a TD Quote and that quote carries the full array of RTMRs.
+The relying party walks the Intel PCS certificate chain, checks the quote’s ECDSA signature and freshness nonce, and then compares each RTMR against pre-approved hashes (or hash whitelists).
+If any register differs, or if policy bits such as ATTRIBUTES.DEBUG are improperly set, the verifier rejects the session—providing the same integrity assurance that TPM-PCR measured boot delivers, but entirely inside the TDX security boundary.
+## Linux IMA (Integrity Measurement Architecture)
+
+Linux Integrity Measurement Architecture (IMA) is a Linux kernel feature that provides a mechanism to record and verify the integrity of files and other system objects at load or access time.
+At a high level, IMA computes cryptographic hashes of files (or other data) when they are used, maintains a log of these measurements, and can optionally enforce appraisal policies (e.g., signature checks) before allowing execution or access.
+This helps detect unauthorized modifications and supports building trust in the system state.
+
+### Overview
+
+Primary objectives of Linux IMA are:
+
+ - **Detection of Unauthorized Modifications**: By computing hashes of files and comparing them to known-good values or verifying signatures, IMA can detect tampering.
+ - **Support for Remote Attestation**: Measurements can be extended into TPM PCRs (typically PCR 10 on AMD SEV-SNP setups) to allow a remote party to verify the boot-time and runtime integrity state of the system.
+ - **Policy-Driven Measurement and Appraisal**: Flexible policy allows administrators to specify which files or operations to measure or appraise, balancing performance and security needs.
+ - **Integration with Extended Attributes (EVM)**: Ensures integrity metadata (e.g., security labels, signatures stored as xattrs) cannot themselves be tampered with without detection.
+
+Key aspects of IMA in general terms:
+
+- **Measurement**: When a file (such as an executable, shared library, or configuration file) is opened, mapped, or otherwise used in a way covered by policy, the kernel computes a hash of its contents (and possibly metadata) and appends that measurement to an in-memory log. This log can be exposed to user space for auditing or further processing.
+
+- **Policy-Driven**: Which files or operations are measured (or appraised) is determined by a policy. Administrators define simple rules (e.g., “measure all ELF binaries” or “appraise scripts under /usr/local/bin”) so that only relevant objects incur overhead.
+
+- **Appraisal (Optional Enforcement)**: Beyond just measuring, IMA can verify that a file carries a valid digital signature (with the public key provisioned in the kernel) before permitting its use. If appraisal fails, the kernel can refuse to open or execute the file, or log a warning depending on configuration.
+
+- **Logging and Auditing**: The sequence of measurements is kept in a log that can be read or exported. This enables administrators or automated systems to review which files were loaded and whether any unexpected changes occurred.
+
+- **Integration with TPM/Attestation (Contextual Use)**: While IMA itself computes and logs hashes, in many deployments those measurements are extended into a TPM’s Platform Configuration Registers (PCRs). A remote verifier can then obtain a TPM quote including these PCR values, providing evidence that the system booted and ran only approved components. (Note: this integration is set up separately, but IMA provides the runtime measurements that feed into it.)
+
+- **Performance Considerations**: Measuring every access can introduce overhead, so policies usually target only critical binaries or first-time loads. Subsequent accesses of immutable files may skip rehashing. Appraisal (signature checks) also adds cost, so it’s applied selectively.
+
+- **Extended Metadata Protection**: IMA often works alongside EVM (Extended Verification Module), which protects integrity-related extended attributes (e.g., signatures stored in xattrs) so that metadata tampering is also detectable.
+
+In essence, IMA provides a flexible, policy-driven way to observe and enforce file integrity at runtime in Linux.
+It does not by itself decide trustworthiness—that comes from how measurements are evaluated (e.g., comparing hashes to a whitelist or verifying signatures)—but it ensures that each file’s state when accessed is recorded and, if configured, checked before use.
+This mechanism underpins many integrity and attestation solutions by supplying reliable, tamper-evident records of what code and data have actually been loaded on the system.
+
+### Integration with CocosAI
+
+Eventhough IMA offers an appraise feature, CocosAI doesn't use it.
+The reason for this decision is the fact that many public cloud provider offer images that don't have file measurements.
+In these cases the VM doesn't boot since some of the critital binaries (system services etc.) are not executed because of the missing measurements.
+Rather than relying on kernel-enforced appraisal, CocosAI adopts a local verification approach:
+
+- An in-VM agent can fetch the current IMA measurement log.
+- A CLI tool can request that data and combine it with TPM PCR10 values (or quotes).
+- Verification is performed in user space (either locally or by forwarding to a remote attestation service). This design avoids boot failures on images without built-in measurements, while still leveraging IMA’s tamper-evident logs for post-boot integrity checking.
+
+Linux IMA is enabled through grub command line arguments.
+The command line needs to include `ima_policy=tcb` for IMA to be enabled.
+On VM startup, CocosAI applies a configuration file (in `YAML` format) that changes the grub command line.
+The change is made by editing `/etc/grub/default/ file.
+Afterwards grub is update and the VM is rebooted in order to activate IMA kernel feature.
+
+To ensure every file on the filesystem is measured (so that the log contains entries for all root-owned binaries and other critical files), CocosAI uses a command that accesses each file without reading its contents:
+
+```bash
+sudo find / -fstype ext4 -type f -uid 0 -exec dd if='{}' of=/dev/null count=0 status=none \;
+```
+What this does:
+
+- `find /`: Traverse from the root directory.
+- `-fstype ext4`: Restrict to filesystems of type ext4 (adjust if other filesystem types are used).
+- `-type f -uid 0`: Match regular files owned by root.
+- `-exec dd if='{}' of=/dev/null count=0 status=none \;`: For each path, open it via dd but copy zero blocks (`count=0`), which causes the kernel to open the file (triggering IMA measurement) without reading data, minimizing I/O overhead.
+Each matched file is opened exactly once, causing IMA to compute and record its hash in the runtime measurement list.
+After the reboot all files in the system are measured and their measurements are stored in the `/sys/kernel/security/integrity/ima/ascii_runtime_measurements` file.
+
+When the VM boots and the Agent starts, the measurements can be fetche with CLI tool.
+Every IMA mesurement extends PCR 10 register value.
+This means that the value of that register can be used to verify that the content of the file with measurements is not tampered with.
+When fetched, the measurements can be verified locally.
+
+## Measured Boot and Integrity Measurement
+
+System integrity is ensured by measuring and recording each boot component into the TPM:
+
+### Static Root of Trust for Measurement (SRTM)
+
+The firmware acts as the SRTM, responsible for:
+
+- Measuring critical boot components
+- Storing component hashes in TPM PCRs
+- Establishing the initial trust anchor
+- Enabling secure boot chain verification
+
+### Measurement Chain
+
+1. **Power-on Reset:** TPM PCRs are reset to known initial values
+2. **Firmware Measurement:** CRTM measures UEFI firmware into PCR 0
+3. **Boot Component Measurement:** Each component measures the next before execution
+4. **OS Loader Measurement:** Boot loader measures kernel and initramfs
+5. **Runtime Measurement:** Linux IMA measures files and executables during runtime

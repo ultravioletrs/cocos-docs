@@ -48,6 +48,7 @@ const sidebars: SidebarsConfig = {
           items: [
             'attestation-introduction',
             'attestation-attestation-report',
+            'attestation-measured-boot',
             {
               type: 'category',
               label: 'Technical Overview',
