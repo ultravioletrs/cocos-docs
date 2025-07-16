@@ -49,13 +49,7 @@ const sidebars: SidebarsConfig = {
             'attestation-introduction',
             'attestation-attestation-report',
             'attestation-measured-boot',
-            {
-              type: 'category',
-              label: 'Technical Overview',
-              items: [
-                'public-cloud-attestation-framework'
-              ],
-            },
+            'public-cloud-attestation-framework',
             {
               type: 'category',
               label: 'Verification',
