@@ -49,6 +49,7 @@ const sidebars: SidebarsConfig = {
             'attestation-introduction',
             'attestation-attestation-report',
             'attestation-measured-boot',
+            'atls',
             'public-cloud-attestation-framework',
             {
               type: 'category',
