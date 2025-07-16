@@ -2,13 +2,9 @@
 
 ## Introduction
 
-Ensuring system integrity and security is critical in modern computing environments, especially with the rise of confidential computing. Remote attestation is a key component of this security model, allowing one party to verify the integrity of another system before sharing sensitive information. This document provides a comprehensive technical overview of attestation in public cloud environments, specifically focusing on Microsoft Azure and Google Cloud Platform.
+Ensuring system integrity and security is critical in modern computing environments, especially with the rise of confidential computing. Remote attestation is a key component of this security model, allowing one party to verify the integrity of another system before sharing sensitive information. This document provides an overview of attestation in public cloud environments, specifically focusing on Microsoft Azure and Google Cloud Platform.
 
 Cocos provides attestation capabilities for Confidential Virtual Machines (CVMs) running on Microsoft Azure and Google Cloud Platform. The attestation framework establishes cryptographic proof of system integrity through hardware-backed Trusted Execution Environments (TEE) and Virtual Trusted Platform Modules (vTPM).
-
-Attestation is a process in which one system (the attester) gathers information about itself and sends it to a relying party (or client) for verification. Successful verification ensures that the Confidential Virtual Machine (CVM) is running the expected code on trusted hardware with the correct configuration. If deemed trustworthy, the relying party can securely send confidential code or data to the attester.
-
-Cocos implements the Background-Check model of remote attestation. In this model, the attester sends evidence to the relying party, who forwards it to the verifier for appraisal. The verifier then sends the attestation results to the relying party, who makes the final decision about trusting the attester based on the comparison of its own appraisal policy against the attestation result. For more detailed information about this model and remote attestation architectures, see [RFC 9334 - Remote ATtestation procedureS (RATS) Architecture](https://doi.org/10.17487/RFC9334).
 
 ## Trusted Computing Base (TCB)
 
@@ -202,8 +198,6 @@ Virtual Trusted Platform Module quotes containing:
 - **Configuration state:** System configuration and policy settings
 - **Event logs:** Detailed record of all measured events
 
-A TPM is a dedicated security chip designed to perform tamper-resistant cryptographic functions. It securely manages sensitive artifacts such as encryption keys, certificates, and integrity measurements. In scenarios where TPM functionality is implemented via software instead of hardware, it is referred to as a virtual TPM (vTPM).
-
 ### Verification Flow
 
 ```text
@@ -307,113 +301,6 @@ GCP utilizes a TCB Integrity Bucket (`gce_tcb_integrity`) for storing:
 - Path: `ovmf_x64_csm/{digest}.fd`
 - Firmware binary images for verification
 - Cryptographic hashes for integrity validation
-
-## TPM and PCR Deep Dive
-
-### Trusted Platform Module (TPM) Architecture
-
-A TPM is a dedicated security chip that performs tamper-resistant cryptographic functions. Key components include:
-
-#### Cryptographic Engine
-
-- RSA and ECC key generation and operations
-- SHA-1, SHA-256, SHA-384, SHA-512 hash algorithms
-- HMAC and symmetric encryption capabilities
-- Hardware-based random number generation
-
-#### Secure Storage
-
-- Non-volatile memory for keys and certificates
-- Monotonic counters for replay protection
-- Authorization policies and access controls
-- Sealed storage with PCR binding
-
-#### Platform Configuration Registers (PCRs)
-
-A Platform Configuration Register (PCR) is a secure memory region within the TPM that records system integrity measurements. Instead of being overwritten, PCR values are extended through a cryptographic hash function:
-
-```text
-PCR[N] = HASH_alg(PCR[N] || NewMeasurement)
-```
-
-This ensures that all recorded values remain linked and verifiable, making PCRs essential for attestation and system security.
-
-### PCR Usage and Allocation
-
-A typical TPM has 24 PCRs (0-23). The specific content verified in each PCR depends on the platform and implementation:
-
-#### Static PCRs (0-7) - SRTM Measurements
-
-- **PCR 0:** Core Root of Trust for Measurement (CRTM) and UEFI firmware
-- **PCR 1:** Platform and motherboard configuration
-- **PCR 2:** UEFI driver and ROM code
-- **PCR 3:** UEFI driver and ROM code configuration
-- **PCR 4:** UEFI Boot Manager code
-- **PCR 5:** UEFI Boot Manager configuration and GPT table
-- **PCR 6:** Host platform manufacturer control
-- **PCR 7:** Secure Boot state and certificates
-
-#### Dynamic PCRs (8-15) - OS and Application Measurements
-
-- **PCR 8:** Boot loader (GRUB, systemd-boot)
-- **PCR 9:** Kernel and initramfs
-- **PCR 10:** Linux IMA measurements
-- **PCR 11:** BitLocker access control
-- **PCR 12:** Boot events and configuration
-- **PCR 13:** Module signature verification
-- **PCR 14:** MokList (Machine Owner Keys)
-- **PCR 15:** System firmware updates
-
-#### Debug and Locality PCRs (16-23)
-
-- **PCR 16:** Debug and development use
-- **PCR 17-22:** Dynamic Root of Trust for Measurement (DRTM)
-- **PCR 23:** Application-specific measurements
-
-### Trusted Boot and Integrity Measurement
-
-System integrity is ensured by measuring and recording each boot component into the TPM:
-
-#### Static Root of Trust for Measurement (SRTM)
-
-The firmware acts as the SRTM, responsible for:
-
-- Measuring critical boot components
-- Storing component hashes in TPM PCRs
-- Establishing the initial trust anchor
-- Enabling secure boot chain verification
-
-#### Measurement Chain
-
-1. **Power-on Reset:** TPM PCRs are reset to known initial values
-2. **Firmware Measurement:** CRTM measures UEFI firmware into PCR 0
-3. **Boot Component Measurement:** Each component measures the next before execution
-4. **OS Loader Measurement:** Boot loader measures kernel and initramfs
-5. **Runtime Measurement:** IMA measures files and executables during runtime
-
-### Linux IMA (Integrity Measurement Architecture)
-
-Linux Integrity Measurement Architecture (IMA) is a Linux kernel feature that provides a mechanism to record and verify the integrity of files and other system objects at load or access time.
-
-#### IMA Components
-
-**Measurement:** IMA computes cryptographic hashes of files and maintains a log of these measurements in the kernel's measurement list.
-
-**Appraisal:** IMA can optionally enforce appraisal policies, requiring files to have valid signatures or hashes before access is granted.
-
-**Audit:** IMA can generate audit records for file access and integrity violations.
-
-#### Integration with Cocos
-
-CocosAI uses IMA to ensure comprehensive file system integrity:
-
-1. **Measurement Collection:** Every file on the filesystem is measured during access
-2. **Local Verification:** An in-VM agent fetches the current IMA measurement log
-3. **PCR Integration:** CLI tool combines IMA data with TPM PCR 10 values
-4. **User-Space Verification:** Verification performed outside the kernel for flexibility
-5. **Tamper Detection:** IMA's tamper-evident logs provide post-boot integrity checking
-
-This design avoids boot failures on images without built-in measurements while still leveraging IMA's comprehensive integrity monitoring capabilities.
 
 ## Security Considerations
 

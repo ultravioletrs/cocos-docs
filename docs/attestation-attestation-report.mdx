@@ -1,0 +1,132 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Attestation Report
+
+## AMD SEV-SNP attestation
+
+AMD SEV-SNP (Secure Encrypted Virtualization - Secure Nested Paging) provides hardware-based memory encryption and integrity protection for virtual machines (VMs), allowing them to run securely even on untrusted hypervisors.
+A core feature of SEV-SNP is its attestation capability, which enables a VM to cryptographically prove its integrity and configuration to a remote verifier.
+
+### Attestation Workflow
+The SEV-SNP attestation process involves several key components:
+
+- **Guest VM (Attester)**: Runs inside a secure VM with SEV-SNP enabled.
+- **VMM/Hypervisor**: Facilitates access to attestation interfaces but is considered untrusted.
+- **AMD Secure Processor (ASP)**: A trusted firmware component that handles attestation logic and signs attestation reports.
+- **Remote Verifier**: External party that verifies the integrity and identity of the attested VM.
+- **AMD Attestation Signing Service (ASK/ARK)**: AMD-operated certificate infrastructure that signs attestation keys and allows verifiers to validate signatures.
+
+The typical workflow includes:
+
+- The guest VM requests an attestation report by issuing an `SNP_GUEST_REQUEST_REPORT` instruction.
+- The request includes a user-supplied nonce to guarantee freshness and may include additional runtime data (e.g., measurements).
+- The Secure Processor returns a binary attestation report, signed with AMD’s device-specific key.
+- The VM sends the report to the remote verifier.
+- The verifier uses AMD’s ARK (AMD Root Key) and ASK (AMD Signing Key) certificate chain to validate the report signature and verify platform integrity and configuration.
+
+### Attestation Report Structure
+The SEV-SNP attestation report is a binary structure (typically ~4 KB) that contains the following fields:
+
+| Offset [Byte] | Bits       | Name               | Description                                                                                   |
+|---------------|------------|--------------------|-----------------------------------------------------------------------------------------------|
+| 00h           | 31:0       | Version            | The current value is 2 or 3, but we will focus on version 2.                                  |
+| 04h           | 31:0       | Guest SVN          | The Guest SVN. Can be set when launching the CVM.                                             |
+| 08h           | 63:0       | Policy             | The policy of the CVM. The launch will fail if the platform does not match the launch policy. |
+| 10h           | 127:0      | Family ID          | Arbitrary number that can be set when launching the CVM.                                      |
+| 20h           | 127:0      | Image ID           | Arbitrary number that can be set when launching the CVM.                                      |
+| 30h           | 31:0       | VMPL               | Virtual Machine Privilege Level (VMPL) from which the attestation report was fetched.         |
+| 34h           | 31:0       | Signature algo     | The signature algorithm that was used to sign the report.                                     |
+| 38h           | 63:0       | Current TCB        | The current TCB value.                                                                        |
+| 40h           | 63:0       | Platform info      | Various information about the platform.                                                       |
+| 48h           | 31:5       | -                  | Reserved field. Must be 0.                                                                    |
+| 48h           | 4:2        | Signing key        | Encoding of the keys that are used to sign the report. If the value is 0, VCEK is used.       |
+| 48h           | 1          | Mask chip key.     | The attestation report is not signed if the mask chip key is 0.                               |
+| 48h           | 0          | Author key en.     | Indicates if the digest of the guest owner key is part of the report.                         |
+| 4Ch           | 31:0       | -                  | Reserved field. Must be 0.                                                                    |
+| 50h           | 511:0      | Report data        | CVM-provided data at the moment the attestation report is requested.                          |
+| 90h           | 383:0      | Measurement        | The hash of initial guest memory.                                                             |
+| C0h           | 255:0      | Host data          | Data provided by the hypervisor to the guest at the time of CVM launch.                       |
+| E0h           | 383:0      | ID key digest      | SHA-384 digest of the ID public key that signed the ID block.                                 |
+| 110h          | 383:0      | Author key digest  | SHA-384 digest of the Author public key that certified the ID key.                            |
+| 140h          | 255:0      | Report ID          | Report ID of the guest.                                                                       |
+| 160h          | 255:0      | Report ID of MA    | Report ID of the Migration Agent (MA).                                                        |
+| 180h          | 63:0       | Reported TCB       | The reported TCB value.                                                                       |
+| 188h-19Fh     | -          | -                  | Reserved field.                                                                               |
+| 1A0h-1DFh     | 511:0      | Chip ID            | Unique identifier of the platform chip.                                                       |
+| 1E0h          | 63:0       | Committed TCB      | The committed TCB value.                                                                      |
+| 1E8h          | 7:0        | Current Build      | Build number of the current firmware.                                                         |
+| 1E9h          | 7:0        | Current Minor      | Minor number of the current firmware.                                                         |
+| 1EAh          | 7:0        | Current Major      | Major number of the current firmware.                                                         |
+| 1EBh          | 7:0        | -                  | Reserved field.                                                                               |
+| 1ECh          | 7:0        | Committed Build    | Build number of the committed firmware.                                                       |
+| 1EDh          | 7:0        | Committed Minor    | Minor number of the committed firmware.                                                       |
+| 1EEh          | 7:0        | Committed Major    | Major number of the committed firmware.                                                       |
+| 1EFh          | 7:0        | -                  | Reserved field.                                                                               |
+| 1F0h          | 63:0       | Launch TCB         | The TCB valued at the time the CVM was launched.                                              |
+| 1F8h-29Fh     | -          | -                  | Reserved field.                                                                               |
+| 2A0h-49Fh     | -          | Signature          | Signature of the report. Bytes from 0h to 29Fh.                                               |
+
+### Security Guarantees
+The report allows a verifier to validate:
+
+- **Platform authenticity**, via the AMD certificate chain.
+- **Guest integrity**, via the measurement field (comparable to a PCR hash).
+- **Freshness**, via the report_data which should contain a hash of the verifier’s nonce.
+- **Configuration policy**, ensuring the guest runs with secure settings (e.g., no debug access).
+- **Key binding**, where the attestation report binds the measurement to a public key used later for secure communication (e.g., TLS or key wrapping).
+
+
+## Intel TDX attestation
+Intel Trust Domain Extensions (TDX) create a Trust Domain (TD) whose memory is transparently encrypted and whose CPU state is isolated from everything running in VMX-root (the host VMM, BIOS, SMM, system firmware, etc.).
+Like AMD SEV-SNP, TDX’s most important cloud-security feature is remote attestation—a way for software inside the TD to prove to a distant verifier that it is:
+
+  - running on genuine Intel® hardware with TDX enabled,
+  - loaded from an expected initial image, and
+  - executing with a runtime configuration that meets the verifier’s policy.
+  
+### Attestation Workflow
+The TDX attestation process involves the following steps:
+
+| Step | Who                              | What happens (high level)                                                                                                                                                                                                                                                      |
+| ---- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | **Guest TD (attester)**          | Executes the TDCALL leaf **`TDG.MR.REPORT`** with a 64-byte `REPORTDATA` nonce supplied by the relying party.                                                                                                                                                                  |
+| 2    | **TDX module (in SEAM mode)**    | Builds a 1024-byte **`TDREPORT_STRUCT`** that binds the TD’s measurements (MRTD + RTMRs) and configuration to the nonce, then authenticates the blob with a device-unique AES-GMAC.                                                                                            |
+| 3    | **Quoting enclave / Service TD** | Converts the TD report into a **TD Quote** signed by an Intel Provisioning Certification Key (PCK).  The SGX quoting architecture is reused: `ENCLU[EVERIFYREPORT2]` checks the report MAC locally, then the quoting enclave signs it and attaches the PCK certificate chain.  |
+| 4    | **Remote verifier**              | Validates the certificate chain up to the Intel TDX Root CA, checks the signature on the Quote, confirms that MRTD/RTMRs & TD attributes satisfy policy, and matches `REPORTDATA` to its nonce.                                                                                |
+
+Key actors:
+
+  - Guest TD (attester)
+  - Host VMM (untrusted)
+  - TDX module (firmware running in the new SEAM privilege mode)
+  - Quoting enclave / Service TD
+  - Intel Provisioning Certification Service (PCS)
+  - Remote verifier
+
+### Attestation Report Structure
+The TDX attestation report is a binary structure that contains the following fields:
+
+| Offset    | Size  | Field                 | Purpose                                                                                                                                                    |
+| --------- | ----- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0x000** | 4 B   | **ReportType**        | `{Type = 0x81, Subtype, Version}` identifies this as a TDX report.                                                                                         |
+| 0x004     | 12 B  | *Reserved*            | —                                                                                                                                                          |
+| 0x010     | 16 B  | **CpuSvn**            | Micro-code security version.                                                                                                                               |
+| 0x020     | 48 B  | **TEE TCB Info Hash** | SHA-384 of the TDX-module’s TCB description.                                                                                                               |
+| 0x050     | 48 B  | **TEE Info Hash**     | Hash of static SEAM metadata.                                                                                                                              |
+| 0x080     | 64 B  | **ReportData**        | Verifier-supplied nonce / user data.                                                                                                                       |
+| 0x0C0     | 32 B  | *Reserved*            | —                                                                                                                                                          |
+| 0x0E0     | 32 B  | **MAC**               | AES-GCM MAC over bytes `0x000-0x0DF` using a CPU-secret key.                                                                                               |
+| **0x100** | 128 B | **TEE\_TCB\_INFO**    | Validity mask, TEE TCB SVN, `MRSEAM`, `MRSIGNERSEAM`, attributes.                                                                                          |
+| **0x180** | 17 B  | *Reserved*            | —                                                                                                                                                          |
+| **0x191** | 512 B | **TDINFO**            | TD-specific measurements & configuration: `ATTRIBUTES`, `XFAM`, **`MRTD`**, **`MRCONFIGID`**, **`MROWNER`**, **`MROWNERCONFIG`**, and **`RTMR[0-3]`**. |
+| **0x391** | 111 B | *Padding / reserved*  | —                                                                                                                                                          |
+
+### Security Guarantees
+The report allows a verifier to validate:
+
+  - **Platform authenticity** – Quote is signed by a PCK whose chain terminates at Intel’s TDX Root CA.                                                                                                                   
+  - **TD integrity** – Initial image exactly matches the verifier’s reference hash.                                                                                                                                       
+  - **Freshness** – Verifier’s nonce is baked into `ReportData` → MAC → Quote.                                                                                                                                            
+  - **Runtime state & policy** – Attributes, XFAM, and each `RTMR[i]` allow the verifier to enforce debug-off, migratable-off, secure-boot, etc.                                                                          
+  - **TD ↔ Key binding** – A TD can generate an internal keypair, put the public key into `ReportData`, and let the verifier bind that key to the measurements, enabling mutually-attested TLS (maTLS) or sealed storage. 
