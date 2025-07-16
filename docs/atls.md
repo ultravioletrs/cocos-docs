@@ -10,7 +10,6 @@ The entire process is illustrated in the picture below. The green color represen
 
 ![Attested TLS](/img/attestation/atls.png)
 
-
 The exact point at which the Agent certificate is sent during the TLS handshake process is shown below.
 
 ![TLS handshake](/img/attestation/tls.png)
@@ -77,4 +76,3 @@ The relying party uses the Cocos CLI to verify the self-signed (or CA-signed) ce
 The array `pcr_values` represents the expected (golden) PCR values that must match the PCR values in the vTPM attestation report. The `policy` and `root_of_trust` sections describe the reference values for the fields in the SEV-SNP attestation report.
 
 It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS.
-
