@@ -250,18 +250,6 @@ The Agent is responsible for fetching the attestation report from the CVM. This 
 
 Additionally, the Agent interacts with the vTPM inside the CVM using go-tpm-tools to retrieve attestation data, which includes cryptographic measurements of the enclave’s boot and runtime state. These measurements are used to generate the attestation report, which the Manager or an external verifier can validate to ensure the enclave’s integrity.
 
-## Attested TLS
-
-For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. This is done using attested TLS, which is a TLS connection where the server's certificate is extended with the attestation report.
-In Cocos, the CVM acts as the server, and the Agent extends the x.509 certificate it uses for TLS with the attestation report. When generating the report, the Agent embeds the hash of its public key into the `report_data` field.
-The whole process can be seen in the below picture. The green color represents the trusted part of the system, while the red is untrusted.
-
-![Attested TLS](/img/attestation/atls.png)
-
-The relying party uses the Cocos CLI to verify the self-signed certificate and the attestation report that is part of it. Successful verification proves to the relying party that the certificate is generated inside the SVM because the certificate's public key is part of the attestation report.
-
-It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS (described above).
-
 ## Linux IMA (Integrity Measurement Architecture)
 
 Linux Integrity Measurement Architecture (IMA) is a Linux kernel feature that provides a mechanism to record and verify the integrity of files and other system objects at load or access time.
