@@ -1,13 +1,17 @@
 # Hardware Abstraction Layer (HAL)
 
+## Overview
+
+To keep the CVM as small as possible and ensure that secrets passed into the CVM are destroyed upon computation completion, the HAL provides an in-RAM CVM. Without the disk, the attack surface is smaller, and because there is no persistent state, the data and code provided to the CVM are destroyed upon shutdown.
+
 HAL is a layer of programming that allows the software to interact with the hardware device at a general level rather than at the detailed hardware level. Cocos uses HAL and AMD SEV-SNP or Intel TDX as an abstraction layer for confidential computing.
 
 AMD SEV-SNP and Intel TDX technology enable the creation of confidential virtual machines (CVMs). VMs are usually used to run an operating system (e.g., Ubuntu and its applications). To avoid using a whole OS, HAL uses:
 
- - Virtual Trusted Platform Module (vTPM) that is part of the CVM, and thus is part of the measurement of the CVM. The implementation of such vTPM is found at the [COCONUT-SVSM repository](https://github.com/coconut-svsm/svsm). This vTPM is only available for SEV-SNP. TDX support will be added in the future.
- - Open Virtual Machine Firmware (OVMF) - a custom OVMF with support for COCONUT-SVSM vTPM.
- - Custom Linux kernel v6.11 - bzImage archive with the custom Linux kernel v6.11 with support for AMD SEV-SNP and Intel TDX. This custom version of the kernel also supports COCONUT-SVSM, or the virtual TPM.
- - File system - the initial RAM file system (initramfs) that is used as the root file system of the VM.
+  - Virtual Trusted Platform Module (vTPM) that is part of the CVM, and thus is part of the measurement of the CVM. The implementation of such vTPM is found at the [COCONUT-SVSM repository](https://github.com/coconut-svsm/svsm). This vTPM is only available for SEV-SNP. TDX support will be added in the future.
+  - Open Virtual Machine Firmware (OVMF) - a custom OVMF with support for COCONUT-SVSM vTPM.
+  - Custom Linux kernel v6.11 - bzImage archive with the custom Linux kernel v6.11 with support for AMD SEV-SNP and Intel TDX. This custom version of the kernel also supports COCONUT-SVSM, or the virtual TPM.
+  - File system - the initial RAM file system (initramfs) that is used as the root file system of the CVM.
 
 This way, applications can be executed in the CVM, and the whole HAL CVM is entirely in RAM, protected by SEV-SNP and TDX. Being a RAM-only CVM means that secrets stored in the CVM will never leave the CVM and will be destroyed when the CVM is shut down.
 
@@ -27,11 +31,28 @@ HAL configuration for Buildroot also includes Python, WASM, and Docker runtime a
 
 HAL is combined with AMD SEV-SNP or Intel TDX to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation.mdx).
 
+### AMD SEV-SNP
+
 Cocos uses QEMU and OVMF to boot the CVMs. During boot with SEV-SNP, the AMD Secure Processor (AMD SP) measures (calculates the hash) of the contents of the VM to insert that hash into the attestation report. This measurement is proof of what is currently running inside the VM.
 
 SEV-SNP is used to measure OVMF. To determine which kernel is running in the CVM and which file system, the vTPM is utilized for this purpose. The OVMF and vTPM are loaded into memory when the initial CVM memory is loaded. During this process, the SEV-SNP measures this initial memory, thereby assessing the OVMF and vTPM. The rest of the HAL, the kernel, and the initramfs are measured by the Platform Configuration Registers (PCRs) of the vTPM. The content of the PCRs is trusted because the vTPM is running inside the CVM and in layer VMPL0. The whole process can be seen in the following diagram. The green color represents the trusted part of the system, while the red is untrusted.
 
-![hal](/img/hal.png)
+![hal](/img/hal_snp.png)
+
+### Intel TDX
+
+Cocos uses QEMU and OVMF to boot the Trust Domain (TD). TD is the Intel synonym for a CVM. During boot, the Intel TDX Module measures (calculates the hash) of the contents of the CVM to insert that hash into the attestation report. 
+
+Cocos uses QEMU and OVMF to boot the Trust Domain (TD). TD is the Intel synonym for a CVM. During boot, the Intel TDX Module measures (calculates the hash) of the contents of the CVM to insert that hash into the attestation report. The kernel and initramfs are measured using CVMs (TDs) Runtime Measurement Registers (RTMRs). There are four RTMRs. 
+  - RTMR0 stores the measurement of the virtual firmware data (static configuration and dynamic configuration). OVMF extends this RTMR.
+  - RTMR1 stores the measurement of the Linux kernel. OVMF extends this RTMR.
+  - RTMR2 stores the measurement of initramfs and the kernel command line. Linux kernel extends this RTMR. Linux kernel also extends this RTMR with measurements of OS applications.
+  - RTMR3 is empty and can be used freely.
+RTMR registers are extended in the same way as the PCR registers of the vTPM.
+
+![hal](/img/hal_tdx.png)
+
+## Conclusion
 
 This process guarantees that the whole VM is secure and can be verified.
 
