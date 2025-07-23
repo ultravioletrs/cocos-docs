@@ -420,7 +420,7 @@ HOST="192.168.1.41" go run ./test/cvms/main.go \
 
 Expected output:
 
-```json
+```text
 {"time":"2025-06-25T14:52:58.693344502+02:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.41:7001 without TLS"}
 ```
 
