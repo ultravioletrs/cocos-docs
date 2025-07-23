@@ -1,196 +1,415 @@
 # Manager
 
-Manager runs on the TEE-capable host (AMD SEV-SNP or Intel TDX) and has 2 main roles:
+## Overview
 
-1. To deploy the well-prepared TEE upon the `run` command and upload the necessary configuration into it (command line arguments, TLS certificates, etc...)
-2. To monitor deployed TEE and provide remote logs
+The Manager is a critical component of the Cocos system that runs on TEE-capable hosts (AMD SEV-SNP or Intel TDX) and serves as the orchestrator for Trusted Execution Environment (TEE) deployments. It acts as the bridge between the Computation Management service and the actual TEE instances, providing secure virtualized environments for confidential computing workloads.
 
-Manager exposes an API for control, based on gRPC, and is controlled by Computation Management service. Manager acts as the client of Computation Management service and connects to it upon the start via TLS-encoded gRPC connection.
+### Architecture Position
 
-Computation Management service is used to configure computation metadata. Once a computation is created by a user and the invited users have uploaded their public certificates (used later for identification and data exchange in the enclave), a run request is sent. The Manager is responsible for creating the TEE in which computation will be ran and managing the computation lifecycle.
-
-The picture below shows where the Manager runs in the Cocos system, helping us better understand its role.
+The Manager sits between the Computation Management service and the TEE instances, exposing a gRPC-based API for control operations and maintaining TLS-encrypted connections with upstream services.
 
 ![Manager](/img/manager.png)
 
-## vTPM-Based Attestation & IGVM Validation
+## Manager Responsibilities
 
-- vTPM Attestation: The Agent retrieves cryptographic measurements from the vTPM inside the CVM. These measurements are used to verify the enclave's boot and runtime state, ensuring that it operates on trusted hardware and remains unmodified.
-- IGVM Validation: The Manager verifies the Initial Guest Virtual Machine (IGVM) file by computing its expected launch measurement and comparing it with attestation reports. This process ensures that the CVM's initial state aligns with security expectations, preventing unauthorized modifications.
+The Manager has two primary operational roles:
 
-By integrating SEV-SNP attestation, vTPM integrity checks, and IGVM validation, the Manager enforces a secure and verifiable execution environment.
+### 1. TEE Deployment and Configuration
 
-## Setup and Test Manager Agent
+- **CVM Creation**: Upon receiving a create CVM request, the Manager deploys prepared Trusted Execution Environments
+- **Configuration Management**: Uploads necessary configurations including:
+  - Command-line arguments
+  - TLS certificates  
+  - Runtime parameters
+  - Environment variables
+- **Resource Allocation**: Manages CPU, memory, and storage resources for each TEE instance
 
-```sh
-git clone https://github.com/ultravioletrs/cocos
-cd cocos
-```
+### 2. TEE Monitoring and Lifecycle Management
 
-> **N.B.** All relative paths in this document are relative to `cocos` repository directory.
+- **Health Monitoring**: Continuously monitors deployed TEEs for performance and availability
+- **Logging**: Provides remote logs and status updates for observability
+- **Lifecycle Management**: Handles TEE startup, runtime management, and shutdown procedures
+- **Attestation**: Performs vTPM-based attestation and IGVM validation for security assurance
 
-### Prerequisites
+### Security Features
 
-Before proceeding, make sure you have the following installed:
+#### vTPM-Based Attestation
 
-- [Golang](https://go.dev/doc/install) (version 1.24 or later)
-- QEMU-KVM virtualization platform
+- Retrieves cryptographic measurements from the vTPM inside CVMs
+- Verifies enclave boot and runtime state integrity
+- Ensures operation on trusted hardware without modification
+- Provides continuous integrity assurance throughout the CVM lifecycle
 
-### QEMU-KVM
+#### IGVM Validation  
 
-[QEMU-KVM](https://www.qemu.org/) is a virtualization platform that allows you to run multiple operating systems on the same physical machine. It is a combination of two technologies: QEMU and KVM.
+- Verifies Initial Guest Virtual Machine (IGVM) files by computing expected launch measurements
+- Compares measurements with attestation reports
+- Ensures CVM initial state aligns with security expectations
+- Prevents unauthorized modifications and ensures secure boot
 
-- QEMU is an emulator that can run a variety of operating systems, including Linux, Windows, and macOS.
-- [KVM](https://wiki.qemu.org/Features/KVM) is a Linux kernel module that allows QEMU to run virtual machines.
+## Prerequisites and Setup
 
-To install QEMU-KVM on a Debian based machine, run
+### System Requirements
 
-```sh
+Before deploying the Manager, ensure the following components are installed:
+
+#### Required Software
+
+- **Go**: Version 1.24 or later ([Installation Guide](https://go.dev/doc/install))
+- **QEMU-KVM**: Virtualization platform for running CVMs
+- **Hardware**: AMD SEV-SNP or Intel TDX capable processor
+
+#### QEMU-KVM Installation
+
+On Debian-based systems:
+
+```bash
 sudo apt update
 sudo apt install qemu-kvm
 ```
 
-### Prepare Cocos HAL
+### Hardware Abstraction Layer (HAL) Setup
 
-Get the hardware abstraction layer from the [releases](https://github.com/ultravioletrs/cocos/releases) on the cocos repository. Two files will be required:
+#### Download HAL Files
 
-- `rootfs.cpio.gz` - Initramfs
-- `bzImage` - Kernel
-
-Create the necessary directories inside the cocos/cmd/manager path: `img` and `tmp`.
+Obtain the required HAL files from the [Cocos releases](https://github.com/ultravioletrs/cocos/releases):
 
 ```bash
+# Create necessary directories
 mkdir -p cocos/cmd/manager/img cocos/cmd/manager/tmp
-```
 
-Copy the downloaded files to `cocos/cmd/manager/img`.
-
-```bash
+# Download HAL components
 wget https://github.com/ultravioletrs/cocos/releases/download/v0.6.0/bzImage -P cocos/cmd/manager/img
 wget https://github.com/ultravioletrs/cocos/releases/download/v0.6.0/rootfs.cpio.gz -P cocos/cmd/manager/img
 ```
 
-If using the latest version of cocos see the Developer guide for instructions on building HAL.
+Required files:
 
-### OVMF
+- `rootfs.cpio.gz`: Initial RAM filesystem (initramfs) for the CVM
+- `bzImage`: Linux kernel image
 
-We need [Open Virtual Machine Firmware](https://wiki.ubuntu.com/UEFI/OVMF). OVMF is a port of Intel's tianocore firmware - an open source implementation of the Unified Extensible Firmware Interface (UEFI) - used by a qemu virtual machine. We need OVMF in order to run virtual machine with _focal-server-cloudimg-amd64_. When we install QEMU, we get two files that we need to start a VM: `OVMF_VARS.fd` and `OVMF_CODE.fd`. We will make a local copy of `OVMF_VARS.fd` since a VM will modify this file. On the other hand, `OVMF_CODE.fd` is only used as a reference, so we only record its path in an environment variable.
+### OVMF Configuration
 
-Locating OVMF_CODE.fd files:
+The Manager requires [Open Virtual Machine Firmware (OVMF)](https://wiki.ubuntu.com/UEFI/OVMF) for UEFI support in virtual machines.
+
+#### Locate OVMF Files
+
+Find OVMF_CODE.fd files:
 
 ```bash
 sudo find / -name OVMF_CODE.fd
 ```
 
-The output will be similar to this:
+Example output:
 
 ```bash
-/usr/share/edk2/ia32/OVMF_CODE.fd
 /usr/share/edk2/x64/OVMF_CODE.fd
 /usr/share/OVMF/OVMF_CODE.fd
 ```
 
-Locating OVMF.fd files:
-
-```bash
-sudo find / -name OVMF.fd
-```
-
-The output will be similar to this:
-
-```bash
-/usr/share/edk2/ia32/OVMF.fd
-/usr/share/edk2/x64/OVMF.fd
-/usr/share/OVMF/OVMF.fd
-```
-
-Find the OVMF_VARS.fd file:
+Find OVMF_VARS.fd files:
 
 ```bash
 sudo find / -name OVMF_VARS.fd
 ```
 
-the output will be similar to this
+Example output:
 
 ```bash
-/usr/share/edk2/ia32/OVMF_VARS.fd
 /usr/share/edk2/x64/OVMF_VARS.fd
 /usr/share/OVMF/OVMF_VARS.fd
 ```
 
-### Generating Keys
+**Note**: OVMF_VARS.fd is copied to a unique temporary location for each VM instance to ensure isolation.
 
-To enable secure communication between the user and the agent via the CLI, you need to generate a public/private RSA key pair.
+### Key Generation
 
-Navigate to the project root and build the CLI tool:
+Generate RSA key pairs for secure communication between users and the agent:
 
 ```bash
+# Build CLI tool
 cd cocos
 make cli
-```
 
-Use the CLI to generate the keys:
-
-```bash
+# Generate keys
 ./build/cocos-cli keys
 ```
 
-You should see output similar to:
+This creates:
+
+- `public.pem`: Public key for user identification
+- `private.pem`: Private key for secure communication
+
+## Environment Configuration
+
+The Manager's behavior is controlled through environment variables. Below is a comprehensive reference of all configuration options:
+
+### Core Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_INSTANCE_ID` | Unique identifier for the manager service | (empty) |
+| `MANAGER_GRPC_URL` | gRPC endpoint of the Computation Management Service | localhost:7001 |
+| `MANAGER_GRPC_TIMEOUT` | Timeout for gRPC requests | 60s |
+| `MANAGER_LOG_LEVEL` | Logging verbosity level | info |
+
+### Security and Attestation
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_GRPC_CLIENT_CERT` | Client certificate path for gRPC communication | (empty) |
+| `MANAGER_GRPC_CLIENT_KEY` | Client private key path for gRPC communication | (empty) |
+| `MANAGER_GRPC_SERVER_CA_CERTS` | Server CA certificate(s) path for gRPC communication | (empty) |
+| `MANAGER_ATTESTATION_POLICY_BINARY` | Attestation policy binary file path | ../../build/attestation_policy |
+| `MANAGER_IGVMMEASURE_BINARY` | IGVM measure binary file path | ../../build/igvmmeasure |
+| `MANAGER_PCR_VALUES` | Expected PCR values file path | (empty) |
+
+### QEMU Virtual Machine Configuration
+
+#### Basic VM Settings
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_BIN_PATH` | QEMU binary file path | qemu-system-x86_64 |
+| `MANAGER_QEMU_USE_SUDO` | Use sudo to run QEMU | false |
+| `MANAGER_QEMU_MACHINE` | QEMU machine type | q35 |
+| `MANAGER_QEMU_CPU` | CPU model for QEMU | EPYC |
+| `MANAGER_QEMU_ENABLE_KVM` | Enable KVM acceleration | true |
+| `MANAGER_QEMU_NO_GRAPHIC` | Disable graphical display | true |
+| `MANAGER_QEMU_MONITOR` | Monitor type | pty |
+
+#### Memory and CPU Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_MEMORY_SIZE` | Total memory size (e.g., "2048M", "4G") | 2048M |
+| `MANAGER_QEMU_MEMORY_SLOTS` | Number of memory slots | 5 |
+| `MANAGER_QEMU_MAX_MEMORY` | Maximum memory size (e.g., "30G") | 30G |
+| `MANAGER_QEMU_SMP_COUNT` | Number of virtual CPUs | 4 |
+| `MANAGER_QEMU_SMP_MAXCPUS` | Maximum number of virtual CPUs | 64 |
+| `MANAGER_QEMU_MEM_ID` | Memory device ID | ram1 |
+
+#### OVMF Firmware Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_OVMF_CODE_FILE` | OVMF code file path | /usr/share/OVMF/OVMF_CODE.fd |
+| `MANAGER_QEMU_OVMF_VARS_FILE` | OVMF variables file path | /usr/share/OVMF/OVMF_VARS.fd |
+| `MANAGER_QEMU_OVMF_CODE_IF` | OVMF code interface type | pflash |
+| `MANAGER_QEMU_OVMF_CODE_FORMAT` | OVMF code file format | raw |
+| `MANAGER_QEMU_OVMF_CODE_UNIT` | OVMF code unit number | 0 |
+| `MANAGER_QEMU_OVMF_CODE_READONLY` | OVMF code read-only setting | on |
+| `MANAGER_QEMU_OVMF_VARS_IF` | OVMF variables interface type | pflash |
+| `MANAGER_QEMU_OVMF_VARS_FORMAT` | OVMF variables file format | raw |
+| `MANAGER_QEMU_OVMF_VARS_UNIT` | OVMF variables unit number | 1 |
+| `MANAGER_QEMU_OVMF_VERSION` | EDKII version for OVMF | (empty) |
+
+#### Network Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_NETDEV_ID` | Network device ID | vmnic |
+| `MANAGER_QEMU_HOST_FWD_AGENT` | Host port for agent communication | 7020 |
+| `MANAGER_QEMU_GUEST_FWD_AGENT` | Guest port for agent communication | 7002 |
+| `MANAGER_QEMU_HOST_FWD_RANGE` | Range of host ports to forward | 6100-6200 |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_DISABLE_LEGACY` | Disable legacy PCI for virtio-net | on |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_IOMMU_PLATFORM` | Enable IOMMU platform | true |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_ADDR` | PCI address for virtio-net | 0x2 |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_ROMFILE` | ROM image file path | (empty) |
+
+#### Disk and Storage Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_DISK_IMG_KERNEL_FILE` | Kernel image file path | img/bzImage |
+| `MANAGER_QEMU_DISK_IMG_ROOTFS_FILE` | Root filesystem image file path | img/rootfs.cpio.gz |
+
+#### File System Mounts
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_CERTS_MOUNT` | Host directory path for certificate mounting | (empty) |
+| `MANAGER_QEMU_ENV_MOUNT` | Host directory path for environment variable mounting | (empty) |
+
+### TEE-Specific Configuration
+
+#### AMD SEV-SNP Settings
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_ENABLE_SEV_SNP` | Enable SEV-SNP | true |
+| `MANAGER_QEMU_SEV_SNP_ID` | SEV-SNP device ID | sev0 |
+| `MANAGER_QEMU_SEV_SNP_CBITPOS` | C-bit position in physical address | 51 |
+| `MANAGER_QEMU_SEV_SNP_REDUCED_PHYS_BITS` | Reduced physical address bits | 1 |
+| `MANAGER_QEMU_ENABLE_HOST_DATA` | Enable additional SEV-SNP host data | false |
+| `MANAGER_QEMU_HOST_DATA` | Additional SEV-SNP host data | (empty) |
+
+#### Intel TDX Settings
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_ENABLE_TDX` | Enable TDX | false |
+| `MANAGER_QEMU_TDX_ID` | TDX device ID | tdx0 |
+| `MANAGER_QEMU_QUOTE_GENERATION_PORT` | Port for Quote Generation Service communication | 4050 |
+| `MANAGER_QEMU_OVMF_FILE` | Combined OVMF file for TDX | /usr/share/ovmf/OVMF.fd |
+
+#### IGVM Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MANAGER_QEMU_IGVM_ID` | IGVM file ID | igvm0 |
+| `MANAGER_QEMU_IGVM_FILE` | IGVM file path | /root/coconut-qemu.igvm |
+
+### Observability Configuration
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `COCOS_JAEGER_URL` | Jaeger tracing endpoint URL | `http://localhost:4318` |
+| `COCOS_JAEGER_TRACE_RATIO` | Trace sampling ratio | 1.0 |
+| `MANAGER_EOS_VERSION` | EOS version for CVM booting | (empty) |
+
+### Configuration Examples
+
+#### Basic Development Setup
 
 ```bash
-Successfully generated public/private key pair of type: rsa%
+export MANAGER_GRPC_URL=localhost:7001
+export MANAGER_LOG_LEVEL=debug
+export MANAGER_QEMU_USE_SUDO=false
+export MANAGER_QEMU_ENABLE_KVM=true
 ```
 
-The generated keys will be saved in the current directory as:
+#### SEV-SNP Production Setup
 
-- public.pem — the public key
-- private.pem — the private key
+```bash
+export MANAGER_GRPC_URL=your-computation-service:7001
+export MANAGER_LOG_LEVEL=info
+export MANAGER_QEMU_ENABLE_SEV_SNP=true
+export MANAGER_QEMU_SEV_SNP_CBITPOS=51
+export MANAGER_QEMU_BIN_PATH=/usr/bin/qemu-system-x86_64
+export MANAGER_QEMU_IGVM_FILE=/path/to/your/igvm/file.igvm
+export MANAGER_GRPC_CLIENT_CERT=/path/to/client.crt
+export MANAGER_GRPC_CLIENT_KEY=/path/to/client.key
+export MANAGER_GRPC_SERVER_CA_CERTS=/path/to/ca.crt
+```
 
-### Starting CVMS Server
+#### TDX Production Setup
 
-The agent includes a CVMS gRPC client, which requires a corresponding gRPC server to communicate with. For testing purposes, an example server is provided in the `test/cvms` directory.
+```bash
+export MANAGER_GRPC_URL=your-computation-service:7001
+export MANAGER_LOG_LEVEL=info
+export MANAGER_QEMU_ENABLE_SEV_SNP=false
+export MANAGER_QEMU_ENABLE_TDX=true
+export MANAGER_QEMU_CPU=host
+export MANAGER_QEMU_OVMF_FILE=/path/to/tdx/OVMF.fd
+export MANAGER_GRPC_CLIENT_CERT=/path/to/client.crt
+export MANAGER_GRPC_CLIENT_KEY=/path/to/client.key
+export MANAGER_GRPC_SERVER_CA_CERTS=/path/to/ca.crt
+```
 
-#### Finding Your IP Address
+## QEMU Configuration and Management
 
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
+The Manager dynamically constructs QEMU command-line arguments based on environment variables and host capabilities.
+
+### Key QEMU Features
+
+#### Virtualization Support
+
+- **KVM Acceleration**: Enabled when `MANAGER_QEMU_ENABLE_KVM=true`
+- **Machine Types**: Supports q35 (recommended) and other QEMU machine types
+- **CPU Models**: Configurable CPU models (EPYC for SEV-SNP, host for TDX)
+
+#### Memory Management
+
+- **Dynamic Allocation**: Configurable base memory with hotplug capability
+- **Memory Slots**: Support for memory expansion through additional slots
+- **NUMA**: Automatic NUMA topology configuration for multi-CPU setups
+
+#### Storage and Boot
+
+- **Kernel Loading**: Direct kernel loading with bzImage
+- **InitRD**: Root filesystem loading via initramfs
+- **OVMF Integration**: UEFI firmware support for secure boot
+
+#### Networking
+
+- **User-Mode Networking**: Default networking with host-to-guest port forwarding
+- **VirtIO**: High-performance network device with IOMMU support
+- **Port Management**: Automatic port allocation from configurable ranges
+
+#### Security
+
+- **TEE Integration**: Native SEV-SNP and TDX support
+- **Attestation**: Built-in support for hardware attestation
+- **Isolation**: Process and memory isolation between CVMs
+
+### File System Mounts (9P)
+
+The Manager uses Plan 9 Filesystem (9P) to securely transfer data between host and CVM:
+
+#### Certificate Sharing
+
+```bash
+# Host directory for certificates, configured dynamically by manager
+export MANAGER_QEMU_CERTS_MOUNT=/host/path/to/certs
+
+# Mounted inside CVM as: /mnt/certs
+```
+
+#### Environment Variable Sharing
+
+```bash
+# Host directory for environment variables, configured dynamically by manager
+export MANAGER_QEMU_ENV_MOUNT=/host/path/to/env
+
+# Mounted inside CVM as: /mnt/env
+```
+
+### TPM Integration
+
+#### Virtual TPM (vTPM)
+
+- **Purpose**: Provides tamper-resistant foundation for cryptographic operations
+- **Functions**:
+  - Secure artifact storage
+  - System state measurement
+  - Attestation mechanism enablement
+- **Implementation**: Uses COCONUT-SVSM for vTPM functionality
+
+#### IGVM Files
+
+An IGVM (Initial Guest Virtual Machine) file contains:
+
+- VM launch information for different virtualization platforms
+- Guest system setup commands
+- Verification data for secure VM loading
+- OVMF firmware and vTPM components (in Cocos implementation)
+
+## Deployment Guide
+
+### Compilation and Build
+
+Build the Manager binary:
+
+```bash
+git clone https://github.com/ultravioletrs/cocos
+cd cocos
+make manager
+```
+
+### Starting the CVMS Server
+
+Before starting the Manager, ensure a CVMS server is running for testing:
+
+#### Find Your IP Address
 
 ```bash
 ip a
 ```
 
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+Look for your primary network interface and note the IP address (e.g., 192.168.1.100).
 
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
-
-#### Run the Server
-
-To run the test CVMS server, use the following command:
-
-```bash
-HOST=<externally_accessible_ip> go run ./test/cvms/main.go \
-    -algo-path <algo-path> \
-    -public-key-path <public-key-path> \
-    -data-paths <data-paths> \
-    -attested-tls-bool <attested-tls-bool> \
-    -ca-url <ca_url> \
-    -cmv-id <cvm_uuid> \
-    -client-ca-file <path_to_client_ca_file_within_the_CVM>
-```
-
-#### Parameter Descriptions
-
-- `-data-paths`: May be left empty, or provided as a single file or a list of files, depending on the algorithm and data type.
-- `-attested-tls-bool`: Set to true if Attested TLS (aTLS) is required; otherwise, use false.
-- `-ca-url` and `-cvm-id`: Required if the agent must obtain a certificate from a Certificate Authority (CA), otherwise the agent will use a self-signed certificate.
-- `-client-ca-file`: Required for mutual TLS (mTLS) or mutual attested TLS (maTLS).
-
-For example:
+#### Start Test Server
 
 ```bash
 HOST="192.168.1.41" go run ./test/cvms/main.go \
@@ -199,75 +418,78 @@ HOST="192.168.1.41" go run ./test/cvms/main.go \
     -attested-tls-bool false
 ```
 
-In this example, no data files are provided, as the addition.py algorithm does not require input datasets.
+Expected output:
 
-Expected Output:
-
-```bash
+```text
 {"time":"2025-06-25T14:52:58.693344502+02:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.41:7001 without TLS"}
 ```
 
-The test server uses the specified algorithm and data file paths to compute file hashes, which are then included in the computation manifest. These files are later uploaded to the agent via the CLI. The provided public key can be generated using either OpenSSL or the cocos-cli tool.
+### Starting the Manager
 
-## Running Manager
-
-### Start Manager
-
-To start the manager, navigate to the manager directory and run:
+#### Standalone Execution
 
 ```bash
-cd cmd/manager
+# Basic startup
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_USE_SUDO=false \
+./build/cocos-manager
 ```
 
+#### SEV-SNP Deployment
+
 ```bash
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
+MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=true \
+MANAGER_QEMU_SEV_SNP_CBITPOS=51 \
+MANAGER_QEMU_BIN_PATH=/usr/bin/qemu-system-x86_64 \
+MANAGER_QEMU_IGVM_FILE=/path/to/igvm/file.igvm \
+./build/cocos-manager
+```
+
+#### TDX Deployment
+
+```bash
+MANAGER_GRPC_URL=localhost:7001 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd  \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
+MANAGER_QEMU_ENABLE_TDX=true \
+MANAGER_QEMU_CPU=host \
+MANAGER_QEMU_OVMF_FILE=/path/to/tdx/OVMF.fd \
+./build/cocos-manager
 ```
 
-The output of the manager will be similar to this:
+#### SystemD Service Deployment
 
 ```bash
-{"time":"2025-06-25T17:21:44.3400595+02:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
+# Download and setup
+go get github.com/ultravioletrs/cocos
+cd $GOPATH/src/github.com/ultravioletrs/cocos
+
+# Configure environment
+nano cocos-manager.env
+
+# Install and run
+make install
+make run
 ```
 
-To enable [AMD SEV](https://www.amd.com/en/developer/sev.html) support, set these additional environment variables:
+## Operational Procedures
+
+### CVM Lifecycle Management
+
+#### Creating a CVM
 
 ```bash
-MANAGER_QEMU_USE_SUDO=true
-MANAGER_QEMU_ENABLE_SEV=true
-MANAGER_QEMU_SEV_CBITPOS=51
-```
-
-You can also enable SEV_SNP through the environment variable:
-
-```bash
-MANAGER_QEMU_ENABLE_SEV_SNP=true
-```
-
-### Creating a CVM
-
-To create a CVM, use the cocos-cli tool. First, set the manager URL:
-
-```bash
+# Set manager URL
 export MANAGER_GRPC_URL=localhost:7002
-```
 
-Then create the CVM:
-
-```bash
+# Create CVM
 ./build/cocos-cli create-vm --log-level debug --server-url "localhost:7002"
 ```
 
-When the CVM boots, it will connect to the CVMS server and receive a computation manifest. Once started, the agent will send back events and logs.
-
-The output will be similar to this:
+Expected output:
 
 ```bash
 🔗 Connected to manager using  without TLS
@@ -275,78 +497,33 @@ The output will be similar to this:
 ✅ Virtual machine created successfully with id e71cdcf5-21c0-4e1d-9471-ac6b4389d5f3 and port 6100
 ```
 
-The manager will also log the creation:
+#### Verifying CVM Launch
 
 ```bash
-{"time":"2025-06-25T17:22:02.397631955+02:00","level":"INFO","msg":"Method CreateVM for id e71cdcf5-21c0-4e1d-9471-ac6b4389d5f3 on port 6100 took 751.884µs to complete"}
-```
-
-### Verifying VM Launch
-
-To verify that the manager successfully launched the VM, run the following command:
-
-```bash
+# Check QEMU processes
 ps aux | grep qemu
+
+# Expected output shows running QEMU instance with full command line
 ```
 
-You should get something similar to this:
+#### Managing CVM Assets
 
-```bash
-root      290254  4.6  3.6 2927088 1172652 pts/5 Sl+  17:22   0:11 /usr/bin/qemu-system-x86_64 -enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS-f889cada-4fc2-44bb-b6e2-99def75c5df8.fd -netdev user,id=vmnic-f889cada-4fc2-44bb-b6e2-99def75c5df8,hostfwd=tcp::6100-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic-f889cada-4fc2-44bb-b6e2-99def75c5df8,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append "quiet console=null" -initrd img/rootfs.cpio.gz -nographic -monitor pty -fsdev local,id=cert_fs,path=/tmp/e71cdcf5-21c0-4e1d-9471-ac6b4389d5f33730550812,security_model=mapped -device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share -fsdev local,id=env_fs,path=/tmp/e71cdcf5-21c0-4e1d-9471-ac6b4389d5f32869802710,security_model=mapped -device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share
-```
-
-### Uploading Assets
-
-The logs indicate that the agent is bound to a specific port (e.g., port 6100). This port is used by the Agent CLI to upload algorithms and datasets, and to retrieve results.
-
-Set the agent URL:
+Upload algorithm:
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm:
-
-```bash
 ./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python
 ```
 
-A successful upload will produce output similar to the following:
-
-```bash
-🔗 Connected to agent  without TLS
-Uploading algorithm file: ./test/manual/algo/addition.py
-🚀 Uploading algorithm [███████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
-Successfully uploaded algorithm! ✔ 
-```
-
-### Reading the Results
-
-Since this algorithm does not require a dataset, the results can be retrieved immediately after the upload. Use the following command to read the output:
+Retrieve results:
 
 ```bash
 ./build/cocos-cli result ./private.pem
-```
-
-The output will be similar to this:
-
-```bash
-🔗 Connected to agent  without TLS
-⏳ Retrieving computation result file
-📥 Downloading result [████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
-Computation result retrieved and saved successfully as results.zip! ✔ 
-```
-
-To read the results:
-
-```bash
 unzip results.zip -d results
 cat results/results.txt
 ```
 
-### Deleting the CVM
-
-After completion, the CVM can be safely destroyed using the following command:
+#### Removing a CVM
 
 ```bash
 ./build/cocos-cli remove-vm <cvm_id>
@@ -355,39 +532,354 @@ After completion, the CVM can be safely destroyed using the following command:
 Expected output:
 
 ```bash
-🔗 Connected to agent  without TLS
-🔗 Connected to manager using  without TLS
+🔗 Connected to manager without TLS
 🔗 Removing virtual machine
 ✅ Virtual machine removed successfully
 ```
 
-## Alternative Installation Method
+### Resource Management
 
-You can also install and run the manager using the make commands:
+#### CPU Allocation
+
+Configure CPU resources based on computational requirements of your algorithms and the host's capabilities.
 
 ```bash
-# download the latest version of the service
-go get github.com/ultravioletrs/cocos
-
-cd $GOPATH/src/github.com/ultravioletrs/cocos
+export MANAGER_QEMU_SMP_COUNT=8
+export MANAGER_QEMU_SMP_MAXCPUS=16
+export MANAGER_QEMU_CPU=EPYC  # or 'host' for TDX
 ```
 
-Variables should be set at this point in [cocos-manager.env](https://github.com/ultravioletrs/cocos/blob/main/cocos-manager.env).
+#### Memory
+
+Configure memory based on algorithm requirements. Over-provisioning can waste resources, while under-provisioning can lead to performance bottlenecks.
 
 ```bash
-# builds binaries, copies them to bin and installs the env variables required for manager
-make install
-
-# run the service
-make run
+export MANAGER_QEMU_MEMORY_SIZE=4G
+export MANAGER_QEMU_MAX_MEMORY=16G
+export MANAGER_QEMU_MEMORY_SLOTS=8
 ```
 
-You can view logs from manager using the following commands:
+#### Storage Configuration
+
+Ensure HAL components are accessible
 
 ```bash
-# check manager status
+export MANAGER_QEMU_DISK_IMG_KERNEL_FILE=img/bzImage
+export MANAGER_QEMU_DISK_IMG_ROOTFS_FILE=img/rootfs.cpio.gz
+```
+
+### Network Management
+
+#### Port Configuration
+
+Configure port forwarding ranges
+
+```bash
+export MANAGER_QEMU_HOST_FWD_RANGE=6100-6200
+```
+
+#### Network Security
+
+```bash
+# Enable secure network features
+export MANAGER_QEMU_VIRTIO_NET_PCI_IOMMU_PLATFORM=true
+export MANAGER_QEMU_VIRTIO_NET_PCI_DISABLE_LEGACY=on
+```
+
+## Monitoring and Logging
+
+### Manager Logging
+
+#### Log Level Configuration
+
+```bash
+# Set appropriate log level for environment
+export MANAGER_LOG_LEVEL=info      # Production
+export MANAGER_LOG_LEVEL=debug     # Development/Troubleshooting
+export MANAGER_LOG_LEVEL=error     # Minimal logging
+```
+
+#### Accessing Logs
+
+**Standalone Mode:**
+
+```bash
+# Logs output to stdout/stderr
+./build/cocos-manager 2>&1 | tee manager.log
+```
+
+**SystemD Service:**
+
+```bash
+# Check service status
 sudo systemctl status cocos-manager
 
-# follow logs from manager
-journalctl -u cocos-manager -n 20 -f
+# View recent logs
+journalctl -u cocos-manager -n 50
+
+# Follow logs in real-time
+journalctl -u cocos-manager -f
+
+# Filter by log level
+journalctl -u cocos-manager -p info
 ```
+
+### Distributed Tracing
+
+#### Jaeger Integration
+
+```bash
+# Configure Jaeger tracing
+export COCOS_JAEGER_URL=http://your-jaeger-instance:4318
+export COCOS_JAEGER_TRACE_RATIO=0.1  # 10% sampling
+
+# Full tracing for development
+export COCOS_JAEGER_TRACE_RATIO=1.0  # 100% sampling
+```
+
+### CVM Monitoring
+
+#### Process Monitoring
+
+```bash
+# Check CVM processes
+ps aux | grep qemu-system-x86_64
+
+# Monitor resource usage
+top -p $(pgrep qemu-system-x86_64)
+```
+
+#### Network Connectivity Testing
+
+```bash
+# Test agent connectivity
+nc -zv localhost 6100  # Replace with actual port
+
+# Check port forwarding
+netstat -tuln | grep 6100
+```
+
+### System Health Monitoring
+
+#### Resource Monitoring
+
+```bash
+# CPU and memory usage
+htop
+
+# Disk usage
+df -h
+
+# Network interface statistics
+iftop
+
+# System load
+uptime
+```
+
+### Alerting and Notifications
+
+#### Key Metrics to Monitor
+
+- Manager service uptime and health
+- CVM creation/deletion success rates
+- Resource utilization (CPU, memory, disk)
+- Network connectivity and port availability
+- Attestation success/failure rates
+- QEMU process health and zombie process detection
+
+## Error Handling and Recovery
+
+### Common Issues and Solutions
+
+#### 1. Defunct (Zombie) QEMU Processes
+
+**Symptoms:**
+
+- `ps aux | grep qemu-system-x86_64` shows `<defunct>` processes after manager was shut down.
+- CVMs fail to start or respond
+- Port conflicts during CVM creation
+
+**Diagnosis:**
+
+```bash
+# Check for zombie processes
+ps aux | grep defunct
+
+# Check Manager logs for QEMU command
+journalctl -u cocos-manager | grep "qemu"
+
+# Test QEMU command manually
+# Copy command from logs and run directly
+/usr/bin/qemu-system-x86_64 [arguments from logs]
+```
+
+**Recovery:**
+
+```bash
+# Graceful termination
+pkill -f qemu-system-x86_64
+
+# Forceful termination if needed
+kill -9 $(pgrep qemu-system-x86_64)
+
+# Clean up temporary files
+# WARNING: Verify the files to be deleted before running these commands.
+# Use interactive mode to confirm each deletion.
+rm -i /tmp/OVMF_VARS-*.fd
+rm -i /tmp/cvm-*
+```
+
+**Prevention:**
+
+- Verify OVMF file paths and permissions
+- Ensure kernel and rootfs files are accessible
+- Check environment variable configuration
+- Monitor system resources
+
+#### 2. Attestation Failures
+
+**Symptoms:**
+
+- CVMs fail to launch with attestation errors
+- Integrity verification failures
+- TEE initialization errors
+
+**Diagnosis:**
+
+```bash
+# Check hardware TEE support
+dmesg | grep -i "sev\|tdx"
+
+# Verify SEV-SNP capability
+ls /dev/sev*
+
+# Check TDX support
+ls /dev/tdx*
+
+# Verify IGVM file integrity
+file $MANAGER_QEMU_IGVM_FILE
+```
+
+**Recovery:**
+
+- Address underlying hardware or configuration issues.  
+- Rebuild or re-download IGVM/OVMF files if they are suspected to be corrupted.
+
+```bash
+# For SEV-SNP issues
+export MANAGER_QEMU_SEV_SNP_CBITPOS=51
+export MANAGER_QEMU_SEV_SNP_REDUCED_PHYS_BITS=1
+
+# For TDX issues
+export MANAGER_QEMU_CPU=host
+export MANAGER_QEMU_ENABLE_KVM=true
+
+# Rebuild IGVM if corrupted
+# Download fresh IGVM file from releases
+wget https://github.com/ultravioletrs/cocos/releases/latest/download/coconut-qemu.igvm
+```
+
+**Prevention:**
+
+- Regularly verify TEE hardware functionality
+- Keep IGVM files updated
+- Monitor attestation success rates
+- Validate PCR values against expected measurements
+
+#### 3. Network Connectivity Issues
+
+**Symptoms:**
+
+- Agent unreachable from host
+- Port binding failures
+- Connection timeouts
+
+**Diagnosis:**
+
+```bash
+# Check port availability
+netstat -tuln | grep 7020
+
+# Test network connectivity
+nc -zv localhost 6100
+
+# Check firewall rules
+sudo iptables -L
+sudo ufw status
+
+# Verify QEMU network configuration
+ps aux | grep qemu | grep hostfwd
+```
+
+**Recovery:**
+
+- Adjust firewall rules.  
+- Correct IP address or port configurations.  
+- Restart Manager and CVMs after network changes.
+
+```bash
+# Release conflicting ports
+sudo fuser -k 7020/tcp
+
+# Adjust port ranges
+export MANAGER_QEMU_HOST_FWD_RANGE=6200-6300
+
+# Configure firewall
+sudo ufw allow 6100:6200/tcp
+
+# Restart networking
+sudo systemctl restart networking
+```
+
+**Prevention:**
+
+- Reserve port ranges for Cocos
+- Implement port conflict detection
+- Monitor network interface statistics
+- Use dynamic port allocation
+
+#### 4. Resource Exhaustion
+
+**Symptoms:**
+
+- CVM creation failures
+- Poor performance
+- Out-of-memory errors
+- System instability
+
+**Diagnosis:**
+
+```bash
+# Check memory usage
+free -h
+cat /proc/meminfo
+
+# Check CPU usage
+top
+htop
+
+# Check disk space
+df -h
+
+# Check swap usage
+swapon --show
+```
+
+**Recovery:**
+
+- Increase host machine resources (RAM, CPU cores).  
+- Reduce the number of concurrent CVMs.  
+- Optimize CVM memory and CPU allocations in the Manager's environment variables.
+
+```bash
+# Free memory
+echo 3 > /proc/sys/vm/drop_caches
+
+# Terminate resource-heavy CVMs
+./build/cocos-cli remove-vm <heavy-cvm-id>
+```
+
+## Usage
+
+For more information about service capabilities and its usage, please check out the [README documentation](https://github.com/ultravioletrs/cocos/blob/main/manager/README.md).
