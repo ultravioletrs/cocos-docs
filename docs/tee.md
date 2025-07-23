@@ -30,7 +30,7 @@ Several TEE implementations exist across major CPU architectures, each offering 
   Enables fine-grained protection by allowing designated portions of an application, called _enclaves_, to run in isolated memory regions inaccessible to any other software, including the OS and hypervisor. SGX enforces confidentiality, integrity, and anti-replay through hardware-managed encryption and controlled memory access. Decryption occurs only within the CPU execution context; memory contents are re-encrypted when written back.
 
 - **ARM TrustZone & RISC-V PMP (Physical Memory Protection):**  
-  ARM TrustZone partitions the system into secure and non-secure worlds, enabling isolated execution for trusted applications. Emerging architectures like **ARM CCA** (Confidential Compute Architecture) extend this model to virtualized environments. RISC-V’s PMP offers configurable access control over memory regions, forming the basis for TEE implementations in open hardware ecosystems.
+  ARM TrustZone partitions the system into secure and non-secure worlds, enabling isolated execution for trusted applications. Emerging architectures like **ARM CCA** (Confidential Compute Architecture) extend this model to virtualized environments. RISC-V’s PMP offers configurable access control over memory regions, forming the basis for TEE implementations in open hardware ecosystems. RISC-V Keystone is an open-source project that builds enclaves using RISC-V's Physical Memory Protection (PMP) for memory isolation. It uses a secure monitor in machine mode to manage enclave memory and PMP entries, enabling strong, hardware-enforced separation without platform-specific changes.
 
 ## AMD SEV-SNP
 
@@ -173,7 +173,6 @@ To meet these needs — enabling attestation of container workloads across dynam
 | **Secure Provisioning**      | vTPM runs in SVSM’s **VMPL0 context**, ensuring full isolation from the host and guest OS.                                  |
 | **Reference Implementation** | Based on the official **Microsoft TPM 2.0** reference code, adapted to run as a CPL3 service inside SVSM.                   |
 | **Ephemeral State**          | Stateless between boots — a fresh **Endorsement Key (EK)** is created at startup, avoiding the need for persistent storage. |
-| **TEE-Attested Binding**     | The EK’s public key is hashed into the **SEV-SNP attestation report**, cryptographically binding the vTPM to the CVM.       |
 
 ---
 
@@ -219,11 +218,11 @@ Here are the setup procedures and required libraries/components for Intel TDX:
 
 #### Intel Hardware Requirements
 
-| **Component**      | **Requirement**                                                                                                          | **Role / Purpose**                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| **Processor**      | 4th Gen Intel Xeon Scalable (Sapphire Rapids), 5th Gen Intel Xeon Scalable (Emerald Rapids), and Xeon 6 (E- and P-Cores) | Supports Intel TDX hardware virtualization                 |
-| **Memory (DIMMs)** | All slot 0s of all IMC channels populated symmetrically (≥ 8 DIMMs per CPU socket)                                       | Required for proper memory encryption and system stability |
-| **BIOS**           | Intel TDX-enabled BIOS from OEM/ODM or independent BIOS vendors                                                          | Enables TDX hardware features                              |
+| **Component**      | **Requirement**                                                                    | **Role / Purpose**                                         |
+| ------------------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Processor**      | 5th Gen Intel Xeon Scalable (Emerald Rapids), and Xeon 6 (E- and P-Cores)          | Supports Intel TDX hardware virtualization                 |
+| **Memory (DIMMs)** | All slot 0s of all IMC channels populated symmetrically (≥ 8 DIMMs per CPU socket) | Required for proper memory encryption and system stability |
+| **BIOS**           | Intel TDX-enabled BIOS from OEM/ODM or independent BIOS vendors                    | Enables TDX hardware features                              |
 
 ---
 
@@ -246,7 +245,7 @@ In the Cocos AI project, the host system was configured to support Intel TDX for
 
 ### 🔧 TDX Kernel Configuration
 
-We used a custom Linux kernel ≥ 6.3, patched or compiled with Intel TDX support:
+We used a custom Linux 6.8 kernel, compiled with Intel TDX support:
 
 | Setting                   | Purpose                                                   |
 | ------------------------- | --------------------------------------------------------- |
@@ -263,16 +262,15 @@ More details to set up the host can be found [here](https://github.com/canonical
 
 The host used Intel TDX-enabled firmware and BIOS with the following settings:
 
-| Component     | Requirement                                             |
-| ------------- | ------------------------------------------------------- |
-| BIOS Version  | Intel TDX-enabled BIOS from OEM or BIOS vendor          |
-| BIOS Settings | - Enable Memory Encryption (TME)                        |
-|               | - Enable Total Memory Encryption Multi-Tenant (TME-MT)  |
-|               | - Enable Trust Domain Extension (TDX)                   |
-|               | - Enable SEAM Loader                                    |
-|               | - Set TME-MT/TDX key split to non-zero                  |
-|               | - Enable Software Guard Extensions (SGX)                |
-| Firmware      | UEFI with support for Intel TDX Secure Arbitration Mode |
+| Component     | Requirement                                            |
+| ------------- | ------------------------------------------------------ |
+| BIOS Version  | Intel TDX-enabled BIOS from OEM or BIOS vendor         |
+| BIOS Settings | - Enable Memory Encryption (TME)                       |
+|               | - Enable Total Memory Encryption Multi-Tenant (TME-MT) |
+|               | - Enable Trust Domain Extension (TDX)                  |
+|               | - Enable SEAM Loader                                   |
+|               | - Set TME-MT/TDX key split to non-zero                 |
+|               | - Enable Software Guard Extensions (SGX)               |
 
 These settings allow the host to securely launch Trust Domains and enable remote attestation services.
 
