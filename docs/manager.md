@@ -55,7 +55,7 @@ Before deploying the Manager, ensure the following components are installed:
 
 #### Required Software
 
-- **Golang**: Version 1.24 or later ([Installation Guide](https://go.dev/doc/install))
+- **Go**: Version 1.24 or later ([Installation Guide](https://go.dev/doc/install))
 - **QEMU-KVM**: Virtualization platform for running CVMs
 - **Hardware**: AMD SEV-SNP or Intel TDX capable processor
 
