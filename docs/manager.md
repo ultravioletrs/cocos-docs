@@ -724,8 +724,10 @@ pkill -f qemu-system-x86_64
 kill -9 $(pgrep qemu-system-x86_64)
 
 # Clean up temporary files
-rm -rf /tmp/OVMF_VARS-*.fd
-rm -rf /tmp/cvm-*
+# WARNING: Verify the files to be deleted before running these commands.
+# Use interactive mode to confirm each deletion.
+rm -i /tmp/OVMF_VARS-*.fd
+rm -i /tmp/cvm-*
 ```
 
 **Prevention:**
