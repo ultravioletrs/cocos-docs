@@ -89,7 +89,7 @@ EOS, or Enclave Operating System, is custom lightweight linux distribution built
 
 ## CLI
 
-CoCoS CLI is used to access the agent within the secure enclave. CLI communicates to agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation. It also supports attestation verification by fetching reports and validating them against IGVM launch measurements, ensuring that only trusted enclaves are executed. Verification is performed for both vTPM and SEV-SNP/TDX attestation reports to ensure the integrity and authenticity of the CVM.
+CoCoS CLI is used to access the agent within the secure enclave. CLI communicates with the agent using gRPC, with functions such as algo to provide the algorithm to be run, data to provide the data to be used in the computation. It also supports attestation verification by fetching reports and validating them against IGVM launch measurements, ensuring that only trusted enclaves are executed. Verification is performed for both vTPM and SEV-SNP/TDX attestation reports to ensure the integrity and authenticity of the CVM.
 
 **Key Responsibilities**:
 
