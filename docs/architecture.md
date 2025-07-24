@@ -77,7 +77,7 @@ The Agent runs inside the Confidential Virtual Machine (CVM) and is responsible 
 - **Remote Attestation**: Provides remote attestation reports for the TEE, verifying the integrity of the execution environment.
 - **Result Management**: Manages the secure extraction and transmission of computation results.
 
-**Interfaces**: The Agent exposes gRPC interfaces to the CLI for receiving algorithms, data, and execution commands. It also uses 9P for communication with the Manager. Agent exposes a gRPC server for communication with CLI and aa gRPC client for communication with the computation management service (bi-directional).
+**Interfaces**: The Agent exposes gRPC interfaces to the CLI for receiving algorithms, data, and execution commands. It also uses 9P for communication with the Manager. Agent exposes a gRPC server for communication with CLI and a gRPC client for communication with the computation management service (bi-directional).
 
 For more information on Agent, please refer to [Agent docs](./agent.md).
 
