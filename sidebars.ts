@@ -26,6 +26,8 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Technical Overview',
       items: [
+        'architecture',
+        'tee',
         'computation',
         'agent',
         'manager',
