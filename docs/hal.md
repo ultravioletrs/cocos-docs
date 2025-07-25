@@ -47,7 +47,7 @@ SEV-SNP is used to measure OVMF. To determine which kernel is running in the CVM
 
 ### Intel TDX
 
-Cocos uses QEMU and OVMF to boot the Trust Domain (TD). TD is the Intel synonym for a CVM. During boot, the Intel TDX Module measures (calculates the hash) of the contents of the CVM to insert that hash into the attestation report. 
+Cocos uses QEMU and OVMF to boot the Trust Domain (TD). TD is the Intel synonym for a CVM. During boot, the Intel TDX Module measures (calculates the hash) of the contents of the CVM to insert that hash into the attestation report.
 
 Cocos uses QEMU and OVMF to boot the Trust Domain (TD). TD is the Intel synonym for a CVM. During boot, the Intel TDX Module measures (calculates the hash) of the contents of the CVM to insert that hash into the attestation report. The kernel and initramfs are measured using CVMs (TDs) Runtime Measurement Registers (RTMRs). There are four RTMRs.
 
