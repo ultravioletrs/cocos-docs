@@ -5,7 +5,7 @@ In the context of computing security, "trust" refers to the set of components th
 A Trusted Execution Environment (TEE) is a hardware-based, isolated environment designed to protect data and code while in use. Unlike disk encryption, which protects data at rest, and protocols like TLS and VPN, which secure data in transit, Trusted Execution Environments (TEEs) protect data in use—when it is being actively processed in memory.
 This isolation ensures that even privileged software such as the OS or hypervisor cannot inspect or tamper with the protected execution.
 
-![TEE use](/static/img/DataFlow.png)
+![TEE use](/img/DataFlow.png)
 
 TEEs are designed to provide three essential security properties for data and code while in use:
 
@@ -66,7 +66,7 @@ SEV-SNP enhances AMD’s virtualization security by adding hardware-enforced mem
 
 To ensure platform trust, SEV-SNP uses a Versioned Chip Endorsement Key (VCEK), which cryptographically binds attestation reports to the platform’s firmware version, preventing TCB rollback attacks. Secure VM migration is delegated to a guest-controlled Migration Agent, decoupling it from the untrusted hypervisor. SEV-SNP also mitigates certain side-channel threats: it provides control over the Branch Target Buffer (BTB)—a CPU prediction cache that attackers can exploit—and allows VMs to enable Indirect Branch Restricted Speculation (IBRS) to prevent BTB poisoning. Combined, these features offer robust confidentiality and integrity protections for cloud VMs, even in fully untrusted environments.
 
-![SEV-SNP Threat Model](/static/img/SEVSNPThreatModel.png)
+![SEV-SNP Threat Model](/img/SEVSNPThreatModel.png)
 
 With SEV-SNP, all software running outside the guest VM—including CPU firmware, PCI devices, the host BIOS, hypervisor, drivers, and other virtual machines—is classified as untrusted, as depicted above. These components are assumed to be potentially hostile and may work together in attempts to breach the isolation and protection offered to SEV-SNP-protected VMs.
 
@@ -153,7 +153,7 @@ To enable scalable attestation across dynamic infrastructure without relying on 
 
 To address the need for scalable attestation without relying on static hardware, CocosAI adopted the Coconut Secure VM Service Module (SVSM) — a minimal, trusted runtime that delivers secure services from within the guest VM itself.
 
-![Coconut SVSM architecture](/static/img/Coconutsvsm.png)
+![Coconut SVSM architecture](/img/Coconutsvsm.png)
 
 Unlike traditional models where sensitive services (like vTPMs) are provided by the host hypervisor, Coconut SVSM is:
 
@@ -182,15 +182,15 @@ To meet these needs — enabling attestation of container workloads across dynam
 
 Intel Trust Domain Extensions (Intel TDX) is Intel’s Confidential Computing solution that protects data during execution by isolating virtual machines into hardware-enforced environments called Trust Domains (TDs). These TDs safeguard sensitive workloads against a wide range of software threats, including those from the host OS, hypervisor, and VMM. Unlike traditional security models that focus on data at rest or in transit, Intel TDX ensures that even data in use—residing in memory or moving across the data bus—remains encrypted and inaccessible to unauthorized entities. This hardware-enforced isolation reduces the Trusted Computing Base (TCB) to the CPU and Intel’s TDX module, enabling cloud tenants to untrust the infrastructure stack while maintaining strong security guarantees.
 
-![Intel TDX Threat model](/static/img/TDXThreatModel.png)
+![Intel TDX Threat model](/img/TDXThreatModel.png)
 
 Intel TDX uses hardware memory encryption and access control to isolate TD memory from the rest of the system. When the VMM allocates memory for a TD, the memory is tagged and encrypted using a dedicated ephemeral key unique to the TD. All memory accesses by TDs go through a hardware encryption engine that ensures confidentiality and integrity. Each TD’s memory is mapped with secure page tables that cannot be accessed or manipulated by the VMM or any other non-TD software. This guarantees that the contents of TD memory remain protected, even if the hypervisor or host OS is compromised.
 
-![Intel TDX Threat model](/static/img/TDXMEMORY.png)
+![Intel TDX Threat model](/img/TDXMEMORY.png)
 
 These protections are enforced by the Intel TDX Module, a trusted system component that manages the lifecycle of TDs. It operates inside a new CPU mode called Secure Arbitration Mode (SEAM), which provides an isolated environment with strict execution boundaries. SEAM ensures that only Intel-signed TDX Modules can be loaded and isolates the TDX logic from the rest of the system. The TDX Module collaborates with the VMM to create and manage TDs, but it maintains sole control over memory protection, TD entry/exit, and encryption key provisioning. It also resides in protected memory defined by the SEAM Range Register (SEAMRR) and is required for attestation, generating cryptographically signed TD reports. Platforms must enable SEAM Loader via BIOS to activate TDX support.
 
-![Intel TDX Threat model](/static/img/SEAMCall.png)
+![Intel TDX Threat model](/img/SEAMCall.png)
 
 These architectural foundations ensure that Intel TDX can uphold its strong security guarantees even in the presence of a compromised host, making it a cornerstone of confidential computing in modern cloud environments.
 
