@@ -117,29 +117,29 @@ INITRD=buildroot/output/images/rootfs.cpio.gz
 OVMF=/usr/share/ovmf/OVMF.fd
 
 sudo qemu-system-x86_64 \
-	-enable-kvm \
-	-m 8G -smp cores=16,sockets=1,threads=1 \
-	-cpu host \
-	-object '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}' \
-	-machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0,hpet=off \
-	-bios $OVMF \
-	-nographic \
-	-nodefaults \
-	-no-reboot \
-	-serial mon:stdio \
-	-device virtio-net-pci,netdev=nic0_td \
-	-netdev user,id=nic0_td,hostfwd=tcp::7020-:7002 \
-	-kernel $KERNEL \
-	-append "console=null quiet" \
-	-object memory-backend-memfd,id=mem0,size=8G \
-	-initrd $INITRD \
-	-device vhost-vsock-pci,guest-cid=6 \
-	-monitor pty \
-	-monitor unix:monitor,server,nowait \
-	-fsdev local,id=env_fs,path=$ENV_PATH,security_model=mapped \
-	-device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share \
-	-fsdev local,id=cert_fs,path=$CERTH_PATH,security_model=mapped \
-	-device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share
+    -enable-kvm \
+    -m 8G -smp cores=16,sockets=1,threads=1 \
+    -cpu host \
+    -object '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}' \
+    -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0,hpet=off \
+    -bios $OVMF \
+    -nographic \
+    -nodefaults \
+    -no-reboot \
+    -serial mon:stdio \
+    -device virtio-net-pci,netdev=nic0_td \
+    -netdev user,id=nic0_td,hostfwd=tcp::7020-:7002 \
+    -kernel $KERNEL \
+    -append "console=null quiet" \
+    -object memory-backend-memfd,id=mem0,size=8G \
+    -initrd $INITRD \
+    -device vhost-vsock-pci,guest-cid=6 \
+    -monitor pty \
+    -monitor unix:monitor,server,nowait \
+    -fsdev local,id=env_fs,path=$ENV_PATH,security_model=mapped \
+    -device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share \
+    -fsdev local,id=cert_fs,path=$CERTH_PATH,security_model=mapped \
+    -device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share
 ```
 
 The parameter
@@ -153,6 +153,7 @@ is used to define the `vsock` channel of communication with the Quote Generation
 ## Debugging
 
 ### How to log in the CVM?
+
 You can modify the above-defined QEMU commands to view and log in to the CVM. To do this, change the `append` QEMU command parameter to `console=ttyS0`. When the login screen is shown, log in by typing `root` in the terminal. After logging in, you can use the `bash` terminal to investigate the CVM further or to see the Agent service status.
 
 ### What to do if the CVM crashes?
