@@ -19,52 +19,59 @@ const sidebars: SidebarsConfig = {
   // But you can create a sidebar manually
   
   tutorialSidebar: [
-    'intro',
-    'getting-started',
-    'algorithms',
-    {
-      type: 'category',
-      label: 'Technical Overview',
-      items: [
-        'architecture',
-        'tee',
-        'computation',
-        'agent',
-        'manager',
-        'attestation',
-        'architecture',
-        'cli',
-        'tee',
-        'developer-guide',
-        {
-          type: 'category',
-          label: 'Hardware Abstraction Layer',
-          items: [
-            'cloud',
-            'hal',
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Attestation',
-          items: [
-            'attestation-introduction',
-            'attestation-attestation-report',
-            'attestation-measured-boot',
-            'atls',
-            'public-cloud-attestation-framework',
-            {
-              type: 'category',
-              label: 'Verification',
-              items: [
-                'public-cloud-attestation-verification',
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+  'intro',
+  'getting-started',
+  'algorithms',
+
+  {
+    type: 'category',
+    label: 'Architecture & Components',
+    items: [
+      'architecture',
+      'computation',
+      'agent',
+      'manager',
+      'cli',
+      {
+        type: 'category',
+        label: 'Hardware Abstraction Layer',
+        items: [
+          'hal',
+          'cloud',
+        ],
+      },
+    ],
+  },
+
+  {
+    type: 'category',
+    label: 'Trusted Execution',
+    items: [
+      'tee',
+      {
+        type: 'category',
+        label: 'Attestation',
+        items: [
+          'attestation-introduction',
+          'attestation-attestation-report',
+          'attestation-measured-boot',
+          'atls',
+          'public-cloud-attestation-framework',
+          {
+            type: 'category',
+            label: 'Verification',
+            items: [
+              'public-cloud-attestation-verification',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  'developer-guide',
+],
+
   
 };
 
