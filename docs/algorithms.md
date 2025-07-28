@@ -36,33 +36,54 @@ cd ai/burn-algorithms
 NOTE: Make sure you have rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
 
 ```bash
-cargo build --release --bin addition --features cocos
+cargo build --release --bin addition-cocos --features cocos
 ```
 
 This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
 
 ```bash
-cp target/release/addition ../../cocos/
+cp ./target/release/addition-cocos ../../cocos-ai
 ```
 
-Start the computation server:
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine’s IP address, you can run:
 
 ```bash
-go run ./test/computations/main.go ./addition public.pem false
+ip a
+```
+
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+
+```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
+
+Start the computation management server: in cocos repo
+
+```bash
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-cocos -public-key-path public.pem -attested-tls-bool false
 ```
 
 The logs will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:09:28.852409931+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
+{"time":"2025-07-28T17:33:28.698759564+03:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
 ```
 
-Start the manager
+Start the manager in cocos repo
 
 ```bash
+cd cmd/manager
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -73,60 +94,58 @@ go run main.go
 The logs will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:10:00.239331599+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
-{"time":"2024-08-19T14:10:17.798497671+03:00","level":"INFO","msg":"Method Run for computation took 17.438247421s to complete"}
-{"time":"2024-08-19T14:10:17.800162858+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Transition: receivingManifest -> receivingManifest\\n\"  computation_id:\"1\"  level:\"DEBUG\"  timestamp:{seconds:1724065817  nanos:796771386}}"}
-{"time":"2024-08-19T14:10:17.800336232+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Transition: receivingAlgorithm -> receivingAlgorithm\\n\"  computation_id:\"1\"  level:\"DEBUG\"  timestamp:{seconds:1724065817  nanos:797222579}}"}
-{"time":"2024-08-19T14:10:17.80043386+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\"receivingAlgorithm\"  timestamp:{seconds:1724065817  nanos:797263757}  computation_id:\"1\"  originator:\"agent\" status:\"in-progress\"}"}
-{"time":"2024-08-19T14:10:17.8005587+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"agent service gRPC server listening at :7002 without TLS\"  computation_id:\"1\"  level:\"INFO\"  timestamp:{seconds:1724065817  nanos:797467753}}"}
-2024/08/19 14:10:20 traces export: Post "http://localhost:4318/v1/traces": dial tcp [::1]:4318: connect: connection refused
+{"time":"2025-07-28T17:38:57.991245143+03:00","level":"INFO","msg":"Manager started without confidential computing support"}
+{"time":"2025-07-28T17:38:57.991298303+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append \"quiet console=null\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
+{"time":"2025-07-28T17:38:57.991433769+03:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
+```
+
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
+
+The output on the cvms test server will be similar to this:
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Creating a new virtual machine
+✅ Virtual machine created successfully with id 31f39ac9-d2d3-4df6-96fa-e42556a07c24 and port 6100
 ```
 
 The logs from the computation server will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:09:28.852409931+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
-{"time":"2024-08-19T14:10:00.354929002+03:00","level":"DEBUG","msg":"received who am on ip address [::1]:57968"}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724065800 nanos:360232336} computation_id:"1" originator:"manager" status:"starting"}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724065800 nanos:360990806} computation_id:"1" originator:"manager" status:"in-progress"}
-received agent log
-&{message:"char device redirected to /dev/pts/9 (label compat_monitor0)\n" computation_id:"1" level:"debug" timestamp:{seconds:1724065800 nanos:403232551}}
-received agent log
-&{message:"\x1b[2J" computation_id:"1" level:"debug" timestamp:{seconds:1724065801 nanos:103436975}}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724065817 nanos:798465068} computation_id:"1" originator:"manager" status:"complete"}
-received runRes
-&{agent_port:"6050" computation_id:"1"}
-received agent log
-&{message:"Transition: receivingManifest -> receivingManifest\n" computation_id: "1" level:"DEBUG" timestamp:{seconds:1724065817 nanos:796771386}}
-received agent log
-&{message:"Transition: receivingAlgorithm -> receivingAlgorithm\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1724065817 nanos:797222579}}
-received agent event
-&{event_type:"receivingAlgorithm" timestamp:{seconds:1724065817 nanos:797263757} computation_id:"1" originator:"agent" status:"in-progress"}
-received agent log
-&{message:"agent service gRPC server listening at :7002 without TLS" computation_id:"1" level:"INFO" timestamp:{seconds:1724065817 nanos:797467753}}
+&{message:"Method InitComputation for computation id 1 took 6.672µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753713974  nanos:117043605}}
+&{computation_id:"1"}
+&{event_type:"ReceivingAlgorithm"  timestamp:{seconds:1753713974  nanos:117142321}  computation_id:"1"  originator:"agent"  status:"InProgress"}
+&{message:"agent service gRPC server listening at 10.0.2.15:7002 without TLS"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753713974  nanos:117232905}}
 ```
 
 Export the agent grpc url
 
 ```bash
-export AGENT_GRPC_URL=localhost:6050
+export AGENT_GRPC_URL=localhost:6100
 ```
 
 Upload the algorithm
 
 ```bash
-./build/cocos-cli algo ./addition ./private.pem
+./build/cocos-cli algo ./addition-cocos ./private.pem
 ```
 
 The logs will be similar to this:
 
 ```bash
-2024/08/19 14:14:10 Uploading algorithm binary: ./addition
-Uploading algorithm...  100% [===============================================>]
-2024/08/19 14:14:10 Successfully uploaded algorithm
+🔗 Connected to agent  without TLS
+Uploading algorithm file: ./addition-cocos
+🚀 Uploading algorithm [█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Successfully uploaded algorithm! ✔ 
 ```
 
 Since the algorithm is a binary, we don't need to upload the requirements file. Also, this is the addition example so we don't need to upload the dataset.
@@ -140,14 +159,16 @@ Finally, download the results
 The logs will be similar to this:
 
 ```bash
-2024/08/19 14:14:31 Retrieving computation result file
-2024/08/19 14:14:31 Computation result retrieved and saved successfully!
+🔗 Connected to agent  without TLS
+⏳ Retrieving computation result file
+📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Computation result retrieved and saved successfully as results.zip! ✔ 
 ```
 
 Unzip the results
 
 ```bash
-unzip result.zip -d results
+unzip results.zip -d results
 ```
 
 ```bash
@@ -160,9 +181,19 @@ The output will be similar to this:
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-Terminal recording session
+#### Remove cvm
 
-[![asciicast](https://asciinema.org/a/HsMDuJT4lMs2BQLqCbvTiGzNe.svg)](https://asciinema.org/a/HsMDuJT4lMs2BQLqCbvTiGzNe)
+```bash
+./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 

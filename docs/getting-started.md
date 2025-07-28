@@ -211,7 +211,7 @@ To create a cvm we'll need the host address used to start the cvms server. An ex
 
 ```bash
 export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url ""localhost:7002""
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.41:7001"
 ```
 
 When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
