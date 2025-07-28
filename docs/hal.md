@@ -1,4 +1,4 @@
-# On-premisis
+# On-premises
 
 ## Overview
 
