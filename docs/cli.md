@@ -66,6 +66,1195 @@ export AGENT_GRPC_ATTESTED_TLS=true
 export AGENT_GRPC_ATTESTATION_POLICY=<path_to_attestation_policy_json_file>
 ```
 
+Attestation CLI Documentation
+
+The CLI (`cocos-cli`) provides commands to retrieve and validate attestations from various Trusted Execution Environment (TEE) technologies including SEV-SNP, vTPM, TDX, and Azure attestation tokens.
+
+## Usage
+
+```bash
+cocos-cli [command]
+```
+
+Global Flags
+
+- `-h, --help`: Help for cocos-cli
+- `-v, --verbose`: Enable verbose output
+
+## Available Commands
+
+| Command            | Description                                               | Help Command                        |
+| ------------------ | --------------------------------------------------------- | ----------------------------------- |
+| `algo`             | Upload an algorithm binary                                | `cocos-cli algo --help`             |
+| `attestation`      | Get and validate attestations                             | `cocos-cli attestation --help`      |
+| `ca-bundle`        | Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)                | `cocos-cli ca-bundle --help`        |
+| `checksum`         | Compute the sha3-256 hash of a file                       | `cocos-cli checksum --help`         |
+| `create-vm`        | Create a new virtual machine                              | `cocos-cli create-vm --help`        |
+| `data`             | Upload a dataset                                          | `cocos-cli data --help`             |
+| `help`             | Help about any command                                    | `cocos-cli help [command]`          |
+| `igvmmeasure`      | Measure an IGVM file                                      | `cocos-cli igvmmeasure --help`      |
+| `ima-measurements` | Retrieve Linux IMA measurements file                      | `cocos-cli ima-measurements --help` |
+| `keys`             | Generate a new public/private key pair                    | `cocos-cli keys --help`             |
+| `policy`           | Change attestation policy                                 | `cocos-cli policy --help`           |
+| `remove-vm`        | Remove a virtual machine                                  | `cocos-cli remove-vm --help`        |
+| `result`           | Retrieve computation result file                          | `cocos-cli result --help`           |
+| `sevsnpmeasure`    | Calculate AMD SEV/SEV-ES/SEV-SNP guest launch measurement | `cocos-cli sevsnpmeasure --help`    |
+
+## Base Command: `algo`
+
+Upload an algorithm binary
+
+**Usage:**
+
+```bash
+cocos-cli algo [flags]
+```
+
+Currently, support is provided for four types of algorithms: executable binaries, Python files, Docker images (provided as tar files) and Wasm modules. The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. More information on how to run the other types of algorithms can be found [here](algorithms.md). To run a python file, use the following command:
+
+**Arguments:**
+
+- `<algo_file>`: Path to the algorithm file
+- `<private_key_file_path>`: Path to the private key file
+
+**Flags:**
+
+- `-a, --algorithm string`: Algorithm type to run (default "bin")
+- `--args stringArray`: Arguments to pass to the algorithm
+- `-h, --help`: Help for algo
+- `--python-runtime string`: Python runtime to use (default "python3")
+- `-r, --requirements string`: Python requirements file
+
+**Global Flags:**
+
+- `-v, --verbose`: Enable verbose output
+
+**Example:**
+
+```bash
+algo <algo_file> <private_key_file_path>
+```
+
+## Base Command: `attestation`
+
+```bash
+cocos-cli attestation [command]
+```
+
+**Description:** Get and validate attestations
+
+**Usage:**
+
+- Displays available subcommands
+- Shows command flags and usage information
+- Provides help for the attestation command family
+
+### Subcommand: `get`
+
+```bash
+cocos-cli attestation get <attestation-type> [flags]
+```
+
+**Description:** Retrieve attestation information from agent
+
+**Arguments:**
+
+- `<attestation-type>` (required): Type of the report to retrieve
+
+**Valid Attestation Types:**
+
+- `snp` - SEV-SNP attestation report
+- `vtpm` - vTPM report
+- `snp-vtpm` - Combined SEV-SNP and vTPM report
+- `azure-token` - Azure attestation token
+- `tdx` - TDX attestation report
+
+**Error Handling:**
+
+- Command requires exactly 1 argument (the attestation type)
+- Running without arguments shows: `Error: accepts 1 arg(s), received 0`
+
+### Command-Line Options and Parameters
+
+All attestation commands support standard CLI flags for help and completion.
+
+#### Get Command Flags
+
+| Flag                | Short | Type     | Description                                           | Required For               |
+| ------------------- | ----- | -------- | ----------------------------------------------------- | -------------------------- |
+| `--tee`             |       | bytesHex | Nonce for SNP/TDX attestation (512 bit hex value)     | `snp`, `snp-vtpm`, `tdx`   |
+| `--vtpm`            |       | bytesHex | Nonce for vTPM attestation (256 bit hex value)        | `vtpm`, `snp-vtpm`         |
+| `--token`           |       | bytesHex | Nonce for Azure attestation token (256 bit hex value) | `azure-token`              |
+| `--azurejwt`        | `-t`  | boolean  | Get Azure attestation token in JWT format             | Optional for `azure-token` |
+| `--reporttextproto` | `-r`  | boolean  | Get attestation report in textproto format            | Optional                   |
+| `--help`            | `-h`  | boolean  | Show help for the get command                         | Optional                   |
+
+#### Global Flags
+
+| Flag        | Short | Type    | Description           |
+| ----------- | ----- | ------- | --------------------- |
+| `--verbose` | `-v`  | boolean | Enable verbose output |
+
+### Basic Usage Examples
+
+#### 1. SEV-SNP Attestation
+
+```bash
+# Retrieve SEV-SNP attestation with 512-bit hex nonce
+cocos-cli attestation get snp --tee 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+#### 2. vTPM Attestation
+
+```bash
+# Retrieve vTPM report with 256-bit hex nonce
+cocos-cli attestation get vtpm --vtpm 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+#### 3. Combined SEV-SNP and vTPM Attestation
+
+```bash
+# Retrieve both SEV-SNP and vTPM reports
+cocos-cli attestation get snp-vtpm --tee 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 --vtpm 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+#### 4. Azure Token Attestation
+
+```bash
+# Retrieve Azure attestation token
+cocos-cli attestation get azure-token --token 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890
+
+# Get Azure token in JWT format
+cocos-cli attestation get azure-token --token 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890 --azurejwt
+```
+
+#### 5. TDX Attestation
+
+```bash
+# Retrieve TDX attestation report
+cocos-cli attestation get tdx --tee 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+### Getting Help
+
+#### Command Help
+
+```bash
+# Get help for the get command
+cocos-cli attestation get --help
+cocos-cli attestation get -h
+```
+
+#### Verbose Output
+
+```bash
+# Enable verbose output for any command
+cocos-cli attestation get snp --tee <nonce> --verbose
+cocos-cli attestation get snp --tee <nonce> -v
+```
+
+### Output Format Options
+
+#### Text Protocol Format
+
+```bash
+# Get attestation in textproto format (human-readable)
+cocos-cli attestation get vtpm --vtpm <nonce> --reporttextproto
+```
+
+#### JWT Format (Azure only)
+
+```bash
+# Get Azure token as JWT instead of JSON
+cocos-cli attestation get azure-token --token <nonce> --azurejwt
+```
+
+### Workflow Examples
+
+#### Complete SEV-SNP Workflow
+
+1. **Generate nonce:** Create a 512-bit (64-byte) hex-encoded nonce
+2. **Retrieve attestation:** `cocos-cli attestation get snp --tee <nonce>`
+3. **Verify output:** Check that attestation file is created successfully
+4. **Process result:** Use the saved attestation for verification
+
+#### vTPM Verification Workflow
+
+1. **Prepare nonce:** Create a 256-bit (32-byte) hex-encoded nonce
+2. **Get report:** `cocos-cli attestation get vtpm --vtpm <nonce> --reporttextproto`
+3. **Review report:** Examine the textproto formatted output
+4. **Validate:** Process the attestation data for verification
+
+### Environment Variable Configuration
+
+The CLI supports environment variables for configuration and can be used to store generated nonces and other parameters for convenience.
+
+### Nonce Generation and Storage
+
+#### Generating Hex Nonces
+
+You can generate cryptographically secure nonces using standard Unix tools and store them in environment variables:
+
+```bash
+# Generate 256-bit (32-byte) nonce for vTPM/Azure token
+nonce=$(head -c 32 /dev/urandom | xxd -p)
+echo "Generated vTPM nonce: $nonce"
+
+# Generate 512-bit (64-byte) nonce for TEE (SNP/TDX)
+tee_nonce=$(head -c 64 /dev/urandom | xxd -p)
+echo "Generated TEE nonce: $tee_nonce"
+
+# Generate 256-bit nonce for Azure token
+token_nonce=$(head -c 32 /dev/urandom | xxd -p)
+echo "Generated token nonce: $token_nonce"
+```
+
+#### Using Environment Variables in Commands
+
+Once stored in environment variables, you can use them in your attestation commands:
+
+```bash
+# Using environment variables for nonces
+cocos-cli attestation get vtpm --vtpm $nonce
+cocos-cli attestation get snp --tee $tee_nonce
+cocos-cli attestation get azure-token --token $token_nonce
+cocos-cli attestation get snp-vtpm --tee $tee_nonce --vtpm $nonce
+```
+
+#### Complete Workflow Example
+
+```bash
+# Generate all required nonces
+export VTPM_NONCE=$(head -c 32 /dev/urandom | xxd -p)
+export TEE_NONCE=$(head -c 64 /dev/urandom | xxd -p)
+export TOKEN_NONCE=$(head -c 32 /dev/urandom | xxd -p)
+
+# Use in commands
+cocos-cli attestation get vtpm --vtpm $VTPM_NONCE --verbose
+cocos-cli attestation get snp --tee $TEE_NONCE --reporttextproto
+cocos-cli attestation get azure-token --token $TOKEN_NONCE --azurejwt
+```
+
+### Alternative Nonce Generation Methods
+
+#### Using OpenSSL
+
+```bash
+# 256-bit nonce using OpenSSL
+nonce=$(openssl rand -hex 32)
+
+# 512-bit nonce using OpenSSL
+tee_nonce=$(openssl rand -hex 64)
+```
+
+#### Using /dev/random (more secure but slower)
+
+```bash
+# For high-security environments
+nonce=$(head -c 32 /dev/random | xxd -p)
+```
+
+### Default Output Files
+
+- Standard attestation: `attestation.bin` (or configured path)
+- Azure attestation: `azure_attest_result.bin`
+- Text protocol format: `attestation_report.json`
+- Azure JWT token: `azure_attest_token.jwt`
+
+### Common Error Messages
+
+#### Missing Required Argument
+
+```
+Error: accepts 1 arg(s), received 0
+Usage:
+  cocos-cli attestation get [flags]
+```
+
+**Cause:** No attestation type provided as argument
+
+**Solution:** Specify one of: `snp`, `vtpm`, `snp-vtpm`, `azure-token`, `tdx`
+
+**Example:** `cocos-cli attestation get snp --tee <nonce>`
+
+#### Connection Errors
+
+```
+Failed to connect to agent: <error details> ❌
+```
+
+**Cause:** Cannot establish connection to the attestation agent
+
+**Solution:**
+
+- Verify agent is running and accessible
+- Check network connectivity
+- Validate connection configuration
+
+#### Invalid Attestation Type
+
+```
+Bad attestation type: <error details> ❌
+```
+
+**Cause:** Provided attestation type is not supported
+
+**Solution:** Use one of: `snp`, `vtpm`, `snp-vtpm`, `azure-token`, `tdx`
+
+#### Missing Required Nonce
+
+```
+vTPM nonce must be defined for vTPM attestation ❌
+TEE nonce must be defined for SEV-SNP attestation ❌
+Token nonce must be defined for Azure attestation ❌
+```
+
+**Cause:** Required nonce parameter not provided
+
+**Solution:** Provide appropriate nonce using `--vtpm`, `--tee`, or `--token` flags
+
+#### Nonce Size Errors
+
+```
+nonce must be a hex encoded string of length lesser or equal <N> bytes ❌
+vTPM nonce must be a hex encoded string of length lesser or equal <N> bytes ❌
+```
+
+**Cause:** Nonce exceeds maximum allowed size
+
+**Solution:**
+
+- SEV-SNP/TDX: Use ≤512-bit (64-byte) hex nonce
+- vTPM/Azure: Use ≤256-bit (32-byte) hex nonce
+
+#### File System Errors
+
+```
+Error creating attestation file: <error details> ❌
+Error closing attestation file: <error details> ❌
+Error reading attestation file: <error details> ❌
+Error writing attestation file: <error details> ❌
+```
+
+**Cause:** File system operation failed
+
+**Solution:**
+
+- Check file permissions
+- Verify available disk space
+- Ensure output directory exists and is writable
+
+#### Attestation Retrieval Errors
+
+```
+Failed to get attestation due to error: <error details> ❌
+Failed to get attestation result due to error: <error details> ❌
+```
+
+**Cause:** Agent failed to generate attestation
+
+**Solution:**
+
+- Verify TEE platform support
+- Check agent configuration
+- Validate nonce format and size
+
+#### Format Conversion Errors
+
+```
+Error converting SNP attestation to JSON: <error details> ❌
+Failed to unmarshal the attestation report: <error details> ❌
+Error decoding Azure token: <error details> ❌
+```
+
+**Cause:** Cannot convert attestation to requested format
+
+**Solution:**
+
+- Verify attestation data integrity
+- Check format compatibility
+- Retry without format conversion flags
+
+### Success Messages
+
+```
+Attestation result retrieved and saved successfully!
+```
+
+### Sub Command: `validate`
+
+The Attestation Validate CLI (`cocos-cli attestation validate`) provides comprehensive validation and verification of attestation reports from various Trusted Execution Environment (TEE) technologies. It supports multiple cloud providers and validation modes with extensive configuration options.
+
+```bash
+cocos-cli attestation validate <attestationreportfilepath> [flags]
+```
+
+**Description:** Validate and verify attestation information
+
+**Arguments:**
+
+- `<attestationreportfilepath>` (required): Path to the attestation report file to validate
+
+**Error Handling:**
+
+- Command requires exactly 1 argument (the attestation report file path)
+- Missing file path shows: `please pass the attestation report file path`
+
+### Cloud Providers and Validation Modes
+
+### Cloud Providers
+
+- `none` (default) - No specific cloud provider (Uses Cocos local server).
+- `azure` - Microsoft Azure cloud provider
+- `gcp` - Google Cloud Platform provider
+
+### Validation Modes
+
+- `snp` (default) - SEV-SNP attestation validation
+- `vtpm` - vTPM attestation validation
+- `snp-vtpm` - Combined SEV-SNP and vTPM validation
+- `tdx` - Intel TDX attestation validation
+
+### Command-Line Options and Parameters
+
+### Core Configuration Flags
+
+| Flag        | Type    | Default | Description                                        |
+| ----------- | ------- | ------- | -------------------------------------------------- |
+| `--cloud`   | string  | `none`  | Confidential computing cloud provider              |
+| `--mode`    | string  | `snp`   | Attestation validation mode                        |
+| `--config`  | string  |         | Path to serialized JSON check.Config protobuf file |
+| `--help/-h` | boolean |         | Show help for validate command                     |
+
+### Required Flags by Mode
+
+#### SNP Mode Requirements
+
+- `--report_data` (required) - Expected REPORT_DATA field as 64-byte hex string
+- `--product` (required) - AMD product name for the chip
+
+#### vTPM Mode Requirements
+
+- `--nonce` (required) - Hex encoded nonce for vTPM attestation
+- `--format` (required) - Output file format (`binarypb` or `textproto`)
+- `--output` (required) - Output file path
+
+#### SNP-vTPM Mode Requirements
+
+- `--report_data` (required) - Expected REPORT_DATA field as 64-byte hex string
+- `--product` (required) - AMD product name for the chip
+- `--nonce` (required) - Hex encoded nonce for vTPM attestation
+- `--format` (required) - Output file format (`binarypb` or `textproto`)
+- `--output` (required) - Output file path
+
+#### TDX Mode Requirements
+
+- `--report_data` (required) - Expected REPORT_DATA field as 64-byte hex string
+
+### Common Validation Flags
+
+| Flag            | Type     | Default       | Description                               |
+| --------------- | -------- | ------------- | ----------------------------------------- |
+| `--report_data` | bytesHex | 64 zero bytes | Expected REPORT_DATA field (64 bytes)     |
+| `--nonce`       | bytesHex |               | Hex encoded nonce for vTPM attestation    |
+| `--format`      | string   | `binarypb`    | Output format (`binarypb` or `textproto`) |
+| `--output`      | string   |               | Output file path                          |
+| `--product`     | string   |               | AMD product name for attestation chip     |
+
+### SEV-SNP Specific Flags
+
+| Flag                   | Type     | Default       | Description                                      |
+| ---------------------- | -------- | ------------- | ------------------------------------------------ |
+| `--measurement`        | bytesHex |               | Expected MEASUREMENT field (48 bytes)            |
+| `--host_data`          | bytesHex | 32 zero bytes | Expected HOST_DATA field (32 bytes)              |
+| `--family_id`          | bytesHex | 16 zero bytes | Expected FAMILY_ID field (16 bytes)              |
+| `--image_id`           | bytesHex | 16 zero bytes | Expected IMAGE_ID field (16 bytes)               |
+| `--guest_policy`       | uint     | 196608        | Most acceptable guest SnpPolicy                  |
+| `--minimum_guest_svn`  | uint32   |               | Most acceptable GUEST_SVN                        |
+| `--minimum_tcb`        | uint     |               | Minimum CURRENT_TCB, COMMITTED_TCB, REPORTED_TCB |
+| `--minimum_lauch_tcb`  | uint     |               | Minimum LAUNCH_TCB value                         |
+| `--minimum_build`      | uint32   |               | 8-bit minimum AMD-SP firmware build              |
+| `--minimum_version`    | string   | `0.0`         | Minimum AMD-SP firmware API version              |
+| `--platform_info`      | string   |               | Maximum PLATFORM_INFO field (64-bit uint)        |
+| `--require_author_key` | boolean  |               | Require AUTHOR_KEY_EN is 1                       |
+| `--require_id_block`   | boolean  |               | Require VM launched with signed ID_BLOCK         |
+
+### Certificate and Trust Flags
+
+| Flag                          | Type        | Default | Description                                          |
+| ----------------------------- | ----------- | ------- | ---------------------------------------------------- |
+| `--CA_bundles`                | stringArray |         | PEM format CA bundles for AMD product                |
+| `--CA_bundles_paths`          | stringArray |         | Paths to CA bundles (ASK, ARK certificates)          |
+| `--check_crl`                 | boolean     |         | Download and check CRL for revoked certificates      |
+| `--trusted_author_keys`       | stringArray |         | Paths to x.509 certificates of trusted author keys   |
+| `--trusted_author_key_hashes` | stringArray |         | SHA-384 hash values of trusted author keys           |
+| `--trusted_id_keys`           | stringArray |         | Paths to x.509 certificates of trusted identity keys |
+| `--trusted_id_key_hashes`     | stringArray |         | SHA-384 hash values of trusted identity keys         |
+
+### TDX Specific Flags
+
+| Flag                    | Type     | Default | Description                                        |
+| ----------------------- | -------- | ------- | -------------------------------------------------- |
+| `--mr_td`               | bytesHex |         | Expected MR_TD field (48 bytes)                    |
+| `--mr_config_id`        | bytesHex |         | Expected MR_CONFIG_ID field (48 bytes)             |
+| `--mr_config_owner`     | bytesHex |         | Expected MR_OWNER_CONFIG field (48 bytes)          |
+| `--mr_owner`            | bytesHex |         | Expected MR_OWNER field (48 bytes)                 |
+| `--mr_seam`             | bytesHex |         | Expected MR_SEAM field (48 bytes)                  |
+| `--td_attributes`       | bytesHex |         | Expected TD_ATTRIBUTES field (8 bytes)             |
+| `--xfam`                | bytesHex |         | Expected XFAM field (8 bytes)                      |
+| `--rtmrs`               | string   |         | Comma-separated hex strings for RTMRS (4x48 bytes) |
+| `--minimum_tee_tcb_svn` | bytesHex |         | Minimum TEE_TCB_SVN field (16 bytes)               |
+| `--minimum_pce_svn`     | uint32   |         | Minimum PCE_SVN field value                        |
+| `--minimum_qe_svn`      | uint32   |         | Minimum QE_SVN field value                         |
+| `--qe_vendor_id`        | bytesHex |         | Expected QE_VENDOR_ID field (16 bytes)             |
+| `--trusted_root`        | string   |         | Paths to CA bundles for Intel TDX (PEM format)     |
+
+### Network and Retry Configuration
+
+| Flag                | Type     | Default | Description                               |
+| ------------------- | -------- | ------- | ----------------------------------------- |
+| `--get_collateral`  | boolean  |         | Download necessary collaterals for checks |
+| `--timeout`         | duration | `2m0s`  | Duration to retry failed HTTP requests    |
+| `--max_retry_delay` | duration | `30s`   | Maximum duration between HTTP retries     |
+
+### Report ID and Additional Fields
+
+| Flag             | Type     | Default       | Description                            |
+| ---------------- | -------- | ------------- | -------------------------------------- |
+| `--report_id`    | bytesHex |               | Expected REPORT_ID field (32 bytes)    |
+| `--report_id_ma` | bytesHex | 32 0xFF bytes | Expected REPORT_ID_MA field (32 bytes) |
+| `--chip_id`      | bytesHex |               | Expected CHIP_ID field (48 bytes)      |
+| `--stepping`     | string   |               | Machine stepping for attestation chip  |
+
+### Global Flags
+
+| Flag        | Short | Type    | Description           |
+| ----------- | ----- | ------- | --------------------- |
+| `--verbose` | `-v`  | boolean | Enable verbose output |
+
+### Usage Patterns and Workflows
+
+### Basic Usage Examples
+
+#### 1. Default SNP Validation
+
+```bash
+# Basic SEV-SNP validation (default mode)
+cocos-cli attestation validate attestation.bin --report_data 1a2b3c4d... --product "Milan"
+```
+
+#### 2. SNP Mode with Explicit Configuration
+
+```bash
+# SEV-SNP validation with explicit mode
+cocos-cli attestation validate --mode snp attestation.bin \
+  --report_data 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --product "Milan" \
+  --measurement 8a9b0c1d2e3f4567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12
+```
+
+#### 3. vTPM Validation
+
+```bash
+# vTPM attestation validation
+cocos-cli attestation validate --mode vtpm attestation.bin \
+  --nonce 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --format textproto \
+  --output vtpm_result.txt
+```
+
+#### 4. Combined SNP-vTPM Validation
+
+```bash
+# Combined SEV-SNP and vTPM validation
+cocos-cli attestation validate --mode snp-vtpm attestation.bin \
+  --report_data 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --product "Milan" \
+  --nonce 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --format binarypb \
+  --output combined_result.bin
+```
+
+#### 5. TDX Validation
+
+```bash
+# Intel TDX attestation validation
+cocos-cli attestation validate --mode tdx attestation.bin \
+  --report_data 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+### Cloud Provider Examples
+
+#### Azure Cloud Validation
+
+```bash
+# Azure vTPM validation
+cocos-cli attestation validate --cloud azure --mode vtpm attestation.bin \
+  --nonce 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --format textproto \
+  --output azure_result.txt
+```
+
+#### GCP Cloud Validation
+
+```bash
+# GCP combined SNP-vTPM validation
+cocos-cli attestation validate --cloud gcp --mode snp-vtpm attestation.bin \
+  --report_data 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --product "Milan" \
+  --nonce 1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890 \
+  --format binarypb \
+  --output gcp_result.bin
+```
+
+### Advanced Configuration Examples
+
+#### With Custom Certificate Authority
+
+```bash
+# SNP validation with custom CA bundles
+cocos-cli attestation validate --mode snp attestation.bin \
+  --report_data 1a2b... --product "Milan" \
+  --CA_bundles_paths /path/to/ask.pem,/path/to/ark.pem \
+  --check_crl \
+  --trusted_author_keys /path/to/author.crt
+```
+
+#### With Comprehensive TDX Configuration
+
+```bash
+# TDX validation with multiple measurement fields
+cocos-cli attestation validate --mode tdx attestation.bin \
+  --report_data 1a2b3c4d... \
+  --mr_td 8a9b0c1d2e3f4567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12 \
+  --mr_config_id 7f8e9d0c1b2a3948567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab \
+  --td_attributes 0123456789abcdef \
+  --minimum_pce_svn 8 \
+  --minimum_qe_svn 12
+```
+
+### Environment Variable Configuration
+
+### Nonce and Report Data Generation
+
+```bash
+# Generate required hex values for validation
+REPORT_DATA=$(head -c 64 /dev/urandom | xxd -p)
+VTPM_NONCE=$(head -c 32 /dev/urandom | xxd -p)
+MEASUREMENT=$(head -c 48 /dev/urandom | xxd -p)
+
+# Store in environment variables
+export COCOS_REPORT_DATA=$REPORT_DATA
+export COCOS_VTPM_NONCE=$VTPM_NONCE
+export COCOS_MEASUREMENT=$MEASUREMENT
+
+# Use in validation commands
+cocos-cli attestation validate --mode snp attestation.bin \
+  --report_data $COCOS_REPORT_DATA \
+  --product "Milan" \
+  --measurement $COCOS_MEASUREMENT
+```
+
+### Configuration File Generation
+
+```bash
+# Generate JSON configuration for complex setups
+cat > validation_config.json << EOF
+{
+  "rootOfTrust": {
+    "product": "Milan",
+    "cabundlePaths": ["/path/to/ask.pem", "/path/to/ark.pem"],
+    "checkCrl": true,
+    "disallowNetwork": false
+  },
+  "policy": {
+    "minimumGuestSvn": 1,
+    "reportData": "$(echo $COCOS_REPORT_DATA | base64 -w 0)",
+    "measurement": "$(echo $COCOS_MEASUREMENT | base64 -w 0)",
+    "minimumVersion": "1.51",
+    "requireAuthorKey": true
+  }
+}
+EOF
+
+# Use configuration file
+cocos-cli attestation validate attestation.bin --config validation_config.json
+```
+
+### Typical Environment Variables
+
+```bash
+# Default file paths
+export COCOS_CA_BUNDLE_PATH="/etc/cocos/ca-bundles"
+export COCOS_TRUSTED_CERTS_PATH="/etc/cocos/trusted-certs"
+export COCOS_OUTPUT_DIR="/tmp/cocos-validation"
+
+# Network configuration
+export COCOS_HTTP_TIMEOUT="5m0s"
+export COCOS_MAX_RETRY_DELAY="1m0s"
+export COCOS_ALLOW_NETWORK_COLLATERAL="true"
+
+# Default validation parameters
+export COCOS_DEFAULT_CLOUD="none"
+export COCOS_DEFAULT_MODE="snp"
+export COCOS_DEFAULT_FORMAT="textproto"
+```
+
+### JSON Configuration File Format
+
+The `--config` flag accepts a comprehensive JSON configuration file. Here's the structure:
+
+```json
+{
+  "rootOfTrust": {
+    "product": "Milan",
+    "cabundlePaths": ["path/to/ask.pem", "path/to/ark.pem"],
+    "cabundles": ["PEM_CONTENT_1", "PEM_CONTENT_2"],
+    "checkCrl": true,
+    "disallowNetwork": false
+  },
+  "policy": {
+    "minimumGuestSvn": 1,
+    "policy": "196608",
+    "familyId": "base64_encoded_16_bytes",
+    "imageId": "base64_encoded_16_bytes",
+    "vmpl": 0,
+    "minimumTcb": "1",
+    "minimumLaunchTcb": "1",
+    "platformInfo": "0",
+    "requireAuthorKey": true,
+    "reportData": "base64_encoded_64_bytes",
+    "measurement": "base64_encoded_48_bytes",
+    "hostData": "base64_encoded_32_bytes",
+    "reportId": "base64_encoded_32_bytes",
+    "reportIdMa": "base64_encoded_32_bytes",
+    "chipId": "base64_encoded_48_bytes",
+    "minimumBuild": 1,
+    "minimumVersion": "1.51",
+    "permitProvisionalFirmware": true,
+    "requireIdBlock": true,
+    "trustedAuthorKeys": ["base64_key_1", "base64_key_2"],
+    "trustedAuthorKeyHashes": ["base64_hash_1", "base64_hash_2"],
+    "trustedIdKeys": ["base64_key_1", "base64_key_2"],
+    "trustedIdKeyHashes": ["base64_hash_1", "base64_hash_2"],
+    "product": {
+      "name": 1,
+      "stepping": 1,
+      "machineStepping": 1
+    }
+  }
+}
+```
+
+## Base Command:`ca-bundle`
+
+Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)
+
+**Usage:**
+
+```bash
+cocos-cli ca-bundle [flags]
+```
+
+**Arguments:**
+
+- `<path_to_platform_info_json>`: Path to the platform info JSON file
+
+**Flags:**
+
+- `-h, --help`: Help for ca-bundle
+
+**Global Flags:**
+
+- `-v, --verbose`: Enable verbose output
+
+**Example:**
+
+```bash
+ca-bundle <path_to_platform_info_json>
+```
+
+## Base Command: `checksum`
+
+Compute the sha3-256 hash of a file
+
+**Usage:**
+
+```bash
+cocos-cli checksum [flags]
+```
+
+**Arguments:**
+
+- `<file>`: Path to the file to compute hash for
+
+**Flags:**
+
+- `-b, --base64`: Output the hash in base64
+- `-h, --help`: Help for checksum
+- `-m, --manifest`: Compute the hash of the manifest file
+
+**Global Flags:**
+
+- `-v, --verbose`: Enable verbose output
+
+**Example:**
+
+```bash
+checksum <file>
+```
+
+## Base Command: `completion`
+
+Generate the autocompletion script for cocos-cli for the specified shell.
+See each sub-command's help for details on how to use the generated script.
+
+**Usage:**
+
+```bash
+cocos-cli completion [command]
+```
+
+**Available Commands:**
+
+- `bash`: Generate the autocompletion script for bash
+- `fish`: Generate the autocompletion script for fish
+- `powershell`: Generate the autocompletion script for powershell
+- `zsh`: Generate the autocompletion script for zsh
+
+**Flags:**
+
+- `-h, --help`: Help for completion
+
+**Global Flags:**
+
+- `-v, --verbose`: Enable verbose output
+
+---
+
+### `completion bash`
+
+Generate the autocompletion script for the bash shell.
+
+This script depends on the 'bash-completion' package.
+If it is not installed already, you can install it via your OS's package manager.
+
+**Usage:**
+
+```bash
+cocos-cli completion bash
+```
+
+**Flags:**
+
+- `-h, --help`: Help for bash
+- `--no-descriptions`: Disable completion descriptions
+
+#### Setup Instructions
+
+**Load completions in your current shell session:**
+
+```bash
+source <(cocos-cli completion bash)
+```
+
+**Load completions for every new session (execute once):**
+
+Linux:
+
+```bash
+cocos-cli completion bash > /etc/bash_completion.d/cocos-cli
+```
+
+macOS:
+
+```bash
+cocos-cli completion bash > $(brew --prefix)/etc/bash_completion.d/cocos-cli
+```
+
+You will need to start a new shell for this setup to take effect.
+
+---
+
+### `completion fish`
+
+Generate the autocompletion script for the fish shell.
+
+**Usage:**
+
+```bash
+cocos-cli completion fish [flags]
+```
+
+**Flags:**
+
+- `-h, --help`: Help for fish
+- `--no-descriptions`: Disable completion descriptions
+
+### Setup Instructions
+
+**Load completions in your current shell session:**
+
+```bash
+cocos-cli completion fish | source
+```
+
+**Load completions for every new session (execute once):**
+
+```bash
+cocos-cli completion fish > ~/.config/fish/completions/cocos-cli.fish
+```
+
+You will need to start a new shell for this setup to take effect.
+
+---
+
+## `completion powershell`
+
+Generate the autocompletion script for powershell.
+
+**Usage:**
+
+```bash
+cocos-cli completion powershell [flags]
+```
+
+**Flags:**
+
+- `-h, --help`: Help for powershell
+- `--no-descriptions`: Disable completion descriptions
+
+### Setup Instructions
+
+**Load completions in your current shell session:**
+
+```powershell
+cocos-cli completion powershell | Out-String | Invoke-Expression
+```
+
+**Load completions for every new session:**
+Add the output of the above command to your powershell profile.
+
+---
+
+## `completion zsh`
+
+Generate the autocompletion script for the zsh shell.
+
+If shell completion is not already enabled in your environment you will need
+to enable it. You can execute the following once:
+
+```bash
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+```
+
+**Usage:**
+
+```bash
+cocos-cli completion zsh [flags]
+```
+
+**Flags:**
+
+- `-h, --help`: Help for zsh
+- `--no-descriptions`: Disable completion descriptions
+
+### Setup Instructions
+
+**Load completions in your current shell session:**
+
+```bash
+source <(cocos-cli completion zsh)
+```
+
+**Load completions for every new session (execute once):**
+
+#### Linux:
+
+```bash
+cocos-cli completion zsh > "${fpath[1]}/_cocos-cli"
+```
+
+#### macOS:
+
+```bash
+cocos-cli completion zsh > $(brew --prefix)/share/zsh/site-functions/_cocos-cli
+```
+
+You will need to start a new shell for this setup to take effect.
+
+## Common Error Messages
+
+#### Missing File Path
+
+```
+please pass the attestation report file path
+```
+
+**Cause:** No attestation report file path provided as argument
+
+**Solution:** Provide the path to the attestation report file
+
+**Example:** `cocos-cli attestation validate /path/to/attestation.bin --mode snp ...`
+
+#### Missing Required Flags
+
+```
+failed to mark 'report_data' as required for SEV-snp mode: <error>
+failed to mark 'product' as required: <error>
+failed to mark 'nonce' as required for vtpm mode: <error>
+failed to mark 'format' as required for vtpm mode: <error>
+failed to mark 'output' as required for vtpm mode: <error>
+```
+
+**Cause:** Required flags not provided for the selected validation mode
+
+**Solution:** Provide all required flags for the chosen mode (see Required Flags by Mode section)
+
+#### Unknown Mode Error
+
+```
+unknown mode: <invalid_mode>
+```
+
+**Cause:** Invalid validation mode specified
+
+**Solution:** Use one of: `snp`, `vtpm`, `snp-vtpm`, `tdx`
+
+#### File System Errors
+
+```
+failed to create output file: <error>
+```
+
+**Cause:** Cannot create output file (permissions, disk space, invalid path)
+
+**Solution:**
+
+- Check output directory exists and is writable
+- Verify sufficient disk space
+- Ensure valid output file path
+
+#### Validation Failures
+
+```
+failed to verify TDX validation flags: <error>
+```
+
+**Cause:** TDX-specific validation parameters are invalid
+
+**Solution:** Verify TDX flags meet requirements (correct hex encoding, proper byte lengths)
+
+#### Configuration File Errors
+
+```
+Error parsing config file: <error>
+```
+
+**Cause:** Invalid JSON configuration file format
+
+**Solution:**
+
+- Validate JSON syntax
+- Ensure base64 encoding for binary fields
+- Check required fields are present
+
+### Validation-Specific Errors
+
+#### Certificate Validation Errors
+
+```
+Certificate validation failed: <details>
+CRL check failed: <details>
+```
+
+**Cause:** Certificate chain or CRL validation issues
+
+**Solution:**
+
+- Verify CA bundle paths and content
+- Check certificate expiration dates
+- Ensure CRL accessibility if `--check_crl` enabled
+
+#### Network-Related Errors
+
+```
+Failed to download collateral: <details>
+HTTP request timeout: <details>
+```
+
+**Cause:** Network connectivity or timeout issues
+
+**Solution:**
+
+- Check internet connectivity
+- Increase `--timeout` and `--max_retry_delay`
+- Verify firewall allows outbound connections
+
+#### Measurement Validation Errors
+
+```
+MEASUREMENT mismatch: expected <expected>, got <actual>
+REPORT_DATA validation failed: <details>
+```
+
+**Cause:** Attestation report values don't match expected values
+
+**Solution:**
+
+- Verify expected measurement values are correct
+- Check report data matches what was provided during attestation
+- Ensure proper hex encoding of parameters
+
+### Troubleshooting Tips
+
+1. **Start with Verbose Output:**
+
+   ```bash
+   cocos-cli attestation validate attestation.bin --mode snp --verbose ...
+   ```
+
+2. **Validate File Accessibility:**
+
+   ```bash
+   # Check attestation file exists and is readable
+   ls -la attestation.bin
+   file attestation.bin
+   ```
+
+3. **Test with Minimal Configuration:**
+
+   ```bash
+   # Start with basic required flags only
+   cocos-cli attestation validate attestation.bin \
+     --report_data $(head -c 64 /dev/zero | xxd -p) \
+     --product "Milan"
+   ```
+
+4. **Verify Hex Encoding:**
+
+   ```bash
+   # Ensure hex values are properly formatted
+   echo "1a2b3c4d" | xxd -r -p | xxd -p  # Should return original
+   ```
+
+5. **Check Output Format:**
+   ```bash
+   # For vTPM modes, try both output formats
+   --format textproto  # Human readable
+   --format binarypb   # Binary protocol buffer
+   ```
+
+## Best Practices
+
+1. **Hex Value Generation:** Use cryptographically secure sources for nonces and expected values
+2. **Configuration Management:** Use JSON config files for complex, repeatable validations
+3. **Certificate Management:** Keep CA bundles and trusted certificates up to date
+4. **Error Handling:** Always check command exit codes and parse error messages
+5. **Security:** Validate all input parameters and protect sensitive configuration files
+6. **Network Configuration:** Configure appropriate timeouts for network-dependent operations
+7. **Output Validation:** Verify output files are created and contain expected validation results
+
 ### Generate Keys
 
 To generate a public & private key pair, run the following command:
@@ -78,31 +1267,6 @@ This will generate a key pair of type rsa. Different key types can be generated 
 
 ```bash
 ./build/cocos-cli keys -k ecdsa
-```
-
-### Upload Algorithm
-
-To upload an algorithm, use the following command:
-
-```bash
-./build/cocos-cli algo /path/to/algorithm /path/to/private/key
-```
-
-Currently, support is provided for four types of algorithms: executable binaries, Python files, Docker images (provided as tar files) and Wasm modules. The above command expects an algorithm in binary format that will be executed inside the secure VM by the agent. For Python files, the algo file, the requirements file, and the Python runtime are required. More information on how to run the other types of algorithms can be found [here](algorithms.md). To run a python file, use the following command:
-
-```bash
-./build/cocos-cli algo /path/to/algorithm /path/to/private/key --algorithm python --requirements /path/to/requirements.txt --python-runtime python
-```
-
-The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
-
-Supported flags:
-
-```shell
-  -a, --algorithm string        Algorithm type to run (default "bin")
-  -h, --help                    help for algo
-      --python-runtime string   Python runtime to use (default "python3")
-  -r, --requirements string     Python requirements file
 ```
 
 ### Upload Dataset
@@ -126,68 +1290,6 @@ To retrieve the computation result, use the following command:
 If the result is available and agent is ready to receive the results, the result will be extracted and written to the current directory as `result.bin`.
 
 The agent grpc url is required for this operation, this will be available once the TEE has been provisioned and agent is running.
-
-### Fetch and Validate Attestation Report
-
-To fetch or validate the attestation report, use the following commands.
-
-To fetch attestation report:
-
-```bash
-./build/cocos-cli attestation get <report_data>
-```
-
-There can be three modes used to validate an attestation report as shown below:
-
-```bash
-validate <attestationreportfilepath> --report_data <reportdata> --product <product data>
-validate --mode snp <attestationreportfilepath> --report_data <reportdata> --product <product data> //default
-validate --mode vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>
-validate --mode snp-vtpm <attestationreportfilepath> --nonce <noncevalue> --format <formatvalue> --output <outputvalue>`,
-```
-
-Here is an example command to run to validate attestation report. The default mode is `snp`:
-
-```bash
-./build/cocos-cli attestation validate <attestation_report_file_path> --report_data <report_data> --product <product data>
-```
-
-To validate the report data, the report data flag is compulsory and the path to the attestation report file.
-
-Optional Flags:
-
-```shell
-      --CA_bundles stringArray                  PEM format CA bundles for the AMD product. Combined with contents of cabundle_paths.
-      --CA_bundles_paths stringArray            Paths to CA bundles for the AMD product. Must be in PEM format, ASK, then ARK certificates. If unset, uses embedded root certificates.
-      --check_crl                               Download and check the CRL for revoked certificates.
-      --chip_id bytesHex                        The expected MEASUREMENT field as a hex string. Must encode 48 bytes. Unchecked if unset.
-      --config string                           Serialized json check.Config protobuf. This will overwrite individual flags. Unmarshalled as json.
-      --family_id bytesHex                      The expected FAMILY_ID field as a hex string. Must encode 16 bytes. Unchecked if unset.
-      --guest_policy uint                       The most acceptable guest SnpPolicy. (default 196608)
-  -h, --help                                    help for validate
-      --host_data bytesHex                      The expected HOST_DATA field as a hex string. Must encode 32 bytes. Unchecked if unset.
-      --image_id bytesHex                       The expected IMAGE_ID field as a hex string. Must encode 16 bytes. Unchecked if unset.
-      --max_retry_delay duration                Maximum Duration to wait between HTTP request retries. (default 30s)
-      --measurement bytesHex                    The expected MEASUREMENT field as a hex string. Must encode 48 bytes. Unchecked if unset.
-      --minimum_build uint32                    The 8-bit minimum build number for AMD-SP firmware
-      --minimum_guest_svn uint32                The most acceptable GUEST_SVN.
-      --minimum_lauch_tcb uint                  The minimum acceptable value for LAUNCH_TCB.
-      --minimum_tcb uint                        The minimum acceptable value for CURRENT_TCB, COMMITTED_TCB, and REPORTED_TCB.
-      --minimum_version string                  Minimum AMD-SP firmware API version (major.minor). Each number must be 8-bit non-negative. (default "0.0")
-      --platform_info string                    The maximum acceptable PLATFORM_INFO field bit-wise. May be empty or a 64-bit unsigned integer
-      --product string                          The AMD product name for the chip that generated the attestation report.
-      --report_data bytesHex                    The expected REPORT_DATA field as a hex string. Must encode 64 bytes. Must be set.
-      --report_id bytesHex                      The expected REPORT_ID field as a hex string. Must encode 32 bytes. Unchecked if unset.
-      --report_id_ma bytesHex                   The expected REPORT_ID_MA field as a hex string. Must encode 32 bytes. Unchecked if unset.
-      --require_author_key                      Require that AUTHOR_KEY_EN is 1.
-      --require_id_block                        Require that the VM was launch with an ID_BLOCK signed by a trusted id key or author key
-      --stepping string                         The machine stepping for the chip that generated the attestation report. Default unchecked.
-      --timeout duration                        Duration to continue to retry failed HTTP requests. (default 2m0s)
-      --trusted_author_key_hashes stringArray   Hex-encoded SHA-384 hash values of trusted author keys in AMD public key format
-      --trusted_author_keys stringArray         Paths to x.509 certificates of trusted author keys
-      --trusted_id_key_hashes stringArray       Hex-encoded SHA-384 hash values of trusted identity keys in AMD public key format
-      --trusted_id_keys stringArray             Paths to x.509 certificates of trusted author keys
-```
 
 ### File Hash
 
@@ -214,14 +1316,6 @@ To add host data:
 ```
 
 The backend information is obtained from the backend that has SEV. Check [backend info readme](https://github.com/ultravioletrs/cocos/blob/main/scripts/backend_info/README.md) for information on how to run the script to generate backend info.
-
-### Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)
-
-To fetch the CA bundle for SEV-SNP, use the following commands:
-
-```bash
-./build/cocos-cli ca-bundle <path_to_platform_info.json>
-```
 
 ### Measure IGVM file
 
@@ -279,404 +1373,3 @@ Run `cp ./build/cocos-cli $GOBIN`.
 - Use the `--help` flag with any command to see additionalinformation
 - The CLI uses gRPC for communication with the agent service
 - All traffic between CLI and the TEE is encrypted via mutual TLS
-
-## 🧪 `validate` Command
-
-The `validate` command validates and verifies attestation information from confidential virtual machines (CVMs). It supports multiple confidential computing (CC) platforms and modes:
-
-- **Cloud Platforms**: `none` (default), `azure`, `gcp`
-- **Validation Modes**: `snp` (default), `vtpm`, `snp-vtpm`, `tdx`
-
-Depending on the selected mode, different flags are required to provide the necessary attestation data and expected claims.
-
-### 🔧 Basic Syntax
-
-```bash
-./cocos-cli validate <attestation_report_file> [flags]
-```
-
-You must specify exactly one attestation report file path as the first positional argument.
-
-### 💡 Examples
-
-```bash
-# SEV-SNP (default mode)
-./cocos-cli validate report.bin --report_data <hex> --product <value> --platform snp
-
-# SEV-SNP with explicit mode
-./cocos-cli validate --mode snp report.bin --report_data <hex> --product <value>
-
-# vTPM mode
-./cocos-cli validate --mode vtpm report.json --nonce <hex> --format <string> --output <file>
-
-# SNP-vTPM combined mode
-./cocos-cli validate --mode snp-vtpm report.json --report_data <hex> --product <value> --nonce <hex> --format <string> --output <file>
-
-# TDX mode
-./cocos-cli validate --mode tdx report.json --report_data <hex>
-
-# Cloud-specific (e.g., Azure + vTPM)
-./cocos-cli validate --cloud azure --mode vtpm report.json --nonce <hex> --format <string> --output <file>
-```
-
-Supported Cloud Providers:
-
-- none (default)
-- azure
-- gcp
-
-#### Supported Modes
-
-| Mode       | Description                       |
-| ---------- | --------------------------------- |
-| `snp`      | SEV-SNP attestation               |
-| `vtpm`     | Virtual TPM attestation           |
-| `snp-vtpm` | Hybrid SEV-SNP + vTPM attestation |
-| `tdx`      | Intel TDX attestation             |
-
-#### Example Usage
-
-```bash
-# SEV-SNP mode
-cocos-cli validate report.bin --mode snp --report_data deadbeef... --product ConfidentialVM
-
-# vTPM mode
-cocos-cli validate report.bin --mode vtpm --nonce 1234abcd --format binarypb --output out.pb
-
-# SEV-SNP + vTPM hybrid mode
-cocos-cli validate report.bin --mode snp-vtpm --report_data deadbeef... --product ConfidentialVM --nonce 1234abcd --format textproto --output hybrid.txt
-
-# TDX mode
-cocos-cli validate report.bin --mode tdx --report_data deadbeef...
-```
-
-## 🏗️ Flags and Options
-
-### 🔧 Global Flags
-
-| Flag       | Type   | Default | Description                                                   |
-| ---------- | ------ | ------- | ------------------------------------------------------------- |
-| `--cloud`  | string | `none`  | Confidential computing cloud provider: `none`, `azure`, `gcp` |
-| `--mode`   | string | `snp`   | Validation mode: `snp`, `vtpm`, `snp-vtpm`, `tdx`             |
-| `--config` | string |         | Path to serialized `check.Config` JSON file                   |
-| `--output` | string |         | Path to write verification results                            |
-
----
-
-### 🧪 Mode-Specific Flags
-
-#### 🟣 SNP Mode (`--mode snp`)
-
-| Flag            | Type     | Description                        |
-| --------------- | -------- | ---------------------------------- |
-| `--report_data` | bytesHex | 64-byte hex string for REPORT_DATA |
-| `--product`     | string   | Product string                     |
-| `--platform`    | string   | Platform descriptor                |
-
-#### 🔵 vTPM Mode (`--mode vtpm`)
-
-| Flag       | Type     | Description                              |
-| ---------- | -------- | ---------------------------------------- |
-| `--nonce`  | bytesHex | Hex-encoded nonce for vTPM attestation   |
-| `--format` | string   | Output format for the attestation report |
-| `--output` | string   | Path to write the verification result    |
-
-#### 🟡 SNP-vTPM Mode (`--mode snp-vtpm`)
-
-Combines required flags from both SNP and vTPM modes:
-
-- `--report_data`
-- `--product`
-- `--nonce`
-- `--format`
-- `--output`
-
-#### 🟢 TDX Mode (`--mode tdx`)
-
-| Flag            | Type     | Description                |
-| --------------- | -------- | -------------------------- |
-| `--report_data` | bytesHex | Expected REPORT_DATA field |
-
-## 🧊 TDX Verification Flags
-
-| Flag                    | Type     | Description                                              |
-| ----------------------- | -------- | -------------------------------------------------------- |
-| `--qe_vendor_id`        | bytesHex | Expected QE_VENDOR_ID (16 bytes hex).                    |
-| `--mr_seam`             | bytesHex | Expected MR_SEAM (48 bytes hex).                         |
-| `--td_attributes`       | bytesHex | Expected TD_ATTRIBUTES (8 bytes hex).                    |
-| `--xfam`                | bytesHex | Expected XFAM (8 bytes hex).                             |
-| `--mr_td`               | bytesHex | Expected MR_TD (48 bytes hex).                           |
-| `--mr_config_id`        | bytesHex | Expected MR_CONFIG_ID (48 bytes hex).                    |
-| `--mr_owner`            | bytesHex | Expected MR_OWNER (48 bytes hex).                        |
-| `--mr_config_owner`     | bytesHex | Expected MR_OWNER_CONFIG (48 bytes hex).                 |
-| `--minimum_tee_tcb_svn` | bytesHex | Minimum TEE_TCB_SVN value (16 bytes hex).                |
-| `--rtmrs`               | string   | Comma-separated 4 hex strings (each 48 bytes) for RTMRS. |
-| `--trusted_root`        | string   | Comma-separated PEM paths for root CA certs (Intel TDX). |
-| `--minimum_qe_svn`      | uint32   | Minimum QE_SVN value.                                    |
-| `--minimum_pce_svn`     | uint32   | Minimum PCE_SVN value.                                   |
-| `--get_collateral`      | bool     | Allow downloading collateral if required.                |
-
----
-
-## 🔒 SEV-SNP Verification Flags
-
-| Flag                          | Type      | Description                                                            |
-| ----------------------------- | --------- | ---------------------------------------------------------------------- |
-| `--host_data`                 | bytesHex  | Expected `HOST_DATA` field (32 bytes).                                 |
-| `--family_id`                 | bytesHex  | Expected `FAMILY_ID` (16 bytes).                                       |
-| `--image_id`                  | bytesHex  | Expected `IMAGE_ID` (16 bytes).                                        |
-| `--report_id`                 | bytesHex  | Expected `REPORT_ID` (32 bytes).                                       |
-| `--report_id_ma`              | bytesHex  | Expected `REPORT_ID_MA` (32 bytes).                                    |
-| `--measurement`               | bytesHex  | Expected `MEASUREMENT` (48 bytes).                                     |
-| `--chip_id`                   | bytesHex  | Expected `CHIP_ID` (48 bytes).                                         |
-| `--minimum_tcb`               | uint64    | Minimum acceptable for `CURRENT_TCB`, `COMMITTED_TCB`, `REPORTED_TCB`. |
-| `--minimum_lauch_tcb`         | uint64    | Minimum acceptable `LAUNCH_TCB`.                                       |
-| `--guest_policy`              | uint64    | Most acceptable guest `SnpPolicy`.                                     |
-| `--minimum_guest_svn`         | uint32    | Minimum acceptable `GUEST_SVN`.                                        |
-| `--minimum_build`             | uint32    | Minimum AMD-SP firmware build (8-bit).                                 |
-| `--require_author_key`        | bool      | Enforce `AUTHOR_KEY_EN == 1`.                                          |
-| `--require_id_block`          | bool      | Require signed `ID_BLOCK`.                                             |
-| `--check_crl`                 | bool      | Enable CRL download/check for revoked certs.                           |
-| `--timeout`                   | duration  | Retry timeout duration (e.g. `5s`, `30s`).                             |
-| `--max_retry_delay`           | duration  | Max delay between retry attempts.                                      |
-| `--platform_info`             | string    | Max acceptable `PLATFORM_INFO` (64-bit).                               |
-| `--minimum_version`           | string    | Minimum AMD-SP API version: `major.minor`.                             |
-| `--trusted_author_keys`       | \[]string | Paths to trusted author key certs (PEM).                               |
-| `--trusted_author_key_hashes` | \[]string | SHA-384 hex hashes of trusted author keys.                             |
-| `--trusted_id_keys`           | \[]string | Paths to trusted identity key certs.                                   |
-| `--trusted_id_key_hashes`     | \[]string | SHA-384 hex hashes of identity keys.                                   |
-| `--product`                   | string    | AMD product name (e.g. "Milan").                                       |
-| `--stepping`                  | string    | Machine stepping info.                                                 |
-| `--CA_bundles_paths`          | \[]string | Paths to PEM-formatted CA bundles (ASK, ARK).                          |
-| `--CA_bundles`                | \[]string | Direct PEM strings of CA bundles.                                      |
-
-## 🌿 Environment Variables
-
-| Variable               | Purpose                                     |
-| ---------------------- | ------------------------------------------- |
-| `COCOS_VERIFY_TIMEOUT` | Default timeout override for HTTP retries   |
-| `COCOS_VERIFY_CA_PATH` | Default path to root CA bundles             |
-| `COCOS_DEBUG`          | If set to `1`, enables verbose debug output |
-
----
-
-## 💡 Usage Examples
-
-### Minimum verification with measurement
-
-```bash
-cocos-cli verify --measurement 0123...ABCD
-```
-
-### Full policy validation
-
-```bash
-cocos-cli verify \
-  --host_data DEAD...BEEF \
-  --measurement 1234...EF90 \
-  --minimum_tcb 0x0500000500000000 \
-  --require_author_key \
-  --trusted_author_keys ./certs/author.pem \
-  --CA_bundles_paths ./certs/bundle.pem
-```
-
-### Using environment variable for debug
-
-```bash
-export COCOS_DEBUG=1
-cocos-cli verify --measurement ...
-```
-
----
-
-## 📚 Workflow Example
-
-1. Retrieve the SEV-SNP attestation report (binary blob)
-2. Extract relevant fields (`MEASUREMENT`, `HOST_DATA`, etc.)
-3. Run `cocos-cli verify` with matching flags
-4. If verification fails, review flags and root of trust chain
-
----
-
-## ⚠️ Error Codes & Troubleshooting
-
-| Exit Code | Meaning                           | Suggested Fix                                               |
-| --------- | --------------------------------- | ----------------------------------------------------------- |
-| `1`       | Invalid input or malformed hex    | Ensure hex-encoded strings are correct size (e.g. 32 bytes) |
-| `2`       | Attestation report mismatch       | Check measurement or policy fields provided                 |
-| `3`       | Certificate or CA bundle error    | Ensure proper PEM formatting and order: ASK, ARK            |
-| `4`       | HTTP failure on CRL fetch         | Retry with `--check_crl=false` or extend `--timeout`        |
-| `5`       | Incompatible AMD firmware version | Set appropriate `--minimum_version` or upgrade firmware     |
-| `255`     | Unknown fatal error               | Enable debug via `COCOS_DEBUG=1` and report log             |
-
-### `cocos-cli policy`
-
-**Description:** Root command for attestation policy management.
-
-```sh
-cocos-cli policy [command] [flags]
-```
-
-#### Global Flags
-
-| Flag              | Type | Default | Description           |
-| ----------------- | ---- | ------- | --------------------- |
-| `-h`, `--help`    | bool | false   | Show help message     |
-| `-v`, `--verbose` | bool | false   | Enable verbose output |
-
----
-
-## 🔧 Subcommands
-
-### 1. `azure`
-
-**Description:** Generate attestation policy for Azure CVM.
-
-```sh
-cocos-cli policy azure <azure_maa_token_file> <product_name> [--policy=<uint64>]
-```
-
-#### Flags
-
-| Flag       | Type   | Default | Description            |
-| ---------- | ------ | ------- | ---------------------- |
-| `--policy` | uint64 | 196639  | Guest CVM policy value |
-
-#### Output
-
-- `attestation_policy.json` generated in current directory.
-
-#### Example
-
-```sh
-cocos-cli policy azure azure_maa.jwt MyProduct --policy=196639
-```
-
----
-
-### 2. `gcp`
-
-**Description:** Generate attestation policy for GCP CVM.
-
-```sh
-cocos-cli policy gcp <bin_vtmp_attestation_report_file> <vcpu_count>
-```
-
-#### Output
-
-- `attestation_policy.json` generated in current directory.
-
-#### Example
-
-```sh
-cocos-cli policy gcp gcp_attestation.bin 4
-```
-
----
-
-### 3. `download`
-
-**Description:** Download and verify GCP OVMF firmware.
-
-```sh
-cocos-cli policy download <bin_vtmp_attestation_report_file>
-```
-
-#### Output
-
-- `ovmf.fd` downloaded and validated
-
-#### Example
-
-```sh
-cocos-cli policy download gcp_attestation.bin
-```
-
----
-
-### 4. `hostdata`
-
-**Description:** Add base64-encoded host data to policy file.
-
-```sh
-cocos-cli policy hostdata <base64-host-data> <attestation_policy.json>
-```
-
-#### Input Requirements
-
-- `base64-host-data` must decode to **32 bytes**.
-
-#### Example
-
-```sh
-cocos-cli policy hostdata bXlob3N0ZGF0YWJhc2U2NA== attestation_policy.json
-```
-
----
-
-### 5. `measurement`
-
-**Description:** Add base64-encoded measurement to policy file.
-
-```sh
-cocos-cli policy measurement <base64-measurement> <attestation_policy.json>
-```
-
-#### Input Requirements
-
-- `base64-measurement` must decode to **48 bytes**.
-
-#### Example
-
-```sh
-cocos-cli policy measurement bXltZWFzdXJlbWVudGJhc2U2NA== attestation_policy.json
-```
-
----
-
-## 🔁 Usage Patterns & Workflows
-
-### 🧪 Azure CVM Attestation
-
-1. Get MAA token and save to `azure_maa.jwt`
-2. Run:
-
-```sh
-cocos-cli policy azure azure_maa.jwt ConfidentialLinux --policy=196639
-```
-
-### 🔐 GCP CVM Attestation + OVMF Verification
-
-1. Save GCP attestation to `gcp_attestation.bin`
-2. Generate policy:
-
-```sh
-cocos-cli policy gcp gcp_attestation.bin 2
-```
-
-3. Download OVMF file:
-
-```sh
-cocos-cli policy download gcp_attestation.bin
-```
-
-### 🛠️ Add Custom Fields to Policy
-
-```sh
-cocos-cli policy hostdata <base64> attestation_policy.json
-cocos-cli policy measurement <base64> attestation_policy.json
-```
-
----
-
-## 🚨 Error Codes & Troubleshooting
-
-| Error Message                           | Cause                                                 | Resolution                                     |
-| --------------------------------------- | ----------------------------------------------------- | ---------------------------------------------- |
-| `base64 string could not be decoded`    | Invalid base64 input                                  | Check that input is correctly base64-encoded   |
-| `data does not have an adequate length` | Decoded hostdata ≠ 32 bytes or measurement ≠ 48 bytes | Check the size of your base64-decoded data     |
-| `failed to unmarshal json`              | JSON in policy file is malformed                      | Verify or regenerate `attestation_policy.json` |
-| `digest mismatch`                       | Downloaded OVMF does not match GCP launch endorsement | Confirm that attestation and OVMF are aligned  |
-| `error writing attestation policy file` | File system or permission issue                       | Check write permissions and disk space         |
-
----
