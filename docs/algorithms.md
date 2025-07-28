@@ -1,4 +1,4 @@
-# Algorithms
+# Tutorials
 
 Currently, cocos supports running the following algorithms:
 

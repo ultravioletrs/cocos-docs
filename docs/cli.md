@@ -1,4 +1,4 @@
-# Agent CLI
+# CLI
 
 The CLI allows you to perform various tasks related to the computation and management of algorithms, datasets and TEE. The CLI is a gRPC client for the agent service. To communicate with agent, digital signatures are required for auth against the roles such dataset provider.
 
