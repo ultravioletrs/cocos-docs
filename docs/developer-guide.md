@@ -4,7 +4,8 @@
 
 1. Fork the [CoCos repository](https://github.com/ultravioletrs/cocos) to your GitHub account.
 2. Clone your fork:
-   ```bash
+
+   ```shell
    git clone <your-fork-url> $SOMEPATH/cocos
    cd $SOMEPATH/cocos
    ```
@@ -23,7 +24,7 @@ The project uses Go and Protocol Buffers. Make sure the following tools are inst
 
 Run `make` in the repository root to compile the Agent, CLI and Manager. Artifacts are placed in the `build` directory. You can also build a single component:
 
-```bash
+```shell
 make cli      # produces ./build/cocos-cli
 make manager  # produces ./build/cocos-manager
 make agent    # produces ./build/cocos-agent
@@ -33,7 +34,7 @@ make agent    # produces ./build/cocos-agent
 
 The HAL is a minimal Linux distribution used inside the confidential VM. To build it, clone Buildroot and run:
 
-```bash
+```shell
 git clone https://github.com/buildroot/buildroot.git
 cd buildroot
 git checkout 2024.11-rc2
@@ -48,7 +49,7 @@ The kernel image and root filesystem appear in `buildroot/output/images`. Copy `
 
 After building, you can boot a VM that runs the Agent using QEMU. Substitute the paths for your system:
 
-```bash
+```shell
 sudo find / -name OVMF_CODE.fd
 OVMF_CODE=/usr/share/OVMF/OVMF_CODE.fd
 sudo find / -name OVMF_VARS.fd
@@ -90,7 +91,7 @@ The default login password is `root`.
 
 With a VM running, the Agent waits for connection to a cvms server via gRPC. You can start the Agent independently for testing:
 
-```bash
+```shell
 cd cocos
 
 go run cmd/agent/main.go \
@@ -111,7 +112,7 @@ A simple gRPC server is provided under `test/cvms/main.go` for development. Star
 
 Create `img` and `tmp` directories inside `cmd/manager` and copy the built kernel and rootfs there. Then run the Manager:
 
-```bash
+```shell
 cd cmd/manager
 MANAGER_QEMU_SMP_MAXCPUS=4 \
 MANAGER_GRPC_URL=localhost:7002 \
@@ -136,7 +137,7 @@ or ports are required.
 
 Example entries from `cocos-manager.env`:
 
-```bash
+```shell
 # Manager Service Configuration
 MANAGER_GRPC_PORT=6101
 MANAGER_GRPC_HOST=0.0.0.0
@@ -151,13 +152,13 @@ MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd
 The repository provides a systemd unit at `init/systemd/cocos-manager.service`.
 Install the binary, configuration and unit file with:
 
-```bash
+```shell
 sudo make install_service
 ```
 
 Start the Manager via systemd:
 
-```bash
+```shell
 sudo systemctl start cocos-manager.service
 ```
 
@@ -167,13 +168,13 @@ You can also run `make run` to install the service and immediately start it.
 
 Whenever `.proto` files are modified, regenerate the Go sources with:
 
-```bash
+```shell
 make protoc
 ```
 
 Mocks for unit tests rely on method signatures. Refresh them after interface changes:
 
-```bash
+```shell
 make mocks
 ```
 
@@ -181,7 +182,7 @@ make mocks
 
 Execute all unit tests across packages with:
 
-```bash
+```shell
 go test ./...
 ```
 
@@ -191,7 +192,7 @@ Run `make mocks` first if new interfaces were introduced.
 
 Zombie `qemu-system-x86_64` processes can linger after failed runs. Remove them with:
 
-```bash
+```shell
 pkill -f qemu-system-x86_64
 ```
 
@@ -199,13 +200,13 @@ If any remain visible in `ps aux | grep qemu-system-x86_64`, terminate them manu
 
 Check the Manager service status with:
 
-```bash
+```shell
 sudo systemctl status cocos-manager.service
 ```
 
 View recent logs or follow output using `journalctl`:
 
-```bash
+```shell
 journalctl -u cocos-manager.service
 ```
 
