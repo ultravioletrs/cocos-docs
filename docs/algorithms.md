@@ -363,7 +363,7 @@ From your cocos directory, start the CVMS server, specifying the Python script a
 
 ```bash
 cd cocos
-HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/lin_reg.py -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
+HOST=<YOUR_HOST_IP> go run ./test/cvms/main.go -algo-path ./test/manual/algo/lin_reg.py -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
 #### Create CVM and Setup Agent for Python
