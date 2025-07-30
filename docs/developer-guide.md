@@ -101,7 +101,8 @@ Next run manager client.
 
 ```shell
 cd cmd/manager
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_USE_SUDO=false \
 MANAGER_QEMU_ENABLE_SEV=false \

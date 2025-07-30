@@ -149,7 +149,8 @@ The Manager's behavior is controlled through environment variables. Below is a c
 | Variable | Description | Default Value |
 |----------|-------------|---------------|
 | `MANAGER_INSTANCE_ID` | Unique identifier for the manager service | (empty) |
-| `MANAGER_GRPC_URL` | gRPC endpoint of the Computation Management Service | localhost:7001 |
+| `MANAGER_GRPC_HOST` | gRPC host manager will bind to | localhost |
+| `MANAGER_GRPC_PORT` | gRPC port manager will bind to | 7001 |
 | `MANAGER_GRPC_TIMEOUT` | Timeout for gRPC requests | 60s |
 | `MANAGER_LOG_LEVEL` | Logging verbosity level | info |
 
@@ -273,7 +274,8 @@ The Manager's behavior is controlled through environment variables. Below is a c
 #### Basic Development Setup
 
 ```bash
-export MANAGER_GRPC_URL=localhost:7001
+export MANAGER_GRPC_HOST=localhost
+export MANAGER_GRPC_PORT=7001
 export MANAGER_LOG_LEVEL=debug
 export MANAGER_QEMU_USE_SUDO=false
 export MANAGER_QEMU_ENABLE_KVM=true
@@ -282,7 +284,8 @@ export MANAGER_QEMU_ENABLE_KVM=true
 #### SEV-SNP Production Setup
 
 ```bash
-export MANAGER_GRPC_URL=your-computation-service:7001
+export MANAGER_GRPC_HOST=<HOST_IP>
+export MANAGER_GRPC_PORT=7001
 export MANAGER_LOG_LEVEL=info
 export MANAGER_QEMU_ENABLE_SEV_SNP=true
 export MANAGER_QEMU_SEV_SNP_CBITPOS=51
@@ -296,8 +299,8 @@ export MANAGER_GRPC_SERVER_CA_CERTS=/path/to/ca.crt
 #### TDX Production Setup
 
 ```bash
-export MANAGER_GRPC_URL=your-computation-service:7001
-export MANAGER_LOG_LEVEL=info
+export MANAGER_GRPC_HOST=<HOST_IP>
+export MANAGER_GRPC_PORT=7001
 export MANAGER_QEMU_ENABLE_SEV_SNP=false
 export MANAGER_QEMU_ENABLE_TDX=true
 export MANAGER_QEMU_CPU=host
@@ -430,7 +433,8 @@ Expected output:
 
 ```bash
 # Basic startup
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_USE_SUDO=false \
 ./build/cocos-manager
@@ -439,7 +443,8 @@ MANAGER_QEMU_USE_SUDO=false \
 #### SEV-SNP Deployment
 
 ```bash
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=true \
 MANAGER_QEMU_SEV_SNP_CBITPOS=51 \
@@ -451,7 +456,8 @@ MANAGER_QEMU_IGVM_FILE=/path/to/igvm/file.igvm \
 #### TDX Deployment
 
 ```bash
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_ENABLE_TDX=true \
