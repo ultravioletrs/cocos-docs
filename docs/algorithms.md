@@ -1,59 +1,49 @@
-# Tutorials
+# Algorithm Tutorials
 
-Currently, cocos supports running the following algorithms:
+Cocos supports running various types of algorithms within a secure enclave environment. This document provides streamlined tutorials for setting up and executing binary algorithms, Python scripts, Docker images, and WebAssembly (Wasm) modules.
 
-- binary algorithms
-- python scripts
-- docker images
-- wasm modules
+**Important Note on Order of Execution:** The Cocos system involves several components that must be started and interacted with in a specific sequence. Pay close attention to the order of commands and the expected outputs at each step.
 
-## Binary Algorithms
+## Core Concepts & Initial Setup
 
-Binary algorithms are compiled to run on the enclave. The enclave is a secure environment that runs on the host machine. The enclave is created by the manager and the agent is loaded into the enclave. The agent is responsible for running the computation and communicating with the outside world.
+Before diving into specific algorithm types, understand these fundamental steps applicable to all Cocos computations:
 
-### Running Binary Algorithms
+- **Enclave:** A secure, isolated environment on the host machine where computations run.
+- **Manager:** Responsible for creating and managing Virtual Machines (CVMs) that host the enclaves.
+- **Agent:** Runs inside the CVM, executing the algorithm and communicating with the outside world.
+- **CVMS Server (Computation Management Server):** A server that the CVM connects to, providing the algorithm and datasets.
+- **cocos-cli:** The command-line interface tool used to interact with the Manager and Agent.
 
-For Binary algorithms, with datatsets or without datasets the process is similar to all the other algorithms.
+### Prerequisites
 
-NOTE: Make sure you have terminated the previous computation before starting a new one.
+1. **Clone the cocos repository:**
 
-#### Download Examples
+   ```bash
+   git clone https://github.com/ultravioletrs/cocos.git
+   cd cocos
+   ```
 
-Download the examples from the [AI repository](https://github.com/ultravioletrs/ai) and follow the [instructions in the README file](https://github.com/ultravioletrs/ai/blob/main/burn-algorithms/COCOS.md) to compile one of the examples.
+2. **Clone the ai repository (for example algorithms):**
 
-```bash
-git clone https://github.com/ultravioletrs/ai
-```
+   ```bash
+   git clone https://github.com/ultravioletrs/ai.git
+   ```
 
-#### Build Addition example
+3. **Rust Installation:** Ensure Rust is installed if you plan to build binary or Wasm examples. Follow instructions [here](https://www.rust-lang.org/tools/install).
 
-Make sure you have Rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+4. **Terminate Previous Computations:** Always ensure any previous computations are terminated before starting a new one to avoid conflicts.
 
-```bash
-cd ai/burn-algorithms
-```
+### Finding Your Host IP Address
 
-NOTE: Make sure you have rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+The CVMS server needs to be reachable from the virtual machine. Avoid using localhost for the CVMS host address.
 
-```bash
-cargo build --release --bin addition-cocos --features cocos
-```
-
-This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
-
-```bash
-cp ./target/release/addition-cocos ../../cocos
-```
-
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
+To find your host machine's IP address:
 
 ```bash
 ip a
 ```
 
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+Look for your network interface (e.g., wlan0 for WiFi, eth0 for Ethernet) and note the inet address. For example:
 
 ```bash
 2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
@@ -61,133 +51,182 @@ Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) an
     inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
 ```
 
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
+In this example, `192.168.1.100` is the IP address to use.
 
-Start the computation management server: in cocos repo
+### Starting Core Services
+
+These services must be running before you can create a CVM or upload algorithms.
+
+#### Start the Computation Management Server (CVMS)
+
+Navigate to the cocos directory and start the CVMS server. Replace `192.168.1.100` with your actual host IP address.
+
+```bash
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -public-key-path public.pem -attested-tls-bool false -algo-path <ALGORITHM_PATH> [-data-paths <DATASET_PATH>]
+```
+
+**Note:**
+
+- `<ALGORITHM_PATH>` and `[-data-paths <DATASET_PATH>]` will be specific to the algorithm type you are running. We'll specify these in the respective sections below.
+- Expected output:
+
+  ```bash
+  {"time":"...","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
+  ```
+
+#### Start the Manager
+
+Navigate to the cocos/cmd/manager directory and start the Manager. This requires sudo.
+
+```bash
+cd cocos/cmd/manager
+sudo \
+MANAGER_QEMU_SMP_MAXCPUS=4 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
+MANAGER_LOG_LEVEL=debug \
+MANAGER_QEMU_ENABLE_SEV_SNP=false \
+MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
+MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
+go run main.go
+```
+
+Expected output (look for the gRPC server listening message):
+
+```bash
+{"time":"...","level":"INFO","msg":"Manager started without confidential computing support"}
+{"time":"...","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
+```
+
+## Running Binary Algorithms
+
+Binary algorithms are compiled to run directly on the enclave.
+
+### Without Datasets (Addition Example)
+
+#### Build the Algorithm
+
+1. Navigate to the ai/burn-algorithms directory:
+
+   ```bash
+   cd ../ai/burn-algorithms
+   ```
+
+2. Build the addition-cocos binary:
+
+   ```bash
+   cargo build --release --bin addition-cocos --features cocos
+   ```
+
+3. Copy the compiled binary to your cocos directory:
+
+   ```bash
+   cp ./target/release/addition-cocos ../../cocos/
+   ```
+
+#### Start CVMS Server
+
+From your cocos directory, start the CVMS server, specifying the addition-cocos binary:
 
 ```bash
 cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-cocos -public-key-path public.pem -attested-tls-bool false
 ```
 
-The logs will be similar to this:
+#### Create a CVM
 
-```bash
-{"time":"2025-07-28T17:33:28.698759564+03:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
-```
-
-Start the manager in cocos repo
-
-```bash
-cd cmd/manager
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
-```
-
-The logs will be similar to this:
-
-```bash
-{"time":"2025-07-28T17:38:57.991245143+03:00","level":"INFO","msg":"Manager started without confidential computing support"}
-{"time":"2025-07-28T17:38:57.991298303+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append \"quiet console=null\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
-{"time":"2025-07-28T17:38:57.991433769+03:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
-```
-
-##### Create a cvm
-
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+From your cocos directory:
 
 ```bash
 export MANAGER_GRPC_URL=localhost:7002
 ./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
 ```
 
-When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
+**Important:** Note the id and port from the cocos-cli output. The port (default 6100) is for the Agent's gRPC URL.
 
-The output on the cvms test server will be similar to this:
+Expected cocos-cli output:
 
 ```bash
 🔗 Connected to manager using  without TLS
 🔗 Creating a new virtual machine
-✅ Virtual machine created successfully with id 31f39ac9-d2d3-4df6-96fa-e42556a07c24 and port 6100
+✅ Virtual machine created successfully with id <CVM_ID> and port <AGENT_PORT>
 ```
 
-The logs from the computation server will be similar to this:
+Expected CVMS server output (showing CVM connection):
 
 ```bash
-&{message:"Method InitComputation for computation id 1 took 6.672µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753713974  nanos:117043605}}
-&{computation_id:"1"}
-&{event_type:"ReceivingAlgorithm"  timestamp:{seconds:1753713974  nanos:117142321}  computation_id:"1"  originator:"agent"  status:"InProgress"}
-&{message:"agent service gRPC server listening at 10.0.2.15:7002 without TLS"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753713974  nanos:117232905}}
+&{message:"Method InitComputation for computation id 1 took ... to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{...}}
+&{event_type:"ReceivingAlgorithm"  timestamp:{...}  computation_id:"1"  originator:"agent"  status:"InProgress"}
+&{message:"agent service gRPC server listening at 10.0.2.15:<AGENT_PORT> without TLS"  computation_id:"1"  level:"INFO"  timestamp:{...}}
 ```
 
-Export the agent grpc url
+#### Export Agent gRPC URL
+
+Set the AGENT_GRPC_URL using the port noted in the previous step (default 6100):
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
 ```
 
-Upload the algorithm
+#### Upload the Algorithm
+
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli algo ./addition-cocos ./private.pem
 ```
 
-The logs will be similar to this:
+Expected output:
 
 ```bash
 🔗 Connected to agent  without TLS
 Uploading algorithm file: ./addition-cocos
-🚀 Uploading algorithm [█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+🚀 Uploading algorithm [███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                               
 Successfully uploaded algorithm! ✔ 
 ```
 
-Since the algorithm is a binary, we don't need to upload the requirements file. Also, this is the addition example so we don't need to upload the dataset.
+Since this is a binary algorithm and the addition example, no requirements file or dataset upload is needed.
 
-Finally, download the results
+#### Download Results
+
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli result ./private.pem
 ```
 
-The logs will be similar to this:
+Expected output:
 
 ```bash
 🔗 Connected to agent  without TLS
 ⏳ Retrieving computation result file
-📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                               
 Computation result retrieved and saved successfully as results.zip! ✔ 
 ```
 
-Unzip the results
+#### Unzip and View Results
 
 ```bash
 unzip results.zip -d results
-```
-
-```bash
 cat results/results.txt
 ```
 
-The output will be similar to this:
+Expected output:
 
 ```bash
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-#### Remove cvm
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-the output will be
+Expected output:
 
 ```bash
 🔗 Connected to manager using  without TLS
@@ -195,357 +234,192 @@ the output will be
 ✅ Virtual machine removed successfully
 ```
 
-For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+### With Datasets (Iris Prediction Example)
 
-### Running Binary Algorithms With Datasets
+#### Build the Algorithm and Copy Dataset
 
-NOTE: Make sure you have terminated the previous computation before starting a new one.
+1. Navigate to the ai/burn-algorithms directory:
 
-#### Build Iris Prediction example
+   ```bash
+   cd ../ai/burn-algorithms
+   ```
 
-Make sure you have Rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+2. Build the iris-cocos binary:
 
-```bash
-cd ai/burn-algorithms
-```
+   ```bash
+   cargo build --release --bin iris-cocos --features cocos
+   ```
 
-NOTE: Make sure you have rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
+3. Copy the compiled binary to your cocos directory:
 
-```bash
-cargo build --release --bin iris-cocos --features cocos
-```
+   ```bash
+   cp ./target/release/iris-cocos ../../cocos/
+   ```
 
-This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
+4. Copy the Iris.csv dataset to your cocos directory:
 
-```bash
-cp ./target/release/iris-cocos ../../cocos/
-```
+   ```bash
+   cp ./iris/datasets/Iris.csv ../../cocos/
+   ```
 
-Copy the dataset to the `cocos` folder.
+#### Start CVMS Server
 
-```bash
-cp ./iris/datasets/Iris.csv ../../cocos/
-```
-
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
-
-```bash
-ip a
-```
-
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
-
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
-
-Start the computation management server: in cocos repo
+From your cocos directory, start the CVMS server, specifying both the algorithm and the dataset:
 
 ```bash
 cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./iris-cocos -public-key-path public.pem -attested-tls-bool false -data-paths ./Iris.csv
 ```
 
-The logs will be similar to this:
+#### Create CVM, Export Agent URL, and Upload Algorithm
 
-```bash
-{"time":"2025-07-28T17:33:28.698759564+03:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
-```
+Follow the same steps as in the previous section. Remember to note the new CVM ID.
 
-Start the manager in cocos repo
+#### Upload the Dataset
 
-```bash
-cd cmd/manager
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
-```
-
-The logs will be similar to this:
-
-```bash
-{"time":"2025-07-28T17:38:57.991245143+03:00","level":"INFO","msg":"Manager started without confidential computing support"}
-{"time":"2025-07-28T17:38:57.991298303+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append \"quiet console=null\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
-{"time":"2025-07-28T17:38:57.991433769+03:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
-```
-
-##### Create a cvm
-
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
-
-```bash
-export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
-```
-
-When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
-
-The output on the cvms test server will be similar to this:
-
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Creating a new virtual machine
-✅ Virtual machine created successfully with id 6e0a7570-6fdd-46c8-a29c-7fe83a50c85d and port 6100
-```
-
-The logs from the computation server will be similar to this:
-
-```bash
-&{message:"Method InitComputation for computation id 1 took 3.454µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716887  nanos:223994412}}
-&{event_type:"ReceivingAlgorithm"  timestamp:{seconds:1753716887  nanos:224047068}  computation_id:"1"  originator:"agent"  status:"InProgress"}
-&{computation_id:"1"}
-&{message:"agent service gRPC server listening at 10.0.2.15:7002 without TLS"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716887  nanos:224294224}}
-```
-
-Export the agent grpc url
-
-```bash
-export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm
-
-```bash
-./build/cocos-cli algo ./iris-cocos ./private.pem
-```
-
-The logs will be similar to this:
-
-```bash
-🔗 Connected to agent  without TLS
-Uploading algorithm file: ./iris-cocos
-🚀 Uploading algorithm [█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
-Successfully uploaded algorithm! ✔
-```
-
-Upload the dataset
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli data ./Iris.csv ./private.pem
 ```
 
+Expected output:
+
 ```bash
-./build/cocos-cli data ./Iris.csv ./private.pem                                                                                                                                                                                     ✔ 
 🔗 Connected to agent  without TLS
 Uploading dataset: ./Iris.csv
-📦 Uploading data [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+📦 Uploading data [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                               
 Successfully uploaded dataset! ✔ 
 ```
 
-watch the logs on the computation management server for the computation to complete running
+Watch the logs on the CVMS server for the computation to complete:
 
 ```bash
-&{message:"Method Data took 95.32µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716988  nanos:66773209}}
-&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:66836101}  computation_id:"1"  originator:"agent"  status:"Starting"}
-&{message:"computation run started"  computation_id:"1"  level:"DEBUG"  timestamp:{seconds:1753716988  nanos:66876532}}
-&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:66947688}  computation_id:"1"  originator:"agent"  status:"InProgress"}
-&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:119592681}  computation_id:"1"  originator:"agent"  status:"Completed"}
-&{event_type:"ConsumingResults"  timestamp:{seconds:1753716988  nanos:120457634}  computation_id:"1"  originator:"agent"  status:"Ready"}
+&{message:"Method Data took ... to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{...}}
+&{event_type:"Running"  timestamp:{...}  computation_id:"1"  originator:"agent"  status:"Starting"}
+&{event_type:"Running"  timestamp:{...}  computation_id:"1"  originator:"agent"  status:"Completed"}
+&{event_type:"ConsumingResults"  timestamp:{...}  computation_id:"1"  originator:"agent"  status:"Ready"}
 ```
 
-Finally, download the results
+#### Download Results
 
-```bash
-./build/cocos-cli result ./private.pem
-```
+Follow the same step as in the previous section.
 
-The logs will be similar to this:
+#### Unzip Results and Perform Inference
 
-```bash
-🔗 Connected to agent  without TLS
-⏳ Retrieving computation result file
-📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
-Computation result retrieved and saved successfully as results.zip! ✔
-```
+1. Unzip the results:
 
-Unzip the results
+   ```bash
+   unzip results.zip -d results
+   ```
 
-```bash
-unzip results.zip -d results
-```
+2. Create an artifacts folder and copy results:
 
-Build the iris example from the [AI repository](https://github.com/ultravioletrs/ai/tree/main/burn-algorithms)
+   ```bash
+   mkdir -p artifacts/iris
+   cp -r results/* artifacts/iris/
+   ```
 
-```bash
-cd ../ai/burn-algorithms/
-```
+3. Build the iris-inference example (from ai/burn-algorithms):
 
-If you haven't already, create the artifacts folder
+   ```bash
+   cd ../ai/burn-algorithms/
+   cargo build --release --bin iris-inference
+   ```
 
-```bash
-mkdir -p artifacts/iris
-```
+4. Test the inference:
 
-Copy the results to the artifacts folder
+   ```bash
+   ./target/release/iris-inference '{"sepal_length": 7.0, "sepal_width": 3.2, "petal_length": 4.7, "petal_width": 1.4}'
+   ```
 
-```bash
-cp -r ../../cocos/results/* artifacts/iris/
-```
-
-Build the iris-inference example
-
-```bash
-cargo build --release --bin iris-inference
-```
-
-Test the iris-inference example
-
-```bash
-./target/release/iris-inference '{"sepal_length": 7.0, "sepal_width": 3.2, "petal_length": 4.7, "petal_width": 1.4}'
-```
-
-The output will be similar to this:
+Expected output:
 
 ```bash
 Iris-versicolor
 ```
 
-#### Remove cvm
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-./build/cocos-cli remove-vm 6e0a7570-6fdd-46c8-a29c-7fe83a50c85d
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-the output will be
+## Running Python Scripts
 
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Removing virtual machine
-✅ Virtual machine removed successfully
-```
+Python scripts can be executed within the enclave.
 
-For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+### With Datasets (Linear Regression Example)
 
-## Python Scripts
+#### Prepare Algorithm and Dataset
 
-Python is a high-level, interpreted programming language. Python scripts can be run on the enclave. Python is known for its simplicity and readability, making it a popular choice for beginners and experienced developers alike.
+The example uses `lin_reg.py` and `iris.csv` from the cocos repository's test/manual directory. No separate build step is needed for Python scripts.
 
-### Running Python Algorithms without Datasets
+#### Start CVMS Server
 
-This has been covered in the [previous section](./getting-started.md#uploading-assets).
-
-### Running Python Algorithms with Datasets
-
-For Python algorithms, with datatsets:
-
-NOTE: Make sure you have terminated the previous computation before starting a new one.
-
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
-
-```bash
-ip a
-```
-
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
-
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
-
-Start the computation management server: in cocos repo
+From your cocos directory, start the CVMS server, specifying the Python script and dataset:
 
 ```bash
 cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/lin_reg.py -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
-Start the manager in cocos repo
+#### Create CVM and Export Agent URL
 
-```bash
-cd cmd/manager
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
-```
+Follow the same steps as described in the binary algorithms section.
 
-##### Create a cvm
+#### Upload the Algorithm and Requirements
 
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
-
-```bash
-export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
-```
-
-Export the agent grpc url from the cvm creation output, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated in the cvm creation output.
-
-```bash
-export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm
+From your cocos directory, upload the Python script and its requirements.txt:
 
 ```bash
 ./build/cocos-cli algo ./test/manual/algo/lin_reg.py ./private.pem -a python -r ./test/manual/algo/requirements.txt
 ```
 
-We pass the requirements file to the algorithm since it has dependencies.
+#### Upload the Dataset
 
-Upload the dataset
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli data ./test/manual/data/iris.csv ./private.pem
 ```
 
-Watch the agent logs until the computation is complete. The computation will take a while to complete since it will download the dependencies and run the algorithm.
+Watch the Agent logs until the computation completes. This might take a while as dependencies are downloaded.
 
 ```bash
-&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
-received agent event
-&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
-received agent log
-&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
+&{event_type:"algorithm-run" timestamp:{...} computation_id:"1" originator:"agent" status:"complete"}
+&{event_type:"resultsReady" timestamp:{...} computation_id:"1" originator:"agent" status:"in-progress"}
 ```
 
-Finally, download the results
+#### Download Results
 
-```bash
-./build/cocos-cli result ./private.pem
-```
+Follow the same step as described in the binary algorithms section.
 
-Unzip the results
+#### Unzip Results and Perform Inference
 
-```bash
-unzip results.zip -d results
-```
+1. Unzip the results:
 
-To read the results make sure you have installed the required dependencies from the requirements file. This should be done inside a virtual environment.
+   ```bash
+   unzip results.zip -d results
+   ```
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r test/manual/algo/requirements.txt
-```
+2. Set up a Python virtual environment and install dependencies:
 
-```bash
-python3 test/manual/algo/lin_reg.py predict results/model.bin  test/manual/data/
-```
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r test/manual/algo/requirements.txt
+   ```
 
-The output will be similar to this:
+3. Run the prediction script:
+
+   ```bash
+   python3 test/manual/algo/lin_reg.py predict results/model.bin test/manual/data/
+   ```
+
+Expected output (showing precision, recall, and confusion matrix):
 
 ```bash
 Precision, Recall, Confusion matrix, in training
@@ -580,191 +454,101 @@ Iris-versicolor      1.000     1.000     1.000        23
  [ 0  0 23]]
 ```
 
-#### Remove cvm
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-the output will be
+### Running Algorithms with Arguments
 
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Removing virtual machine
-✅ Virtual machine removed successfully
-```
+To pass command-line arguments to your algorithm, append them to the cocos-cli algo command using `--args`. The order of arguments matters.
 
-For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+**Example (Addition with Arguments):**
 
-## Running Algorithms with arguments
+#### Prepare Algorithm
 
-To run an algorithm that requires command line arguments, you can append the algo command on cli with the arguments needed as shown in the addition example, which we will run with args below:
+The example uses `addition.py` from `cocos/test/manual/algo/`.
 
-NOTE: Make sure you have terminated the previous computation before starting a new one.
+#### Start CVMS Server
 
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
-
-```bash
-ip a
-```
-
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
-
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
-
-Start the computation management server: in cocos repo
+From your cocos directory:
 
 ```bash
 cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/addition.py -public-key-path public.pem -attested-tls-bool false
 ```
 
-Start the manager in cocos repo
+#### Create CVM and Export Agent URL
 
-```bash
-cd cmd/manager
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
-```
+Follow the same steps as described in the binary algorithms section.
 
-##### Create a cvm
+#### Upload the Algorithm with Arguments
 
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
-
-```bash
-export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
-```
-
-Export the agent grpc url from the cvm creation output, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated in the cvm creation output.
-
-```bash
-export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli algo ./test/manual/algo/addition.py ./private.pem -a python --args="--a" --args="100" --args="--b" --args="20"
 ```
 
-The order and args of the algorithm should be as they are required by the algorithm. In the addition example, for instance, the args are set in order of how they are expected:
+This corresponds to running `python3 addition.py --a 100 --b 20`.
+
+Watch the Agent logs until the computation completes.
+
+#### Download Results
+
+Follow the same step as described in the binary algorithms section.
+
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-python3 addition.py --a 100 --b 200
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-Watch the agent logs until the computation is complete.
+## Running Docker Images
 
-```bash
-&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
-received agent event
-&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
-received agent log
-&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
-```
+Docker containers package applications and their dependencies, ensuring consistent execution.
 
-Finally, download the results
+### Building the Docker Image
 
-```bash
-./build/cocos-cli result ./private.pem
-```
+The Docker image must have a `/cocos` directory containing datasets and results subdirectories. The Agent will mount these directories inside the container. The Dockerfile must also specify the command to run.
 
-#### Remove cvm
+**Example (Linear Regression Docker Image):**
 
-```bash
-./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
-```
+1. Navigate to the Docker example directory in the cocos repository:
 
-the output will be
+   ```bash
+   cd cocos/test/manual/algo/
+   ```
 
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Removing virtual machine
-✅ Virtual machine removed successfully
-```
+2. Build the Docker image and save it as a tar file:
 
-## Docker
-
-Docker is a platform designed to build, share, and run containerized applications. A container packages the application code, runtime, system tools, libraries, and all necessary settings into a single unit. This ensures the container can be reliably transferred between different computing environments and be executed as expected.
-
-### Building The Docker Image
-
-The Docker images that the Agent will run inside the SVM must have some restrictions. The image must have a `/cocos` directory containing the `datasets` and `results` directories. The Agent will run this image inside the SVM and mount the `datasets` and `results` onto the `/cocos/datasets` and `/cocos/results` directories inside the image. The docker image must also contain the command that will be run when the docker container is run.
-
-We will use the linear regression example from the cocos repository in this example.
-
-```bash
-git clone https://github.com/ultravioletrs/cocos.git
-```
-
-Change directory to the linear regression example.
-
-```bash
-cd cocos/test/manual/algo/
-```
-
-Next, run the build command and save the docker image as a `tar` file. This example Dockerfile is based of the python linear regression example using iris dataset.
-
-```bash
-docker build -t linreg .
-docker save linreg > linreg.tar
-```
+   ```bash
+   docker build -t linreg .
+   docker save linreg > linreg.tar
+   ```
 
 ### Running Docker in SVM
 
-Change the current working directory to `cocos`.
+#### Start CVMS Server
+
+From your cocos directory, start the CVMS server, specifying the Docker image tar file and the dataset:
 
 ```bash
-cd ./cocos
-```
-
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
-
-```bash
-ip a
-```
-
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
-
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the
-
-Start the computation management server:
-
-```bash
+cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/linreg.tar -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
-Start the manager
+#### Start the Manager
+
+Follow the same step as described in the initial setup section. You might need to adjust `MANAGER_QEMU_MEMORY_SIZE` for Docker images (e.g., `MANAGER_QEMU_MEMORY_SIZE=25G`).
 
 ```bash
 cd cmd/manager
-```
-
-```bash
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
 MANAGER_QEMU_MEMORY_SIZE=25G \
@@ -777,211 +561,131 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-##### Create a cvm
+#### Create CVM and Export Agent URL
 
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+Follow the same steps as described in the binary algorithms section.
 
-```bash
-export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
-```
+#### Upload the Algorithm (Docker Image)
 
-Export the agent grpc url
-
-```bash
-export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli algo ./test/manual/algo/linreg.tar ./private.pem -a docker
 ```
 
-Upload the dataset
+#### Upload the Dataset
+
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli data ./test/manual/data/iris.csv ./private.pem
 ```
 
-After some time when the results are ready, you can run the following command to get the results:
+Watch the Agent logs for computation completion.
 
 ```bash
-&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
-received agent event
-&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
-received agent log
-&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
+&{event_type:"algorithm-run" timestamp:{...} computation_id:"1" originator:"agent" status:"complete"}
+&{event_type:"resultsReady" timestamp:{...} computation_id:"1" originator:"agent" status:"in-progress"}
 ```
+
+#### Download Results
+
+Follow the same step as described in the binary algorithms section.
+
+#### Unzip Results and Perform Inference
+
+1. Unzip the results:
+
+   ```bash
+   unzip results.zip -d results
+   ```
+
+2. Perform inference (assuming you have the necessary Python environment set up as in the Python section):
+
+   ```bash
+   python3 test/manual/algo/lin_reg.py predict results/model.bin test/manual/data/
+   ```
+
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-./build/cocos-cli result ./private.pem
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-The logs will be similar to this:
+## Running WebAssembly (Wasm) Modules
+
+Wasm modules are a portable binary format suitable for secure enclave execution.
+
+### Running WASM Algorithms (Addition Example)
+
+#### Build the WASM Module
+
+1. Navigate to the ai/burn-algorithms/addition-inference directory:
+
+   ```bash
+   cd ../ai/burn-algorithms/addition-inference
+   ```
+
+2. Build the Wasm module:
+
+   ```bash
+   cargo build --release --target wasm32-wasip1 --features cocos
+   ```
+
+3. Copy the compiled Wasm module to your cocos directory:
+
+   ```bash
+   cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
+   ```
+
+#### Start CVMS Server
+
+From your cocos directory, start the CVMS server, specifying the Wasm module:
 
 ```bash
-🔗 Connected to agent  without TLS
-⏳ Retrieving computation result file
-📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
-Computation result retrieved and saved successfully as results.zip! ✔ 
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-inference.wasm -public-key-path public.pem -attested-tls-bool false
 ```
 
-Unzip the results
+#### Create CVM and Export Agent URL
 
-```bash
-unzip results.zip -d results
-```
+Follow the same steps as described in the binary algorithms section.
 
-To make inference on the results, you can use the following command:
+#### Upload the Algorithm
 
-```bash
-python3 test/manual/algo/lin_reg.py predict results/model.bin  test/manual/data/
-```
-
-#### Remove cvm
-
-```bash
-./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
-```
-
-the output will be
-
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Removing virtual machine
-✅ Virtual machine removed successfully
-```
-
-## Wasm Modules
-
-WebAssembly (wasm) is a binary instruction format for a stack-based virtual machine. Wasm is designed as a portable target for compilation of high-level languages like C/C++/Rust, enabling deployment on the web for client and server applications. Wasm modules can be run on the enclave.
-
-### Running WASM Algorithms
-
-NOTE: Make sure you have terminated the previous computation before starting a new one.
-
-#### Download WASM Examples
-
-Download the examples from the [AI repository](https://github.com/ultravioletrs/ai) and follow the [instructions in the README file](https://github.com/ultravioletrs/ai/blob/main/burn-algorithms/COCOS.md) to compile one of the examples.
-
-```bash
-git clone https://github.com/ultravioletrs/ai
-```
-
-#### Build Addition WASM example
-
-Make sure you have Rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
-
-```bash
-cd ai/burn-algorithms/addition-inference
-```
-
-```bash
-cargo build --release --target wasm32-wasip1 --features cocos
-```
-
-This will generate the wasm module in the `../target/wasm32-wasip1/release` folder. Copy the module to the `cocos` folder.
-
-```bash
-cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
-```
-
-#### Finding Your IP Address
-
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
-
-```bash
-ip a
-```
-
-Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
-
-```bash
-2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
-```
-
-In this example, the IP address is 192.168.1.100. This address should be used both when launching the
-
-Start the computation server:
-
-```bash
-HOST=192.168.100.4 go run ./test/cvms/main.go -algo-path ./addition-inference.wasm -public-key-path public.pem -attested-tls-bool false
-```
-
-Start the manager
-
-```bash
-sudo \
-MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_HOST=localhost \
-MANAGER_GRPC_PORT=7002 \
-MANAGER_LOG_LEVEL=debug \
-MANAGER_QEMU_ENABLE_SEV_SNP=false \
-MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
-MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
-go run main.go
-```
-
-##### Create a cvm
-
-To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
-
-```bash
-export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
-```
-
-Export the agent grpc url
-
-```bash
-export AGENT_GRPC_URL=localhost:6100
-```
-
-Upload the algorithm
+From your cocos directory:
 
 ```bash
 ./build/cocos-cli algo ./addition-inference.wasm ./private.pem -a wasm
 ```
 
-Since the algorithm is a wasm module, we don't need to upload the requirements file. Also, this is the addition example so we don't need to upload the dataset.
+Since this is a Wasm module and the addition example, no requirements file or dataset upload is needed.
 
-Finally, download the results
+#### Download Results
 
-```bash
-./build/cocos-cli result ./private.pem
-```
+Follow the same step as described in the binary algorithms section.
 
-Unzip the results
+#### Unzip and View Results
 
 ```bash
 unzip results.zip -d results
+cat results/results.txt
 ```
 
-```bash
-cat results/results/results.txt
-```
-
-The output will be similar to this:
+Expected output:
 
 ```bash
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-#### Remove cvm
+#### Remove the CVM
+
+Use the `<CVM_ID>` obtained during CVM creation.
 
 ```bash
-./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+./build/cocos-cli remove-vm <CVM_ID>
 ```
 
-the output will be
-
-```bash
-🔗 Connected to manager using  without TLS
-🔗 Removing virtual machine
-✅ Virtual machine removed successfully
-```
-
-For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
+For more real-world examples and algorithms, refer to the [AI repository](https://github.com/ultravioletrs/ai).
