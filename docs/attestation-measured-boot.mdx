@@ -185,6 +185,7 @@ Intel’s virtual-firmware design guide recommends storing immutable boot firmwa
 During attestation the guest first converts its local TD report into a TD Quote and that quote carries the full array of RTMRs.
 The relying party walks the Intel PCS certificate chain, checks the quote’s ECDSA signature and freshness nonce, and then compares each RTMR against pre-approved hashes (or hash whitelists).
 If any register differs, or if policy bits such as ATTRIBUTES.DEBUG are improperly set, the verifier rejects the session—providing the same integrity assurance that TPM-PCR measured boot delivers, but entirely inside the TDX security boundary.
+
 ## Linux IMA (Integrity Measurement Architecture)
 
 Linux Integrity Measurement Architecture (IMA) is a Linux kernel feature that provides a mechanism to record and verify the integrity of files and other system objects at load or access time.

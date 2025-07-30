@@ -3,12 +3,15 @@ import TabItem from '@theme/TabItem';
 
 # Attestation Report
 
+The attestation report contains information on the Confidential Virtual Machine (CVM) software, firmware, and the hardware that the CVM is running on. The report is either fetched by the Agent and sent to the CLI or used in attested TLS.
+
 ## AMD SEV-SNP attestation
 
 AMD SEV-SNP (Secure Encrypted Virtualization - Secure Nested Paging) provides hardware-based memory encryption and integrity protection for virtual machines (VMs), allowing them to run securely even on untrusted hypervisors.
 A core feature of SEV-SNP is its attestation capability, which enables a VM to cryptographically prove its integrity and configuration to a remote verifier.
 
 ### Attestation Workflow
+
 The SEV-SNP attestation process involves several key components:
 
 - **Guest VM (Attester)**: Runs inside a secure VM with SEV-SNP enabled.
@@ -26,6 +29,7 @@ The typical workflow includes:
 - The verifier uses AMD’s ARK (AMD Root Key) and ASK (AMD Signing Key) certificate chain to validate the report signature and verify platform integrity and configuration.
 
 ### Attestation Report Structure
+
 The SEV-SNP attestation report is a binary structure (typically ~4 KB) that contains the following fields:
 
 | Offset [Byte] | Bits       | Name               | Description                                                                                   |
@@ -105,6 +109,7 @@ Key actors:
   - Remote verifier
 
 ### Attestation Report Structure
+
 The TDX attestation report is a binary structure that contains the following fields:
 
 | Offset    | Size  | Field                 | Purpose                                                                                                                                                    |
