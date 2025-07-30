@@ -125,6 +125,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 ```
 
 Manager will start and once the cvms server is up, it will connect to it and a vm can will be created.
+
 ### Manager Environment Configuration
 
 When running under systemd or via `make run`, the Manager reads variables from
