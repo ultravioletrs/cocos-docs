@@ -42,12 +42,12 @@ cargo build --release --bin addition-cocos --features cocos
 This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
 
 ```bash
-cp ./target/release/addition-cocos ../../cocos-ai
+cp ./target/release/addition-cocos ../../cocos
 ```
 
 #### Finding Your IP Address
 
-When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine’s IP address, you can run:
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
 
 ```bash
 ip a
@@ -212,39 +212,60 @@ cd ai/burn-algorithms
 NOTE: Make sure you have rust installed. If not, you can install it by following the instructions [here](https://www.rust-lang.org/tools/install).
 
 ```bash
-cargo build --release --bin iris --features cocos
+cargo build --release --bin iris-cocos --features cocos
 ```
 
 This will generate the binary in the `target/release` folder. Copy the binary to the `cocos` folder.
 
 ```bash
-cp target/release/iris ../../cocos/
+cp ./target/release/iris-cocos ../../cocos/
 ```
 
 Copy the dataset to the `cocos` folder.
 
 ```bash
-cp iris/data/Iris.csv ../../cocos
+cp ./iris/datasets/Iris.csv ../../cocos/
 ```
 
-Start the computation server:
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
 
 ```bash
-go run ./test/computations/main.go ./iris public.pem false ./Iris.csv
+ip a
+```
+
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+
+```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
+
+Start the computation management server: in cocos repo
+
+```bash
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./iris-cocos -public-key-path public.pem -attested-tls-bool false -data-paths ./Iris.csv
 ```
 
 The logs will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:26:11.446590856+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
+{"time":"2025-07-28T17:33:28.698759564+03:00","level":"INFO","msg":"cvms_test_server service gRPC server listening at 192.168.1.100:7001 without TLS"}
 ```
 
-Start the manager
+Start the manager in cocos repo
 
 ```bash
+cd cmd/manager
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -255,57 +276,58 @@ go run main.go
 The logs will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:26:20.869571321+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -vnc :0 -kernel img/bzImage -append \"earlyprintk=serial console=ttyS0\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
-{"time":"2024-08-19T14:26:39.096019489+03:00","level":"INFO","msg":"Method Run for computation took 18.206099301s to complete"}
-{"time":"2024-08-19T14:26:39.097590785+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"Transition: receivingManifest -> receivingManifest\\n\"  computation_id:\"1\"  level:\"DEBUG\"  timestamp:{seconds:1724066799  nanos:94341079}}"}
-{"time":"2024-08-19T14:26:39.097907318+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_event:{event_type:\"receivingAlgorithm\"  timestamp:{seconds:1724066799  nanos:94599012}  computation_id:\"1\"  originator:\"agent\"  status:\"in-progress\"}"}
-{"time":"2024-08-19T14:26:39.097933878+03:00","level":"INFO","msg":"Agent Log/Event, Computation ID: 1, Message: agent_log:{message:\"agent service gRPC server listening at :7002 without TLS\"  computation_id:\"1\"  level:\"INFO\"  timestamp:{seconds:1724066799  nanos:94831037}}"}
-2024/08/19 14:26:40 traces export: Post "http://localhost:4318/v1/traces": dial tcp [::1]:4318: connect: connection refused
+{"time":"2025-07-28T17:38:57.991245143+03:00","level":"INFO","msg":"Manager started without confidential computing support"}
+{"time":"2025-07-28T17:38:57.991298303+03:00","level":"INFO","msg":"-enable-kvm -machine q35 -cpu EPYC -smp 4,maxcpus=4 -m 2048M,slots=5,maxmem=30G -drive if=pflash,format=raw,unit=0,file=/usr/share/edk2/x64/OVMF_CODE.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=/usr/share/edk2/x64/OVMF_VARS.fd -netdev user,id=vmnic,hostfwd=tcp::7020-:7002 -device virtio-net-pci,disable-legacy=on,iommu_platform=true,netdev=vmnic,addr=0x2,romfile= -device vhost-vsock-pci,id=vhost-vsock-pci0,guest-cid=3 -kernel img/bzImage -append \"quiet console=null\" -initrd img/rootfs.cpio.gz -nographic -monitor pty"}
+{"time":"2025-07-28T17:38:57.991433769+03:00","level":"INFO","msg":"manager service gRPC server listening at localhost:7002 without TLS"}
+```
+
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+When the cvm boots, it will connect to the cvms server and receive a computation manifest. Once started agent will send back events and logs.
+
+The output on the cvms test server will be similar to this:
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Creating a new virtual machine
+✅ Virtual machine created successfully with id 6e0a7570-6fdd-46c8-a29c-7fe83a50c85d and port 6100
 ```
 
 The logs from the computation server will be similar to this:
 
 ```bash
-{"time":"2024-08-19T14:26:11.446590856+03:00","level":"INFO","msg":"manager_test_server service gRPC server listening at :7001 without TLS"}
-{"time":"2024-08-19T14:26:20.871605244+03:00","level":"DEBUG","msg":"received who am on ip address [::1]:47994"}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724066780 nanos:889897585} computation_id:"1" originator:"manager" status:"starting"}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724066780 nanos:891441319} computation_id:"1" originator:"manager" status:"in-progress"}
-received agent log
-&{message:"char device redirected to /dev/pts/8 (label compat_monitor0)\n" computation_id:"1" level:"debug" timestamp:{seconds:1724066780 nanos:935158505}}
-received agent log
-&{message:"\x1b[2" computation_id:"1" level:"debug" timestamp:{seconds:1724066781 nanos:414565103}}
-received agent event
-&{event_type:"vm-provision" timestamp:{seconds:1724066799 nanos:95970587} computation_id:"1" originator:"manager" status:"complete"}
-received runRes
-&{agent_port:"6014" computation_id:"1"}
-received agent log
-&{message:"Transition: receivingManifest -> receivingManifest\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1724066799 nanos:94341079}}
-received agent event
-&{event_type:"receivingAlgorithm" timestamp:{seconds:1724066799 nanos:94599012} computation_id:"1" originator:"agent" status:"in-progress"}
-received agent log
-&{message:"agent service gRPC server listening at :7002 without TLS" computation_id:"1" level:"INFO" timestamp:{seconds:1724066799 nanos:94831037}}
+&{message:"Method InitComputation for computation id 1 took 3.454µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716887  nanos:223994412}}
+&{event_type:"ReceivingAlgorithm"  timestamp:{seconds:1753716887  nanos:224047068}  computation_id:"1"  originator:"agent"  status:"InProgress"}
+&{computation_id:"1"}
+&{message:"agent service gRPC server listening at 10.0.2.15:7002 without TLS"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716887  nanos:224294224}}
 ```
 
 Export the agent grpc url
 
 ```bash
-export AGENT_GRPC_URL=localhost:6014
+export AGENT_GRPC_URL=localhost:6100
 ```
 
 Upload the algorithm
 
 ```bash
-./build/cocos-cli algo ./iris ./private.pem
+./build/cocos-cli algo ./iris-cocos ./private.pem
 ```
 
 The logs will be similar to this:
 
 ```bash
-2024/08/19 14:29:58 Uploading algorithm binary: ./iris
-Uploading algorithm...  100% [===============================================>]
-2024/08/19 14:29:58 Successfully uploaded algorithm
+🔗 Connected to agent  without TLS
+Uploading algorithm file: ./iris-cocos
+🚀 Uploading algorithm [█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Successfully uploaded algorithm! ✔
 ```
 
 Upload the dataset
@@ -315,9 +337,22 @@ Upload the dataset
 ```
 
 ```bash
-2024/08/19 14:30:55 Uploading dataset CSV: ./Iris.csv
-Uploading data...  100% [====================================================>]
-2024/08/19 14:30:55 Successfully uploaded dataset
+./build/cocos-cli data ./Iris.csv ./private.pem                                                                                                                                                                                     ✔ 
+🔗 Connected to agent  without TLS
+Uploading dataset: ./Iris.csv
+📦 Uploading data [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Successfully uploaded dataset! ✔ 
+```
+
+watch the logs on the computation management server for the computation to complete running
+
+```bash
+&{message:"Method Data took 95.32µs to complete without errors"  computation_id:"1"  level:"INFO"  timestamp:{seconds:1753716988  nanos:66773209}}
+&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:66836101}  computation_id:"1"  originator:"agent"  status:"Starting"}
+&{message:"computation run started"  computation_id:"1"  level:"DEBUG"  timestamp:{seconds:1753716988  nanos:66876532}}
+&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:66947688}  computation_id:"1"  originator:"agent"  status:"InProgress"}
+&{event_type:"Running"  timestamp:{seconds:1753716988  nanos:119592681}  computation_id:"1"  originator:"agent"  status:"Completed"}
+&{event_type:"ConsumingResults"  timestamp:{seconds:1753716988  nanos:120457634}  computation_id:"1"  originator:"agent"  status:"Ready"}
 ```
 
 Finally, download the results
@@ -329,14 +364,16 @@ Finally, download the results
 The logs will be similar to this:
 
 ```bash
-2024/08/19 14:31:46 Retrieving computation result file
-2024/08/19 14:31:46 Computation result retrieved and saved successfully!
+🔗 Connected to agent  without TLS
+⏳ Retrieving computation result file
+📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Computation result retrieved and saved successfully as results.zip! ✔
 ```
 
 Unzip the results
 
 ```bash
-unzip result.zip -d results
+unzip results.zip -d results
 ```
 
 Build the iris example from the [AI repository](https://github.com/ultravioletrs/ai/tree/main/burn-algorithms)
@@ -375,9 +412,19 @@ The output will be similar to this:
 Iris-versicolor
 ```
 
-Terminal recording session
+#### Remove cvm
 
-[![asciicast](https://asciinema.org/a/qQl6O4xZKzavbzMwsDT3pM6d7.svg)](https://asciinema.org/a/qQl6O4xZKzavbzMwsDT3pM6d7)
+```bash
+./build/cocos-cli remove-vm 6e0a7570-6fdd-46c8-a29c-7fe83a50c85d
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 
@@ -387,7 +434,7 @@ Python is a high-level, interpreted programming language. Python scripts can be 
 
 ### Running Python Algorithms without Datasets
 
-This has been covered in the [previous section](./getting-started.md#uploading-artefacts).
+This has been covered in the [previous section](./getting-started.md#uploading-assets).
 
 ### Running Python Algorithms with Datasets
 
@@ -395,18 +442,39 @@ For Python algorithms, with datatsets:
 
 NOTE: Make sure you have terminated the previous computation before starting a new one.
 
-Start the computation server:
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
 
 ```bash
-go run ./test/computations/main.go ./test/manual/algo/lin_reg.py public.pem false ./test/manual/data/iris.csv
+ip a
 ```
 
-Start the manager
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
 
 ```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
+
+Start the computation management server: in cocos repo
+
+```bash
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/lin_reg.py -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
+```
+
+Start the manager in cocos repo
+
+```bash
+cd cmd/manager
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -414,7 +482,16 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated on the computation server logs.
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+Export the agent grpc url from the cvm creation output, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated in the cvm creation output.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
@@ -437,11 +514,11 @@ Upload the dataset
 Watch the agent logs until the computation is complete. The computation will take a while to complete since it will download the dependencies and run the algorithm.
 
 ```bash
-&{event_type:"algorithm-run" timestamp:{seconds:1723411516 nanos:935138750} computation_id:"1" originator:"agent" status:"error"}
+&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
 received agent event
-&{event_type:"resultsReady" timestamp:{seconds:1723411517 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
+&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
 received agent log
-&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1723411517 nanos:882432675}}
+&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
 ```
 
 Finally, download the results
@@ -453,7 +530,7 @@ Finally, download the results
 Unzip the results
 
 ```bash
-unzip result.zip -d results
+unzip results.zip -d results
 ```
 
 To read the results make sure you have installed the required dependencies from the requirements file. This should be done inside a virtual environment.
@@ -503,9 +580,19 @@ Iris-versicolor      1.000     1.000     1.000        23
  [ 0  0 23]]
 ```
 
-Terminal recording session
+#### Remove cvm
 
-[![asciicast](https://asciinema.org/a/GfFrNavHJ26ne09FjwvPDox4T.svg)](https://asciinema.org/a/GfFrNavHJ26ne09FjwvPDox4T)
+```bash
+./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
 
@@ -515,18 +602,39 @@ To run an algorithm that requires command line arguments, you can append the alg
 
 NOTE: Make sure you have terminated the previous computation before starting a new one.
 
-Start the computation server:
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
 
 ```bash
-go run ./test/computations/main.go ./test/manual/algo/addition.py public.pem false
+ip a
 ```
 
-Start the manager
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
 
 ```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the CVMS server and when configuring the CVM using the manager tool.
+
+Start the computation management server: in cocos repo
+
+```bash
+cd cocos
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/addition.py -public-key-path public.pem -attested-tls-bool false
+```
+
+Start the manager in cocos repo
+
+```bash
+cd cmd/manager
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -534,7 +642,16 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated on the computation server logs.
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+Export the agent grpc url from the cvm creation output, by default port 6100 will be allocated. If the port is not available, a different (random) port will be allocated, within the range 6100 - 6200. The port will be indicated in the cvm creation output.
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
@@ -555,11 +672,11 @@ python3 addition.py --a 100 --b 200
 Watch the agent logs until the computation is complete.
 
 ```bash
-&{event_type:"algorithm-run" timestamp:{seconds:1723411516 nanos:935138750} computation_id:"1" originator:"agent" status:"error"}
+&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
 received agent event
-&{event_type:"resultsReady" timestamp:{seconds:1723411517 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
+&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
 received agent log
-&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1723411517 nanos:882432675}}
+&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
 ```
 
 Finally, download the results
@@ -568,13 +685,27 @@ Finally, download the results
 ./build/cocos-cli result ./private.pem
 ```
 
+#### Remove cvm
+
+```bash
+./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
+
 ## Docker
 
 Docker is a platform designed to build, share, and run containerized applications. A container packages the application code, runtime, system tools, libraries, and all necessary settings into a single unit. This ensures the container can be reliably transferred between different computing environments and be executed as expected.
 
 ### Building The Docker Image
 
-The Docker images that the Agent will run inside the SVM must have some restrictions. The image must have a `/cocos` directory containing the `datasets` and `results` directories. The Agent will run this image inside the SVM and mount the `datasets` and `results` onto the `/cocos/datasets` and `/cocos/results` directories inside the image. The docker image must also contain the command that will be run when the docker container is run.
+The Docker images that the Agent will run inside the SVM must have some restrictions. The image must have a `/cocos` directory containing the `datasets` and `results` directories. The Agent will run this image inside the SVM and mount the `datasets` and `results` onto the `/cocos/datasets` and `/cocos/results` directories inside the image. The docker image must also contain the command that will be run when the docker container is run.
 
 We will use the linear regression example from the cocos repository in this example.
 
@@ -588,7 +719,7 @@ Change directory to the linear regression example.
 cd cocos/test/manual/algo/
 ```
 
-Next, run the build command and save the docker image as a `tar` file. This example Dockerfile is based of the python linear regression example using iris dataset.
+Next, run the build command and save the docker image as a `tar` file. This example Dockerfile is based of the python linear regression example using iris dataset.
 
 ```bash
 docker build -t linreg .
@@ -603,10 +734,28 @@ Change the current working directory to `cocos`.
 cd ./cocos
 ```
 
-Start the computation server:
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
 
 ```bash
-go run ./test/computations/main.go ./test/manual/algo/linreg.tar public.pem false ./test/manual/data/iris.csv
+ip a
+```
+
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+
+```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the
+
+Start the computation management server:
+
+```bash
+HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/linreg.tar -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
 Start the manager
@@ -619,7 +768,8 @@ cd cmd/manager
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
 MANAGER_QEMU_MEMORY_SIZE=25G \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -627,7 +777,16 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
+
+```bash
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+Export the agent grpc url
 
 ```bash
 export AGENT_GRPC_URL=localhost:6100
@@ -648,14 +807,24 @@ Upload the dataset
 After some time when the results are ready, you can run the following command to get the results:
 
 ```bash
-./build/cocos-cli results ./private.pem
+&{event_type:"algorithm-run" timestamp:{seconds:1753713974 nanos:935138750} computation_id:"1" originator:"agent" status:"complete"}
+received agent event
+&{event_type:"resultsReady" timestamp:{seconds:1753713975 nanos:882446542} computation_id:"1" originator:"agent" status:"in-progress"}
+received agent log
+&{message:"Transition: resultsReady -> resultsReady\n" computation_id:"1" level:"DEBUG" timestamp:{seconds:1753713975 nanos:882432675}}
+```
+
+```bash
+./build/cocos-cli result ./private.pem
 ```
 
 The logs will be similar to this:
 
 ```bash
-2024/08/19 14:14:31 Retrieving computation result file
-2024/08/19 14:14:31 Computation result retrieved and saved successfully!
+🔗 Connected to agent  without TLS
+⏳ Retrieving computation result file
+📥 Downloading result [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] [100%]                             
+Computation result retrieved and saved successfully as results.zip! ✔ 
 ```
 
 Unzip the results
@@ -670,9 +839,19 @@ To make inference on the results, you can use the following command:
 python3 test/manual/algo/lin_reg.py predict results/model.bin  test/manual/data/
 ```
 
-Terminal recording session
+#### Remove cvm
 
-[![asciicast](https://asciinema.org/a/vHaUnKoEcXwHJR78EBzTScCuS.svg)](https://asciinema.org/a/vHaUnKoEcXwHJR78EBzTScCuS)
+```bash
+./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
 
 ## Wasm Modules
 
@@ -708,10 +887,28 @@ This will generate the wasm module in the `../target/wasm32-wasip1/release` fold
 cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
 ```
 
+#### Finding Your IP Address
+
+When running the CVMS server, make sure to use an IP address that is reachable from the virtual machine — rather than using localhost. To determine your host machine's IP address, you can run:
+
+```bash
+ip a
+```
+
+Look for your network interface (such as wlan0 for WiFi or eth0 for Ethernet) and note the IP address. For example:
+
+```bash
+2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 12:34:56:78:9a:bc brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic noprefixroute wlan0
+```
+
+In this example, the IP address is 192.168.1.100. This address should be used both when launching the
+
 Start the computation server:
 
 ```bash
-go run ./test/computations/main.go ./addition-inference.wasm public.pem true
+HOST=192.168.100.4 go run ./test/cvms/main.go -algo-path ./addition-inference.wasm -public-key-path public.pem -attested-tls-bool false
 ```
 
 Start the manager
@@ -719,7 +916,8 @@ Start the manager
 ```bash
 sudo \
 MANAGER_QEMU_SMP_MAXCPUS=4 \
-MANAGER_GRPC_URL=localhost:7001 \
+MANAGER_GRPC_HOST=localhost \
+MANAGER_GRPC_PORT=7002 \
 MANAGER_LOG_LEVEL=debug \
 MANAGER_QEMU_ENABLE_SEV_SNP=false \
 MANAGER_QEMU_OVMF_CODE_FILE=/usr/share/edk2/x64/OVMF_CODE.fd \
@@ -727,10 +925,19 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-Export the agent grpc url from computation server logs
+##### Create a cvm
+
+To create a cvm we'll need the host address used to start the cvms server. An example is shown below:
 
 ```bash
-export AGENT_GRPC_URL=localhost:6013
+export MANAGER_GRPC_URL=localhost:7002
+./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+```
+
+Export the agent grpc url
+
+```bash
+export AGENT_GRPC_URL=localhost:6100
 ```
 
 Upload the algorithm
@@ -750,7 +957,7 @@ Finally, download the results
 Unzip the results
 
 ```bash
-unzip result.zip -d results
+unzip results.zip -d results
 ```
 
 ```bash
@@ -763,8 +970,18 @@ The output will be similar to this:
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-Terminal recording session
+#### Remove cvm
 
-[![asciicast](https://asciinema.org/a/jLMzZzI13kVMXTGchDB8SKxs3.svg)](https://asciinema.org/a/jLMzZzI13kVMXTGchDB8SKxs3)
+```bash
+./build/cocos-cli remove-vm 31f39ac9-d2d3-4df6-96fa-e42556a07c24
+```
+
+the output will be
+
+```bash
+🔗 Connected to manager using  without TLS
+🔗 Removing virtual machine
+✅ Virtual machine removed successfully
+```
 
 For real-world examples to test with cocos, see our [AI repository](https://github.com/ultravioletrs/ai).
