@@ -63,7 +63,7 @@ Navigate to the cocos directory and start the CVMS server. Replace `192.168.1.10
 
 ```bash
 cd cocos
-HOST=192.168.1.100 go run ./test/cvms/main.go -public-key-path public.pem -attested-tls-bool false -algo-path <ALGORITHM_PATH> [-data-paths <DATASET_PATH>]
+HOST=<YOUR_HOST_IP> go run ./test/cvms/main.go -public-key-path public.pem -attested-tls-bool false -algo-path <ALGORITHM_PATH> [-data-paths <DATASET_PATH>]
 ```
 
 **Note:**
