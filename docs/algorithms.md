@@ -140,7 +140,7 @@ From your cocos directory:
 
 ```bash
 export MANAGER_GRPC_URL=localhost:7002
-./build/cocos-cli create-vm --log-level debug --server-url "192.168.1.100:7001"
+./build/cocos-cli create-vm --log-level debug --server-url "<YOUR_HOST_IP>:7001"
 ```
 
 **Important:** Note the id and port from the cocos-cli output. The port (default 6100) is for the Agent's gRPC URL.
