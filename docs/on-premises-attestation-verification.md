@@ -42,7 +42,7 @@ In the second scenario, the attestation report is fetched during the aTLS TLS ha
 
 When using SEV-SNP CVM, the user gets the SEV-SNP attestation report and the vTPM attestation report. To ensure that the system is in a good state, the user needs to verify the attestation report.
 
-### Attestation policy
+### SEV-SNP attestation policy
 
 An example of the attestation policy is shown below.
 
@@ -131,7 +131,7 @@ The SEV-SNP policy contains reference values that must be checked against the va
 
 TDX offers Trust Domains (TDs), and TD is a synonym for CVM. The user needs to verify the TD Quote (attestation report) in order to ensure that the system is in a good state.
 
-### Attestation policy
+### TDX attestation policy
 
 An example of the attestation policy is shown below.
 
