@@ -105,7 +105,7 @@ Binary algorithms are compiled to run directly on the enclave.
 
 ### Without Datasets (Addition Example)
 
-#### Build the Algorithm
+#### Build the Addition Algorithm
 
 1. Navigate to the ai/burn-algorithms directory:
 
@@ -125,7 +125,7 @@ Binary algorithms are compiled to run directly on the enclave.
    cp ./target/release/addition-cocos ../../cocos/
    ```
 
-#### Start CVMS Server
+#### Start CVMS for Addition Binary
 
 From your cocos directory, start the CVMS server, specifying the addition-cocos binary:
 
@@ -134,7 +134,7 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-cocos -public-key-path public.pem -attested-tls-bool false
 ```
 
-#### Create a CVM
+#### Create CVM for Addition
 
 From your cocos directory:
 
@@ -161,7 +161,7 @@ Expected CVMS server output (showing CVM connection):
 &{message:"agent service gRPC server listening at 10.0.2.15:<AGENT_PORT> without TLS"  computation_id:"1"  level:"INFO"  timestamp:{...}}
 ```
 
-#### Export Agent gRPC URL
+#### Export Agent gRPC URL for Addition
 
 Set the AGENT_GRPC_URL using the port noted in the previous step (default 6100):
 
@@ -169,7 +169,7 @@ Set the AGENT_GRPC_URL using the port noted in the previous step (default 6100):
 export AGENT_GRPC_URL=localhost:6100
 ```
 
-#### Upload the Algorithm
+#### Upload the Addition Algorithm
 
 From your cocos directory:
 
@@ -188,7 +188,7 @@ Successfully uploaded algorithm! ✔
 
 Since this is a binary algorithm and the addition example, no requirements file or dataset upload is needed.
 
-#### Download Results
+#### Download Addition Results
 
 From your cocos directory:
 
@@ -205,7 +205,7 @@ Expected output:
 Computation result retrieved and saved successfully as results.zip! ✔ 
 ```
 
-#### Unzip and View Results
+#### View Addition Results
 
 ```bash
 unzip results.zip -d results
@@ -218,7 +218,7 @@ Expected output:
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-#### Remove the CVM
+#### Remove Addition CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
@@ -236,7 +236,7 @@ Expected output:
 
 ### With Datasets (Iris Prediction Example)
 
-#### Build the Algorithm and Copy Dataset
+#### Build Iris Algorithm and Copy Dataset
 
 1. Navigate to the ai/burn-algorithms directory:
 
@@ -262,7 +262,7 @@ Expected output:
    cp ./iris/datasets/Iris.csv ../../cocos/
    ```
 
-#### Start CVMS Server
+#### Start CVMS for Iris Binary
 
 From your cocos directory, start the CVMS server, specifying both the algorithm and the dataset:
 
@@ -271,11 +271,11 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./iris-cocos -public-key-path public.pem -attested-tls-bool false -data-paths ./Iris.csv
 ```
 
-#### Create CVM, Export Agent URL, and Upload Algorithm
+#### Create CVM and Setup Agent for Iris
 
 Follow the same steps as in the previous section. Remember to note the new CVM ID.
 
-#### Upload the Dataset
+#### Upload Iris Dataset
 
 From your cocos directory:
 
@@ -301,11 +301,11 @@ Watch the logs on the CVMS server for the computation to complete:
 &{event_type:"ConsumingResults"  timestamp:{...}  computation_id:"1"  originator:"agent"  status:"Ready"}
 ```
 
-#### Download Results
+#### Download Iris Results
 
 Follow the same step as in the previous section.
 
-#### Unzip Results and Perform Inference
+#### Extract and Test Iris Results
 
 1. Unzip the results:
 
@@ -339,7 +339,7 @@ Expected output:
 Iris-versicolor
 ```
 
-#### Remove the CVM
+#### Remove Iris CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
@@ -353,11 +353,11 @@ Python scripts can be executed within the enclave.
 
 ### With Datasets (Linear Regression Example)
 
-#### Prepare Algorithm and Dataset
+#### Prepare Linear Regression Algorithm and Dataset
 
 The example uses `lin_reg.py` and `iris.csv` from the cocos repository's test/manual directory. No separate build step is needed for Python scripts.
 
-#### Start CVMS Server
+#### Start CVMS for Python Linear Regression
 
 From your cocos directory, start the CVMS server, specifying the Python script and dataset:
 
@@ -366,11 +366,11 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/lin_reg.py -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
-#### Create CVM and Export Agent URL
+#### Create CVM and Setup Agent for Python
 
 Follow the same steps as described in the binary algorithms section.
 
-#### Upload the Algorithm and Requirements
+#### Upload Python Algorithm and Requirements
 
 From your cocos directory, upload the Python script and its requirements.txt:
 
@@ -378,7 +378,7 @@ From your cocos directory, upload the Python script and its requirements.txt:
 ./build/cocos-cli algo ./test/manual/algo/lin_reg.py ./private.pem -a python -r ./test/manual/algo/requirements.txt
 ```
 
-#### Upload the Dataset
+#### Upload Python Dataset
 
 From your cocos directory:
 
@@ -393,11 +393,11 @@ Watch the Agent logs until the computation completes. This might take a while as
 &{event_type:"resultsReady" timestamp:{...} computation_id:"1" originator:"agent" status:"in-progress"}
 ```
 
-#### Download Results
+#### Download Python Results
 
 Follow the same step as described in the binary algorithms section.
 
-#### Unzip Results and Perform Inference
+#### Extract Python Results and Test Inference
 
 1. Unzip the results:
 
@@ -454,7 +454,7 @@ Iris-versicolor      1.000     1.000     1.000        23
  [ 0  0 23]]
 ```
 
-#### Remove the CVM
+#### Remove Python CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
@@ -468,11 +468,11 @@ To pass command-line arguments to your algorithm, append them to the cocos-cli a
 
 **Example (Addition with Arguments):**
 
-#### Prepare Algorithm
+#### Prepare Addition Algorithm with Arguments
 
 The example uses `addition.py` from `cocos/test/manual/algo/`.
 
-#### Start CVMS Server
+#### Start CVMS for Python Addition
 
 From your cocos directory:
 
@@ -481,11 +481,11 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/addition.py -public-key-path public.pem -attested-tls-bool false
 ```
 
-#### Create CVM and Export Agent URL
+#### Create CVM and Setup Agent for Python Addition
 
 Follow the same steps as described in the binary algorithms section.
 
-#### Upload the Algorithm with Arguments
+#### Upload Python Addition Algorithm with Arguments
 
 From your cocos directory:
 
@@ -497,11 +497,11 @@ This corresponds to running `python3 addition.py --a 100 --b 20`.
 
 Watch the Agent logs until the computation completes.
 
-#### Download Results
+#### Download Python Addition Results
 
 Follow the same step as described in the binary algorithms section.
 
-#### Remove the CVM
+#### Remove Python Addition CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
@@ -532,9 +532,9 @@ The Docker image must have a `/cocos` directory containing datasets and results 
    docker save linreg > linreg.tar
    ```
 
-### Running Docker in SVM
+### Running Docker
 
-#### Start CVMS Server
+#### Start CVMS for Docker
 
 From your cocos directory, start the CVMS server, specifying the Docker image tar file and the dataset:
 
@@ -543,7 +543,7 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./test/manual/algo/linreg.tar -public-key-path public.pem -attested-tls-bool false -data-paths ./test/manual/data/iris.csv
 ```
 
-#### Start the Manager
+#### Start Manager for Docker
 
 Follow the same step as described in the initial setup section. You might need to adjust `MANAGER_QEMU_MEMORY_SIZE` for Docker images (e.g., `MANAGER_QEMU_MEMORY_SIZE=25G`).
 
@@ -561,11 +561,11 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 go run main.go
 ```
 
-#### Create CVM and Export Agent URL
+#### Create CVM and Setup Agent for Docker
 
 Follow the same steps as described in the binary algorithms section.
 
-#### Upload the Algorithm (Docker Image)
+#### Upload Docker Algorithm
 
 From your cocos directory:
 
@@ -573,7 +573,7 @@ From your cocos directory:
 ./build/cocos-cli algo ./test/manual/algo/linreg.tar ./private.pem -a docker
 ```
 
-#### Upload the Dataset
+#### Upload Docker Dataset
 
 From your cocos directory:
 
@@ -588,11 +588,11 @@ Watch the Agent logs for computation completion.
 &{event_type:"resultsReady" timestamp:{...} computation_id:"1" originator:"agent" status:"in-progress"}
 ```
 
-#### Download Results
+#### Download Docker Results
 
 Follow the same step as described in the binary algorithms section.
 
-#### Unzip Results and Perform Inference
+#### Extract Docker Results and Test Inference
 
 1. Unzip the results:
 
@@ -606,7 +606,7 @@ Follow the same step as described in the binary algorithms section.
    python3 test/manual/algo/lin_reg.py predict results/model.bin test/manual/data/
    ```
 
-#### Remove the CVM
+#### Remove Docker CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
@@ -620,7 +620,7 @@ Wasm modules are a portable binary format suitable for secure enclave execution.
 
 ### Running WASM Algorithms (Addition Example)
 
-#### Build the WASM Module
+#### Build the WASM Addition Module
 
 1. Navigate to the ai/burn-algorithms/addition-inference directory:
 
@@ -640,7 +640,7 @@ Wasm modules are a portable binary format suitable for secure enclave execution.
    cp ../target/wasm32-wasip1/release/addition-inference.wasm ../../../cocos
    ```
 
-#### Start CVMS Server
+#### Start CVMS for WASM
 
 From your cocos directory, start the CVMS server, specifying the Wasm module:
 
@@ -649,11 +649,11 @@ cd cocos
 HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-inference.wasm -public-key-path public.pem -attested-tls-bool false
 ```
 
-#### Create CVM and Export Agent URL
+#### Create CVM and Setup Agent for WASM
 
 Follow the same steps as described in the binary algorithms section.
 
-#### Upload the Algorithm
+#### Upload WASM Algorithm
 
 From your cocos directory:
 
@@ -663,11 +663,11 @@ From your cocos directory:
 
 Since this is a Wasm module and the addition example, no requirements file or dataset upload is needed.
 
-#### Download Results
+#### Download WASM Results
 
 Follow the same step as described in the binary algorithms section.
 
-#### Unzip and View Results
+#### View WASM Results
 
 ```bash
 unzip results.zip -d results
@@ -680,7 +680,7 @@ Expected output:
 "[5.141593, 4.0, 5.0, 8.141593]"
 ```
 
-#### Remove the CVM
+#### Remove WASM CVM
 
 Use the `<CVM_ID>` obtained during CVM creation.
 
