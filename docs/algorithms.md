@@ -268,7 +268,7 @@ From your cocos directory, start the CVMS server, specifying both the algorithm 
 
 ```bash
 cd cocos
-HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./iris-cocos -public-key-path public.pem -attested-tls-bool false -data-paths ./Iris.csv
+HOST=<YOUR_HOST_IP> go run ./test/cvms/main.go -algo-path ./iris-cocos -public-key-path public.pem -attested-tls-bool false -data-paths ./Iris.csv
 ```
 
 #### Create CVM and Setup Agent for Iris
