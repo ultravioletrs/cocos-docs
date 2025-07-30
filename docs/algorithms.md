@@ -131,7 +131,7 @@ From your cocos directory, start the CVMS server, specifying the addition-cocos 
 
 ```bash
 cd cocos
-HOST=192.168.1.100 go run ./test/cvms/main.go -algo-path ./addition-cocos -public-key-path public.pem -attested-tls-bool false
+HOST=<YOUR_HOST_IP> go run ./test/cvms/main.go -algo-path ./addition-cocos -public-key-path public.pem -attested-tls-bool false
 ```
 
 #### Create CVM for Addition
