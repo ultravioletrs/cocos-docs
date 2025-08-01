@@ -89,7 +89,7 @@ The default login password is `root`.
 
 ### Testing the Agent Independently
 
-With a VM running, the Agent waits for connection to a cvms server via gRPC. You can start the Agent independently for testing:
+With a VM running, the Agent waits for connection to a computations management server via gRPC. You can start the Agent independently for testing:
 
 ```shell
 cd cocos
@@ -104,7 +104,7 @@ go run cmd/agent/main.go \
   -cvm-id <cvm-id-if-attestedTLS-true>
 ```
 
-A running cvms server is required for the Agent to function. The Agent will connect to the server and wait for a computation manifest. Instructions for running the cvms server are provided in the [CVMs server documentation](/docs/getting-started.md#run-the-server).
+A running computations management server is required for the Agent to function. The Agent will connect to the server and wait for a computation manifest. Instructions for running a test computations management server are provided in the [CVMs server documentation](/docs/getting-started.md#run-the-server).
 
 ### Testing the Manager
 
@@ -125,7 +125,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 ./build/cocos-manager
 ```
 
-Manager will start and once the cvms server is up, it will connect to it and a vm can will be created.
+Manager will start and once the computations management server is up, it will connect to it and a vm can will be created. More information on how to run manager can be found in the [Manager docs](/docs/manager.md).
 
 ### Manager Environment Configuration
 
@@ -177,6 +177,55 @@ Mocks for unit tests rely on method signatures. Refresh them after interface cha
 ```shell
 make mocks
 ```
+
+---
+
+## Building a Custom Computation Management Server
+
+To integrate with CoCos agents, implement a gRPC server using [cvms.proto](https://github.com/ultravioletrs/cocos/blob/main/agent/cvms/cvms.proto):
+
+```proto
+rpc Process(stream ClientStreamMessage) returns (stream ServerStreamMessage);
+```
+
+Key server-side messages to send:
+
+- `ComputationRunReq`, `RunReqChunks`
+- `StopComputation`, `AgentStateReq`, `DisconnectReq`
+
+Expected agent responses:
+
+- `RunResponse`, `AgentLog`, `AgentEvent`
+- `AttestationResponse`, `StopComputationResponse`
+
+Example handler:
+
+```go
+func (s *server) Process(stream cvms.Service_ProcessServer) error {
+  for {
+    msg, err := stream.Recv()
+    if err != nil {
+      return err
+    }
+
+    switch m := msg.Message.(type) {
+    case *cvms.ClientStreamMessage_RunRes:
+      handleRunResponse(m.RunRes)
+    // handle other types...
+    }
+
+    _ = stream.Send(&cvms.ServerStreamMessage{
+      Message: &cvms.ServerStreamMessage_AgentStateReq{
+        AgentStateReq: &cvms.AgentStateReq{Id: "agent-1"},
+      },
+    })
+  }
+}
+```
+
+Use `RunReqChunks` to send large payloads, and validate attestation before running trusted workloads.
+
+---
 
 ## Running Tests
 
