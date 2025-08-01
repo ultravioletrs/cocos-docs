@@ -98,3 +98,7 @@ Upon successful boot, the Cocos Agent fetches and parses the `Computation Manife
 - Establish trust relationships for incoming connections (e.g., from which `userKey` it can accept data).
 - Determine the expected algorithm and the number of datasets, enabling it to track the completion of asset reception.
 - Identify the authorized `Result Consumers` to whom the final computation output must be securely transmitted.
+
+## Computation Manifest Tracking
+
+When the CVM is utilizing a vTPM, the Agent extends the PCR 16 register with the hash value of the computation manifest (you can read more on the vTPM PCRs in the [measured boot](./attestation-measured-boot.mdx) section of attestation). By extending the PCR 16 register, the hash of the computation manifest is a part of the [attestation report](./attestation-introduction.mdx). This allows the user to verify all computations executed in the CVM and ensures that the Agent they are communicating with will execute the specified computation.
