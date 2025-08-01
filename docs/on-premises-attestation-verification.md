@@ -29,20 +29,32 @@ The attestation report is requested in two scenarios.
 
 In the first scenario, the CLI is used to fetch the attestation report, and the verification process is as follows.
 
-- CLI requests the attestation report using the attestation get command.
-- CVM Agent constructs the attestation report (SEV-SNP and vTPM; TDX) and sends it to the CLI.
+- CLI requests the attestation report using the `attestation get` CLI command.
+- CVM Agent constructs the attestation report (EV-SNP with vTPM or TDX) and sends it to the CLI.
 - CLI verifies the attestation report using the attestation policy or the expected values of the attestation report provided by the user.
 
-In the second scenario, the attestation report is fetched during the aTLS TLS handshake, and the verification process is as follows.
+```mermaid
+sequenceDiagram
+    actor User
+    participant CLI
+    participant CVM Agent
 
-- The CVM Agent sends the attestation report (SEV-SNP and vTPM; TDX) to the CLI during the aTLS TLS handshake.
+    User->>CLI: Run attestation get
+    CLI->>CVM Agent: Request attestation report
+    CVM Agent-->>CLI: Attestation report (TDX or SEV-SNP with vTPM)
+    CLI->>CLI: Verify report using policy or expected values
+```
+
+In the second scenario, the attestation report is fetched during the aTLS handshake, and the verification process is as follows.
+
+- The CVM Agent sends the attestation report (EV-SNP with vTPM or TDX) to the CLI during the aTLS TLS handshake.
 - The attestation report is verified during the TLS handshake using the attestation policy.
 
 ## AMD SEV-SNP
 
-When using SEV-SNP CVM, the user gets the SEV-SNP attestation report and the vTPM attestation report. To ensure that the system is in a good state, the user needs to verify the attestation report.
+When using SEV-SNP CVM, the user gets the SEV-SNP attestation report and the vTPM attestation report. To ensure that the system is in the expected state, meaning the expected software and OS are booted inside the CVM and the CVM is running on AMD SEV-SNP capable hardware, the user needs to verify the attestation report.
 
-### SEV-SNP attestation policy
+### SEV-SNP Attestation Policy
 
 An example of the attestation policy is shown below.
 
@@ -129,7 +141,7 @@ The SEV-SNP policy contains reference values that must be checked against the va
 
 ## Intel TDX
 
-TDX offers Trust Domains (TDs), and TD is a synonym for CVM. The user needs to verify the TD Quote (attestation report) in order to ensure that the system is in a good state.
+TDX offers Trust Domains (TDs), and TD is a synonym for CVM. The user needs to verify the TD Quote (attestation report) to ensure that the CVM is in an expected state, meaning the expected software and OS are booted inside the CVM and the CVM is running on Intel TDX capable hardware.
 
 ### TDX attestation policy
 

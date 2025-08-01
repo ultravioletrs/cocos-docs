@@ -25,7 +25,18 @@ The Cocos attestation system consists of two primary attestation sources:
 ### Verification Flow
 
 ```mermaid
-CVM Instance → Generate Attestation → Platform Service → Verify Claims → Policy Enforcement
+stateDiagram
+    direction LR
+    state "CVM Instance" as s1
+    state "Generate Attestation" as s2
+    state "Platform Service" as s3
+    state "Verify Claims" as s4
+    state "Policy Enforcement" as s5
+    
+    s1 --> s2 
+    s2 --> s3
+    s3 --> s4
+    s4 --> s5
 ```
 
 Both platforms follow this flow but implement different verification mechanisms and trust models.
