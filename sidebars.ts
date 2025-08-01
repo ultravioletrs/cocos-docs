@@ -61,6 +61,7 @@ const sidebars: SidebarsConfig = {
             type: 'category',
             label: 'Verification',
             items: [
+              'on-premises-attestation-verification',
               'public-cloud-attestation-verification',
             ],
           },

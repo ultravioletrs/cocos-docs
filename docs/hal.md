@@ -50,7 +50,7 @@ HAL configuration for Buildroot also includes Python, WASM, and Docker runtime a
 
 ## How does it work?
 
-HAL is combined with AMD SEV-SNP or Intel TDX to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation.mdx).
+HAL is combined with AMD SEV-SNP or Intel TDX to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation-introduction.mdx).
 
 ### AMD SEV-SNP
 
