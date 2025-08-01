@@ -146,38 +146,38 @@ The Manager's behavior is controlled through environment variables. Below is a c
 
 ### Core Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_INSTANCE_ID` | Unique identifier for the manager service | (empty) |
-| `MANAGER_GRPC_HOST` | gRPC host manager will bind to | localhost |
-| `MANAGER_GRPC_PORT` | gRPC port manager will bind to | 7001 |
-| `MANAGER_GRPC_TIMEOUT` | Timeout for gRPC requests | 60s |
-| `MANAGER_LOG_LEVEL` | Logging verbosity level | info |
+| Variable               | Description                               | Default Value |
+|------------------------|-------------------------------------------|---------------|
+| `MANAGER_INSTANCE_ID`  | Unique identifier for the manager service | (empty)       |
+| `MANAGER_GRPC_HOST`    | gRPC host manager will bind to            | localhost     |
+| `MANAGER_GRPC_PORT`    | gRPC port manager will bind to            | 7001          |
+| `MANAGER_GRPC_TIMEOUT` | Timeout for gRPC requests                 | 60s           |
+| `MANAGER_LOG_LEVEL`    | Logging verbosity level                   | info          |
 
 ### Security and Attestation
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_GRPC_CLIENT_CERT` | Client certificate path for gRPC communication | (empty) |
-| `MANAGER_GRPC_CLIENT_KEY` | Client private key path for gRPC communication | (empty) |
-| `MANAGER_GRPC_SERVER_CA_CERTS` | Server CA certificate(s) path for gRPC communication | (empty) |
-| `MANAGER_ATTESTATION_POLICY_BINARY` | Attestation policy binary file path | ../../build/attestation_policy |
-| `MANAGER_IGVMMEASURE_BINARY` | IGVM measure binary file path | ../../build/igvmmeasure |
-| `MANAGER_PCR_VALUES` | Expected PCR values file path | (empty) |
+| Variable                            | Description                                          | Default Value                  |
+|-------------------------------------|------------------------------------------------------|--------------------------------|
+| `MANAGER_GRPC_CLIENT_CERT`          | Client certificate path for gRPC communication       | (empty)                        |
+| `MANAGER_GRPC_CLIENT_KEY`           | Client private key path for gRPC communication       | (empty)                        |
+| `MANAGER_GRPC_SERVER_CA_CERTS`      | Server CA certificate(s) path for gRPC communication | (empty)                        |
+| `MANAGER_ATTESTATION_POLICY_BINARY` | Attestation policy binary file path                  | ../../build/attestation_policy |
+| `MANAGER_IGVMMEASURE_BINARY`        | IGVM measure binary file path                        | ../../build/igvmmeasure        |
+| `MANAGER_PCR_VALUES`                | Expected PCR values file path                        | (empty)                        |
 
 ### QEMU Virtual Machine Configuration
 
 #### Basic VM Settings
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_BIN_PATH` | QEMU binary file path | qemu-system-x86_64 |
-| `MANAGER_QEMU_USE_SUDO` | Use sudo to run QEMU | false |
-| `MANAGER_QEMU_MACHINE` | QEMU machine type | q35 |
-| `MANAGER_QEMU_CPU` | CPU model for QEMU | EPYC |
-| `MANAGER_QEMU_ENABLE_KVM` | Enable KVM acceleration | true |
-| `MANAGER_QEMU_NO_GRAPHIC` | Disable graphical display | true |
-| `MANAGER_QEMU_MONITOR` | Monitor type | pty |
+| Variable                  | Description               | Default Value      |
+|---------------------------|---------------------------|--------------------|
+| `MANAGER_QEMU_BIN_PATH`   | QEMU binary file path     | qemu-system-x86_64 |
+| `MANAGER_QEMU_USE_SUDO`   | Use sudo to run QEMU      | false              |
+| `MANAGER_QEMU_MACHINE`    | QEMU machine type         | q35                |
+| `MANAGER_QEMU_CPU`        | CPU model for QEMU        | EPYC               |
+| `MANAGER_QEMU_ENABLE_KVM` | Enable KVM acceleration   | true               |
+| `MANAGER_QEMU_NO_GRAPHIC` | Disable graphical display | true               |
+| `MANAGER_QEMU_MONITOR`    | Monitor type              | pty                |
 
 #### Memory and CPU Configuration
 
