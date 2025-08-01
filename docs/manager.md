@@ -181,93 +181,93 @@ The Manager's behavior is controlled through environment variables. Below is a c
 
 #### Memory and CPU Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_MEMORY_SIZE` | Total memory size (e.g., "2048M", "4G") | 2048M |
-| `MANAGER_QEMU_MEMORY_SLOTS` | Number of memory slots | 5 |
-| `MANAGER_QEMU_MAX_MEMORY` | Maximum memory size (e.g., "30G") | 30G |
-| `MANAGER_QEMU_SMP_COUNT` | Number of virtual CPUs | 4 |
-| `MANAGER_QEMU_SMP_MAXCPUS` | Maximum number of virtual CPUs | 64 |
-| `MANAGER_QEMU_MEM_ID` | Memory device ID | ram1 |
+| Variable                    | Description                             | Default Value |
+|---------------------------- |-----------------------------------------|---------------|
+| `MANAGER_QEMU_MEMORY_SIZE`  | Total memory size (e.g., "2048M", "4G") | 2048M         |
+| `MANAGER_QEMU_MEMORY_SLOTS` | Number of memory slots                  | 5             |
+| `MANAGER_QEMU_MAX_MEMORY`   | Maximum memory size (e.g., "30G")       | 30G           |
+| `MANAGER_QEMU_SMP_COUNT`    | Number of virtual CPUs                  | 4             |
+| `MANAGER_QEMU_SMP_MAXCPUS`  | Maximum number of virtual CPUs          | 64            |
+| `MANAGER_QEMU_MEM_ID`       | Memory device ID                        | ram1          |
 
 #### OVMF Firmware Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_OVMF_CODE_FILE` | OVMF code file path | /usr/share/OVMF/OVMF_CODE.fd |
-| `MANAGER_QEMU_OVMF_VARS_FILE` | OVMF variables file path | /usr/share/OVMF/OVMF_VARS.fd |
-| `MANAGER_QEMU_OVMF_CODE_IF` | OVMF code interface type | pflash |
-| `MANAGER_QEMU_OVMF_CODE_FORMAT` | OVMF code file format | raw |
-| `MANAGER_QEMU_OVMF_CODE_UNIT` | OVMF code unit number | 0 |
-| `MANAGER_QEMU_OVMF_CODE_READONLY` | OVMF code read-only setting | on |
-| `MANAGER_QEMU_OVMF_VARS_IF` | OVMF variables interface type | pflash |
-| `MANAGER_QEMU_OVMF_VARS_FORMAT` | OVMF variables file format | raw |
-| `MANAGER_QEMU_OVMF_VARS_UNIT` | OVMF variables unit number | 1 |
-| `MANAGER_QEMU_OVMF_VERSION` | EDKII version for OVMF | (empty) |
+| Variable                          | Description                   | Default Value                |
+|-----------------------------------|-------------------------------|------------------------------|
+| `MANAGER_QEMU_OVMF_CODE_FILE`     | OVMF code file path           | /usr/share/OVMF/OVMF_CODE.fd |
+| `MANAGER_QEMU_OVMF_VARS_FILE`     | OVMF variables file path      | /usr/share/OVMF/OVMF_VARS.fd |
+| `MANAGER_QEMU_OVMF_CODE_IF`       | OVMF code interface type      | pflash                       |
+| `MANAGER_QEMU_OVMF_CODE_FORMAT`   | OVMF code file format         | raw                          |
+| `MANAGER_QEMU_OVMF_CODE_UNIT`     | OVMF code unit number         | 0                            |
+| `MANAGER_QEMU_OVMF_CODE_READONLY` | OVMF code read-only setting   | on                           |
+| `MANAGER_QEMU_OVMF_VARS_IF`       | OVMF variables interface type | pflash                       |
+| `MANAGER_QEMU_OVMF_VARS_FORMAT`   | OVMF variables file format    | raw                          |
+| `MANAGER_QEMU_OVMF_VARS_UNIT`     | OVMF variables unit number    | 1                            |
+| `MANAGER_QEMU_OVMF_VERSION`       | EDKII version for OVMF        | (empty)                      |
 
 #### Network Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_NETDEV_ID` | Network device ID | vmnic |
-| `MANAGER_QEMU_HOST_FWD_AGENT` | Host port for agent communication | 7020 |
-| `MANAGER_QEMU_GUEST_FWD_AGENT` | Guest port for agent communication | 7002 |
-| `MANAGER_QEMU_HOST_FWD_RANGE` | Range of host ports to forward | 6100-6200 |
-| `MANAGER_QEMU_VIRTIO_NET_PCI_DISABLE_LEGACY` | Disable legacy PCI for virtio-net | on |
-| `MANAGER_QEMU_VIRTIO_NET_PCI_IOMMU_PLATFORM` | Enable IOMMU platform | true |
-| `MANAGER_QEMU_VIRTIO_NET_PCI_ADDR` | PCI address for virtio-net | 0x2 |
-| `MANAGER_QEMU_VIRTIO_NET_PCI_ROMFILE` | ROM image file path | (empty) |
+| Variable                                     | Description                        | Default Value |
+|----------------------------------------------|------------------------------------|---------------|
+| `MANAGER_QEMU_NETDEV_ID`                     | Network device ID                  | vmnic         |
+| `MANAGER_QEMU_HOST_FWD_AGENT`                | Host port for agent communication  | 7020          |
+| `MANAGER_QEMU_GUEST_FWD_AGENT`               | Guest port for agent communication | 7002          |
+| `MANAGER_QEMU_HOST_FWD_RANGE`                | Range of host ports to forward     | 6100-6200     |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_DISABLE_LEGACY` | Disable legacy PCI for virtio-net  | on            |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_IOMMU_PLATFORM` | Enable IOMMU platform              | true          |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_ADDR`           | PCI address for virtio-net         | 0x2           |
+| `MANAGER_QEMU_VIRTIO_NET_PCI_ROMFILE`        | ROM image file path                | (empty)       |
 
 #### Disk and Storage Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_DISK_IMG_KERNEL_FILE` | Kernel image file path | img/bzImage |
+| Variable                            | Description                     | Default Value      |
+|------------------------------------ |---------------------------------|--------------------|
+| `MANAGER_QEMU_DISK_IMG_KERNEL_FILE` | Kernel image file path          | img/bzImage        |
 | `MANAGER_QEMU_DISK_IMG_ROOTFS_FILE` | Root filesystem image file path | img/rootfs.cpio.gz |
 
 #### File System Mounts
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_CERTS_MOUNT` | Host directory path for certificate mounting | (empty) |
-| `MANAGER_QEMU_ENV_MOUNT` | Host directory path for environment variable mounting | (empty) |
+| Variable                   | Description                                           | Default Value |
+|----------------------------|-------------------------------------------------------|---------------|
+| `MANAGER_QEMU_CERTS_MOUNT` | Host directory path for certificate mounting          | (empty)       |
+| `MANAGER_QEMU_ENV_MOUNT`   | Host directory path for environment variable mounting | (empty)       |
 
 ### TEE-Specific Configuration
 
 #### AMD SEV-SNP Settings
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_ENABLE_SEV_SNP` | Enable SEV-SNP | true |
-| `MANAGER_QEMU_SEV_SNP_ID` | SEV-SNP device ID | sev0 |
-| `MANAGER_QEMU_SEV_SNP_CBITPOS` | C-bit position in physical address | 51 |
-| `MANAGER_QEMU_SEV_SNP_REDUCED_PHYS_BITS` | Reduced physical address bits | 1 |
-| `MANAGER_QEMU_ENABLE_HOST_DATA` | Enable additional SEV-SNP host data | false |
-| `MANAGER_QEMU_HOST_DATA` | Additional SEV-SNP host data | (empty) |
+| Variable                                 | Description                         | Default Value |
+|------------------------------------------|-------------------------------------|---------------|
+| `MANAGER_QEMU_ENABLE_SEV_SNP`            | Enable SEV-SNP                      | true          |
+| `MANAGER_QEMU_SEV_SNP_ID`                | SEV-SNP device ID                   | sev0          |
+| `MANAGER_QEMU_SEV_SNP_CBITPOS`           | C-bit position in physical address  | 51            |
+| `MANAGER_QEMU_SEV_SNP_REDUCED_PHYS_BITS` | Reduced physical address bits       | 1             |
+| `MANAGER_QEMU_ENABLE_HOST_DATA`          | Enable additional SEV-SNP host data | false         |
+| `MANAGER_QEMU_HOST_DATA`                 | Additional SEV-SNP host data        | (empty)       |
 
 #### Intel TDX Settings
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_ENABLE_TDX` | Enable TDX | false |
-| `MANAGER_QEMU_TDX_ID` | TDX device ID | tdx0 |
-| `MANAGER_QEMU_QUOTE_GENERATION_PORT` | Port for Quote Generation Service communication | 4050 |
-| `MANAGER_QEMU_OVMF_FILE` | Combined OVMF file for TDX | /usr/share/ovmf/OVMF.fd |
+| Variable                             | Description                                     | Default Value           |
+|--------------------------------------|-------------------------------------------------|-------------------------|
+| `MANAGER_QEMU_ENABLE_TDX`            | Enable TDX                                      | false                   |
+| `MANAGER_QEMU_TDX_ID`                | TDX device ID                                   | tdx0                    |
+| `MANAGER_QEMU_QUOTE_GENERATION_PORT` | Port for Quote Generation Service communication | 4050                    |
+| `MANAGER_QEMU_OVMF_FILE`             | Combined OVMF file for TDX                      | /usr/share/ovmf/OVMF.fd |
 
 #### IGVM Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `MANAGER_QEMU_IGVM_ID` | IGVM file ID | igvm0 |
+| Variable                 | Description    | Default Value           |
+|------------------------- |----------------|-------------------------|
+| `MANAGER_QEMU_IGVM_ID`   | IGVM file ID   | igvm0                   |
 | `MANAGER_QEMU_IGVM_FILE` | IGVM file path | /root/coconut-qemu.igvm |
 
 ### Observability Configuration
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `COCOS_JAEGER_URL` | Jaeger tracing endpoint URL | `http://localhost:4318` |
-| `COCOS_JAEGER_TRACE_RATIO` | Trace sampling ratio | 1.0 |
-| `MANAGER_EOS_VERSION` | EOS version for CVM booting | (empty) |
+| Variable                   | Description                 | Default Value           |
+|----------------------------|-----------------------------|------------------------ |
+| `COCOS_JAEGER_URL`         | Jaeger tracing endpoint URL | `http://localhost:4318` |
+| `COCOS_JAEGER_TRACE_RATIO` | Trace sampling ratio        | 1.0                     |
+| `MANAGER_EOS_VERSION`      | EOS version for CVM booting | (empty)                 |
 
 ### Configuration Examples
 
