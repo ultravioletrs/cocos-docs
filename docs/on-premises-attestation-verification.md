@@ -30,7 +30,7 @@ The attestation report is requested in two scenarios.
 In the first scenario, the CLI is used to fetch the attestation report, and the verification process is as follows.
 
 - CLI requests the attestation report using the `attestation get` CLI command.
-- CVM Agent constructs the attestation report (EV-SNP with vTPM or TDX) and sends it to the CLI.
+- CVM Agent constructs the attestation report (SEV-SNP with vTPM or TDX) and sends it to the CLI.
 - CLI verifies the attestation report using the attestation policy or the expected values of the attestation report provided by the user.
 
 ```mermaid
@@ -47,7 +47,7 @@ sequenceDiagram
 
 In the second scenario, the attestation report is fetched during the aTLS handshake, and the verification process is as follows.
 
-- The CVM Agent sends the attestation report (EV-SNP with vTPM or TDX) to the CLI during the aTLS TLS handshake.
+- The CVM Agent sends the attestation report (SEV-SNP with vTPM or TDX) to the CLI during the aTLS TLS handshake.
 - The attestation report is verified during the TLS handshake using the attestation policy.
 
 ## AMD SEV-SNP
