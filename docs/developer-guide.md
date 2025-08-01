@@ -94,6 +94,10 @@ With a VM running, the Agent waits for connection to a computations management s
 ```shell
 cd cocos
 
+AGENT_CVM_GRPC_URL=<cvms_server_url:port>\
+AGENT_CVM_GRPC_CLIENT_CERT=<path-to-client-cert> \
+AGENT_CVM_GRPC_CLIENT_KEY=<path-to-client-key> \
+AGENT_CVM_GRPC_SERVER_CA_CERT=<path-to-server-ca-cert> \
 go run cmd/agent/main.go \
   -algo-path <path-to-algorithm> \
   -public-key-path <path-to-public-key> \
@@ -103,6 +107,10 @@ go run cmd/agent/main.go \
   -ca-url <ca-url-if-attestedTLS-true> \
   -cvm-id <cvm-id-if-attestedTLS-true>
 ```
+
+Agent, once up, will attempt to connect to the computations management server on the `AGENT_CVM_GRPC_URL`. If agent and the computations management server are running on the same host, the local ip address of the server will suffice. If the computations management server is running externally, the public ip address (available on the internet) needs to be provided for agent to be able to connect to it.
+
+Using localhost as the `AGENT_CVM_GRPC_URL` will only work if agent is running outside a vm, and the computations server is running on the local host. If agent is running inside the vm, using localhost will fail.
 
 A running computations management server is required for the Agent to function. The Agent will connect to the server and wait for a computation manifest. Instructions for running a test computations management server are provided in the [CVMs server documentation](/docs/getting-started.md#run-the-server).
 
