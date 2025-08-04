@@ -28,3 +28,15 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Invert all images on the page in dark mode */
+[data-theme='dark'] img {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* This is a crucial addition to prevent issues with other images */
+/* The filter should not be applied to logos, favicons, or other assets */
+[data-theme='dark'] .navbar__logo img,
+[data-theme='dark'] .footer img {
+  filter: none;
+}
