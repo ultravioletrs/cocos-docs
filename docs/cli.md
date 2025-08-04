@@ -1605,6 +1605,27 @@ cocos-cli policy azure [flags]
 ./build/cocos-cli policy azure <azure_maa_token_file> <product_name>
 ```
 
+### Subcommand: `policy extend`
+
+Extends the attestation policies PCR16 register with the hashes of downloaded compute manifests.
+
+**Usage:**
+
+```bash
+cocos-cli policy extend
+```
+
+**Arguments:**
+
+- `<attestation_policy_file_path>`: Path to attestation policy file
+- `<compute_manifest_file_path0> <compute_manifest_file_path1> ...`: Paths to compute manifest files
+
+**Example:**
+
+```bash
+./build/cocos-cli policy extend <attestation_policy_file_path> <compute_manifest_file_path0> <compute_manifest_file_path1> ...
+```
+
 ## Command: `remove-vm`
 
 Remove a virtual machine
