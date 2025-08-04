@@ -94,7 +94,7 @@ With a VM running, the Agent waits for connection to a computations management s
 ```shell
 cd cocos
 
-AGENT_CVM_GRPC_URL=<cvms_server_url:port>\
+AGENT_CVM_GRPC_URL=<cvms_server_host:port>\
 AGENT_CVM_GRPC_CLIENT_CERT=<path-to-client-cert> \
 AGENT_CVM_GRPC_CLIENT_KEY=<path-to-client-key> \
 AGENT_CVM_GRPC_SERVER_CA_CERT=<path-to-server-ca-cert> \
@@ -108,7 +108,7 @@ go run cmd/agent/main.go \
   -cvm-id <cvm-id-if-attestedTLS-true>
 ```
 
-Agent, once up, will attempt to connect to the computations management server on the `AGENT_CVM_GRPC_URL`. If agent and the computations management server are running on the same host, the local ip address of the server will suffice. If the computations management server is running externally, the public ip address (available on the internet) needs to be provided for agent to be able to connect to it.
+Agent, once up, will attempt to connect to the computations management server on the `AGENT_CVM_GRPC_URL`. If agent and the computations management server are running on the same host, the local ip address of the server will suffice. If the agent is running inside the vm, the public ip address of the computations management server (available on the internet) needs to be provided for agent to be able to connect to it.
 
 Using localhost as the `AGENT_CVM_GRPC_URL` will only work if agent is running outside a vm, and the computations server is running on the local host. If agent is running inside the vm, using localhost will fail.
 
@@ -133,7 +133,7 @@ MANAGER_QEMU_OVMF_VARS_FILE=/usr/share/edk2/x64/OVMF_VARS.fd \
 ./build/cocos-manager
 ```
 
-Manager will start and once the computations management server is up, it will connect to it and a vm can will be created. More information on how to run manager can be found in the [Manager docs](/docs/manager.md).
+Manager will start a gRPC server and wait for client connections which can be used to create and manage vms. More information on how to run manager can be found in the [Manager docs](/docs/manager.md).
 
 ### Manager Environment Configuration
 
@@ -190,23 +190,55 @@ make mocks
 
 ## Building a Custom Computation Management Server
 
-To integrate with CoCos agents, implement a gRPC server using [cvms.proto](https://github.com/ultravioletrs/cocos/blob/main/agent/cvms/cvms.proto):
+To integrate with CoCos agents, implement a gRPC server that conforms to the [`cvms.proto`](https://github.com/ultravioletrs/cocos/blob/main/agent/cvms/cvms.proto) interface.
+
+The core method to implement is:
 
 ```proto
 rpc Process(stream ClientStreamMessage) returns (stream ServerStreamMessage);
 ```
 
-Key server-side messages to send:
+This is a **bi-directional streaming RPC** where the **client (CoCos agent)** and the **server (your control plane)** exchange messages continuously over a long-lived connection.
 
-- `ComputationRunReq`, `RunReqChunks`
-- `StopComputation`, `AgentStateReq`, `DisconnectReq`
+### ❯ Server-Side Requests (`ServerStreamMessage`)
 
-Expected agent responses:
+The server sends the following messages to the agent:
 
-- `RunResponse`, `AgentLog`, `AgentEvent`
-- `AttestationResponse`, `StopComputationResponse`
+- **`ComputationRunReq`**:  
+  Triggers execution of a new computation. Includes details of the computation and datasets required.
 
-Example handler:
+- **`RunReqChunks`**:  
+  Used to stream large payloads (e.g., binaries or configs). Sent in sequence before the computation starts.
+
+- **`AgentStateReq`**:  
+  Requests a snapshot of the agent's current state.
+
+- **`StopComputation`**:  
+  Instructs the agent to stop a running computation gracefully.
+
+- **`DisconnectReq`**:  
+  Tells the agent to close the current connection, to terminate a cvm.
+
+### ❯ Agent-Side Responses (`ClientStreamMessage`)
+
+The agent responds with the following messages:
+
+- **`RunResponse`**:  
+  Acknowledges receipt and execution of a computation run. Includes the computation id and error, if present.
+
+- **`AgentLog`**:  
+  Streams runtime logs from the agent, useful for observability and debugging.
+
+- **`AgentEvent`**:  
+  Reports events of the processes carried out by the agent during the computation.
+
+- **`AttestationResponse`**:  
+  Provides cryptographic proof of a trusted execution environment.
+
+- **`StopComputationResponse`**:  
+  Confirms that a stop request was honored and the computation terminated.
+
+### ❯ Example Handler in Go
 
 ```go
 func (s *server) Process(stream cvms.Service_ProcessServer) error {
@@ -219,9 +251,12 @@ func (s *server) Process(stream cvms.Service_ProcessServer) error {
     switch m := msg.Message.(type) {
     case *cvms.ClientStreamMessage_RunRes:
       handleRunResponse(m.RunRes)
-    // handle other types...
+    case *cvms.ClientStreamMessage_Attestation:
+      validateAttestation(m.Attestation)
+    // Handle other types accordingly
     }
 
+    // Example request: ask for agent state
     _ = stream.Send(&cvms.ServerStreamMessage{
       Message: &cvms.ServerStreamMessage_AgentStateReq{
         AgentStateReq: &cvms.AgentStateReq{Id: "agent-1"},
@@ -231,7 +266,10 @@ func (s *server) Process(stream cvms.Service_ProcessServer) error {
 }
 ```
 
-Use `RunReqChunks` to send large payloads, and validate attestation before running trusted workloads.
+### Hints
+
+- Use **chunked messages (`RunReqChunks`)** for large uploads.
+- Maintain **connection health** by periodically sending `AgentStateReq` or heartbeat pings.
 
 ---
 
@@ -281,8 +319,6 @@ journalctl -u cocos-manager.service
 1. Create a feature branch in your fork.
 2. Ensure `make` completes successfully and `go test ./...` passes.
 3. Open a pull request with a detailed description of your changes.
-
-For more information see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Further Documentation
 
