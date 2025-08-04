@@ -200,7 +200,7 @@ rpc Process(stream ClientStreamMessage) returns (stream ServerStreamMessage);
 
 This is a **bi-directional streaming RPC** where the **client (CoCos agent)** and the **server (your control plane)** exchange messages continuously over a long-lived connection.
 
-### Server-Side Requests (`ServerStreamMessage`)
+### Server-Side Requests
 
 The server sends the following messages to the agent:
 
@@ -219,7 +219,7 @@ The server sends the following messages to the agent:
 - **`DisconnectReq`**:  
   Tells the agent to close the current connection, to terminate a cvm.
 
-### Agent-Side Responses (`ClientStreamMessage`)
+### Agent-Side Responses
 
 The agent responds with the following messages:
 
