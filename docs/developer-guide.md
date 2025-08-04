@@ -53,13 +53,13 @@ After building, you can boot a VM that runs the Agent using QEMU. Substitute the
 sudo find / -name OVMF_CODE.fd
 OVMF_CODE=/usr/share/OVMF/OVMF_CODE.fd
 sudo find / -name OVMF_VARS.fd
-OVMF_VARS=/usr/share/OVMF_VARS.fd
+OVMF_VARS=/usr/share/OVMF/OVMF_VARS.fd
 
 KERNEL=buildroot/output/images/bzImage
 INITRD=buildroot/output/images/rootfs.cpio.gz
 IGVM=svsm/bin/coconut-qemu.igvm
 ENV_PATH=<path>/<to>/<env_directory>
-CERTH_PATH=<path>/<to>/<cert_directory>
+CERT_PATH=<path>/<to>/<cert_directory>
 
 sudo qemu-system-x86_64 \
     -enable-kvm \
@@ -81,7 +81,7 @@ sudo qemu-system-x86_64 \
     -monitor unix:monitor,server,nowait \
     -fsdev local,id=env_fs,path=$ENV_PATH,security_model=mapped \
     -device virtio-9p-pci,fsdev=env_fs,mount_tag=env_share \
-    -fsdev local,id=cert_fs,path=$CERTH_PATH,security_model=mapped \
+    -fsdev local,id=cert_fs,path=$CERT_PATH,security_model=mapped \
     -device virtio-9p-pci,fsdev=cert_fs,mount_tag=certs_share
 ```
 
