@@ -5,6 +5,7 @@ The COCOS CLI (`cocos-cli`) is a comprehensive command-line interface that allow
 ## Overview
 
 The CLI serves as a gRPC client for both the Agent and Manager services, providing:
+
 - **Secure Communication:** All interactions use encrypted channels (TLS/mTLS/aTLS)
 - **Digital Authentication:** Digital signatures are required for authentication against roles such as dataset providers
 - **Multi-Service Integration:** Connects to both Agent (computation) and Manager (VM lifecycle) services
@@ -13,6 +14,7 @@ The CLI serves as a gRPC client for both the Agent and Manager services, providi
 ## Target Users
 
 This documentation is designed for:
+
 - **System Administrators:** Performing manual tasks and system management
 - **Developers:** Integrating CLI into applications and automation workflows
 - **Support Teams:** Diagnosing issues and troubleshooting problems
@@ -438,6 +440,7 @@ test -r "$AGENT_GRPC_CLIENT_KEY" && echo "Client key accessible"
 ### Framework and Dependencies
 
 The CLI is built using:
+
 - **Cobra Framework:** Command-line interface framework with subcommands
 - **gRPC:** Communication with Agent and Manager services
 - **TLS/mTLS/aTLS:** Secure communication protocols
@@ -446,6 +449,7 @@ The CLI is built using:
 ### Connection Management
 
 The CLI maintains persistent connections to:
+
 1. **Agent Service:** For computation operations (algo, data, result)
 2. **Manager Service:** For VM lifecycle management (create-vm, remove-vm)
 3. **Certificate Management:** Automatic certificate validation and renewal
@@ -454,6 +458,7 @@ The CLI maintains persistent connections to:
 ### Authentication System
 
 All operations use digital signature authentication:
+
 - **Supported Algorithms:** RSA (4096-bit), ECDSA (P-256), Ed25519
 - **Key Formats:** PKCS#1, PKCS#8, EC private keys in PEM encoding
 - **Signature Verification:** Server-side verification of all operations
@@ -462,6 +467,7 @@ All operations use digital signature authentication:
 ### Error Handling and User Experience
 
 The CLI provides comprehensive error handling:
+
 - **gRPC Status Translation:** Converts gRPC errors to user-friendly messages
 - **Color-coded Output:** Red for errors, green for success
 - **Verbose Mode:** Detailed logging for troubleshooting
@@ -470,12 +476,14 @@ The CLI provides comprehensive error handling:
 ### File and Data Handling
 
 **Automatic Processing:**
+
 - Directory compression (ZIP format)
 - Streaming uploads for large files
 - Temporary file management and cleanup
 - File integrity verification
 
 **Supported Formats:**
+
 - Binary executables
 - Python scripts with requirements
 - Docker images (tar format)
@@ -555,6 +563,7 @@ the requirements file, and the Python runtime are required. Different algorithm 
 **Authentication:**
 
 All agent operations require digital signature authentication using RSA, ECDSA, or Ed25519 private keys. The CLI supports the following key formats:
+
 - PKCS#1 RSA private keys
 - PKCS#8 private keys (RSA, ECDSA, Ed25519)
 - EC private keys
@@ -565,22 +574,26 @@ All agent operations require digital signature authentication using RSA, ECDSA, 
 The CLI supports four types of algorithms through the `-a, --algorithm` flag:
 
 1. **Binary Executables** (`bin` - default):
+
    ```bash
    ./build/cocos-cli algo binary_algo.bin private_key.pem
    ```
 
 2. **Python Scripts** (`python`):
+
    ```bash
    ./build/cocos-cli algo -a python script.py private_key.pem \
      -r requirements.txt --python-runtime python3
    ```
 
 3. **Docker Images** (`docker` - as tar files):
+
    ```bash
    ./build/cocos-cli algo -a docker image.tar private_key.pem
    ```
 
 4. **WebAssembly Modules** (`wasm`):
+
    ```bash
    ./build/cocos-cli algo -a wasm module.wasm private_key.pem
    ```
@@ -1245,11 +1258,13 @@ cocos-cli ca-bundle [flags]
 The CLI supports both files and directories as datasets:
 
 1. **Single Files:**
+
    ```bash
    ./build/cocos-cli data dataset.csv private_key.pem
    ```
 
 2. **Directories** (automatically zipped):
+
    ```bash
    ./build/cocos-cli data /path/to/dataset/ private_key.pem
    ```
@@ -1306,18 +1321,21 @@ cocos-cli checksum [flags]
 **Checksum Types:**
 
 1. **Standard File Checksum:**
+
    ```bash
    ./build/cocos-cli checksum data.txt
    # Output: SHA3-256 hash in hexadecimal format
    ```
 
 2. **Manifest File Checksum** (`-m, --manifest`):
+
    ```bash
    ./build/cocos-cli checksum -m computation.json
    # Processes JSON manifest format for computation verification
    ```
 
 3. **Base64 Output** (`-b, --base64`):
+
    ```bash
    ./build/cocos-cli checksum -b data.txt
    # Output: SHA3-256 hash in base64 format
@@ -1330,6 +1348,7 @@ When using the `--manifest` flag, the CLI expects a JSON file with a specific co
 **Hash Algorithm:**
 
 The CLI uses SHA3-256 (Keccak-256) for all hash calculations, providing:
+
 - 256-bit security level
 - Resistance to length extension attacks
 - Cryptographic security suitable for attestation
@@ -1589,6 +1608,7 @@ export MANAGER_GRPC_CLIENT_KEY=/path/to/client.key
 **VM Lifecycle:**
 
 The CLI creates a confidential virtual machine with:
+
 1. Secure boot and attestation capabilities
 2. Agent service automatically deployed
 3. Network connectivity for algorithm/data upload
@@ -1597,6 +1617,7 @@ The CLI creates a confidential virtual machine with:
 **Output:**
 
 Successful VM creation returns:
+
 - VM identifier (CVM ID) for future reference
 - Agent service endpoint for data operations
 - Connection details for attestation
@@ -1651,6 +1672,7 @@ cocos-cli data [flags]
     - **Key Size:** 4096 bits
     - **Format:** PKCS#1 PEM encoding
     - **Usage:** Most compatible, widely supported
+
    ```bash
    ./build/cocos-cli keys -k rsa
    ```
@@ -1659,6 +1681,7 @@ cocos-cli data [flags]
     - **Curve:** P-256 (secp256r1)
     - **Format:** PKCS#8 PEM encoding
     - **Usage:** Smaller key size, good performance
+
    ```bash
    ./build/cocos-cli keys -k ecdsa
    ```
@@ -1667,6 +1690,7 @@ cocos-cli data [flags]
     - **Algorithm:** EdDSA with Curve25519
     - **Format:** PKCS#8 PEM encoding
     - **Usage:** Modern, high-performance elliptic curve
+
    ```bash
    ./build/cocos-cli keys -k ed25519
    ```
@@ -1674,18 +1698,21 @@ cocos-cli data [flags]
 **Generated Files:**
 
 The command creates two files in the current directory:
+
 - `private.pem` - Private key (keep secure!)
 - `public.pem` - Public key (safe to share)
 
 **File Permissions:**
 
 The CLI automatically sets appropriate permissions:
+
 - Private key: `600` (read/write for owner only)
 - Public key: `644` (readable by all, writable by owner)
 
 **Key Usage:**
 
 Generated keys can be used for:
+
 - Algorithm upload authentication
 - Dataset upload authentication
 - Result retrieval authentication
@@ -1731,6 +1758,7 @@ The tool will parse the directives in the IGVM file, calculate the launch measur
 **IGVM File Format:**
 
 IGVM (Isolated Guest Virtual Machine) files contain:
+
 - VM configuration directives
 - Initial memory layout
 - Boot loader and kernel images
@@ -1740,6 +1768,7 @@ IGVM (Isolated Guest Virtual Machine) files contain:
 **Measurement Calculation:**
 
 The tool processes IGVM directives to calculate the launch measurement by:
+
 1. Parsing all IGVM directives in order
 2. Processing memory layout and content directives
 3. Calculating cumulative hash of measured components
@@ -1769,6 +1798,7 @@ measurement=$(./build/cocos-cli igvmmeasure vm.igvm)
 **Error Handling:**
 
 Common errors include:
+
 - Invalid IGVM file format
 - Corrupted or incomplete IGVM file
 - Unsupported IGVM directives
@@ -1783,6 +1813,7 @@ Here is a sample output:
 **Output Format:**
 
 The measurement is output as a 384-bit (48-byte) hex-encoded string, suitable for:
+
 - Direct use in attestation policies
 - Comparison with attestation report measurements
 - Storage in configuration files
@@ -1841,12 +1872,14 @@ The CLI automatically performs PCR10 verification:
 **Measurement File Format:**
 
 The downloaded file contains IMA measurement entries in the format:
-```
+
+```text
 <PCR> <template_hash> <template_name> <file_hash> <file_path>
 ```
 
 Example entry:
-```
+
+```text
 10 sha1:a4c5d8ea9b982... ima-ng sha256:b7f6c1d2e8f9... /usr/bin/python3
 ```
 
@@ -2071,6 +2104,7 @@ cocos-cli policy extend
 **Planned Functionality:**
 
 This command would:
+
 1. Read the attestation policy file
 2. Calculate SHA-256 hashes of each compute manifest file
 3. Extend PCR16 with the calculated hashes in order
@@ -2104,6 +2138,7 @@ cocos-cli remove-vm [flags]
 **VM Removal Process:**
 
 Removing a VM performs the following operations:
+
 1. Stops all running computations
 2. Clears sensitive data from memory
 3. Destroys the confidential VM instance
@@ -2142,6 +2177,7 @@ export MANAGER_GRPC_URL=manager.example.com:50051
 **Error Handling:**
 
 Common errors include:
+
 - VM ID not found
 - VM already removed
 - Insufficient permissions
@@ -2543,6 +2579,7 @@ Attestation result retrieved and saved successfully!
 The CLI supports various configuration file formats:
 
 **Attestation Policy JSON:**
+
 ```json
 {
   "rootOfTrust": {
@@ -2560,6 +2597,7 @@ The CLI supports various configuration file formats:
 ```
 
 **Computation Manifest JSON:**
+
 ```json
 {
   "algorithm": {
@@ -2584,6 +2622,7 @@ The CLI supports various configuration file formats:
 ### Home Directory Integration
 
 The CLI creates and uses the `.cocos` directory in the user's home directory for:
+
 - Certificate caching
 - Configuration storage
 - Temporary file management
@@ -2592,6 +2631,7 @@ The CLI creates and uses the `.cocos` directory in the user's home directory for
 ### Signal Handling
 
 The CLI implements graceful shutdown:
+
 - Handles SIGINT (Ctrl+C) and SIGTERM signals
 - Cleans up temporary files on exit
 - Closes active connections properly
@@ -2600,18 +2640,21 @@ The CLI implements graceful shutdown:
 ### Network Security
 
 **TLS Configuration:**
+
 - Supports TLS 1.2+ for all connections
 - Certificate chain validation
 - CRL (Certificate Revocation List) checking
 - Custom CA certificate support
 
 **mTLS (Mutual TLS):**
+
 - Client certificate authentication
 - Automatic certificate renewal
 - Key rotation support
 - Hardware security module integration
 
 **aTLS (Attested TLS):**
+
 - TEE attestation during TLS handshake
 - Policy-based connection acceptance
 - Measurement verification
@@ -2620,12 +2663,14 @@ The CLI implements graceful shutdown:
 ### Performance Optimization
 
 **Streaming Operations:**
+
 - Large file uploads use streaming
 - Memory-efficient processing
 - Progress indicators for long operations
 - Concurrent connection pooling
 
 **Caching:**
+
 - Certificate caching in `.cocos` directory
 - Measurement result caching
 - Connection pooling

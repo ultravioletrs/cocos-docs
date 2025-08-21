@@ -29,7 +29,7 @@ Before diving into specific algorithm types, understand these fundamental steps 
    git clone https://github.com/ultravioletrs/ai.git
    ```
 
-3. **Rust Installation:** Ensure Rust is installed if you plan to build binary or Wasm examples. Follow instructions [here](https://www.rust-lang.org/tools/install).
+3. **Rust Installation:** Ensure Rust is installed if you plan to build binary or Wasm examples. Follow the [installation instructions](https://www.rust-lang.org/tools/install).
 
 4. **Terminate Previous Computations:** Always ensure any previous computations are terminated before starting a new one to avoid conflicts.
 
