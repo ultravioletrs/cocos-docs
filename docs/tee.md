@@ -110,7 +110,7 @@ Before setting up AMD SEV-SNP, ensure your system meets the following baseline r
 | **QEMU**         | SEV-SNP-enabled QEMU                                                | Hypervisor capable of launching SEV-SNP VMs                  |
 | **Toolchain**    | `build-essential`, `make`, `git`, `curl`, `python3`, `cargo`, `gcc` | Required for building guest images, tools, or kernel modules |
 
-The instructions to configure the guest and host kernel can be found [here](https://github.com/AMDESE/AMDSEV/tree/snp-latest).
+The [kernel configuration instructions](https://github.com/AMDESE/AMDSEV/tree/snp-latest) provide detailed setup information.
 
 ### SEV-SNP Host Kernel Setup in Cocos AI
 
@@ -133,7 +133,7 @@ We used a **custom Linux kernel ≥ 6.11**, compiled manually to ensure SNP supp
 
 #### 🖥️ SEV-SNP QEMU Setup
 
-QEMU was compiled from source. Launching a confidential VM as shown [here](https://github.com/ultravioletrs/cocos/tree/main/manager#test-vm-creation).
+QEMU was compiled from source. The [VM creation guide](https://github.com/ultravioletrs/cocos/tree/main/manager#test-vm-creation) shows how to launch confidential VMs.
 
 ### 🥥 Coconut SVSM and vTPM Provisioning in CocosAI for SEV-SNP
 
@@ -256,7 +256,7 @@ We used a custom Linux 6.8 kernel, compiled with Intel TDX support:
 | `CONFIG_VSOCK`            | Enables Virtio sockets (vsock) for communication with TDs |
 
 These kernel options enable TDX-specific memory encryption, VM management, and attestation capabilities.
-More details to set up the host can be found [here](https://github.com/canonical/tdx).
+More details about [host setup](https://github.com/canonical/tdx) are available in the canonical TDX repository.
 
 ### 🧬 TDX Firmware & BIOS Configuration
 
