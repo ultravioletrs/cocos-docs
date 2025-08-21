@@ -71,7 +71,7 @@ The Agent supports four distinct algorithm types:
 - **Docker Images**: Docker containers provide the most comprehensive packaging solution, including the complete runtime environment, system tools, and dependencies.
 - **WASM Modules**: WebAssembly modules offer portable, high-performance execution with strong security isolation.
 
-More information on how to run algorithms can be found [here](algorithms.md).
+More information on how to run algorithms can be found in the [algorithms documentation](algorithms.md).
 
 ## Agent workflow
 

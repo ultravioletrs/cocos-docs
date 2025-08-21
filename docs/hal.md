@@ -19,7 +19,7 @@ This way, applications can be executed in the CVM, and the whole HAL CVM is enti
 
 The vTPM is part of the CVM in the case of SEV-SNP. To understand how the vTPM is loaded, we need to talk about SEV-SNP VM privilege levels (VMPL). VMPL allows users to divide the SEV-SNP address space in four levels (from 0 to 3). These levels are hardware-enforced and can be used for additional security control within the CVM. All levels have a priority; level 0, or VMPL0, has the highest priority, while VMPL3 has the lowest. VMPL provides a feature like nested virtualization. For example, software loaded into VMPL0 can act as a security enforcer and control permission on all pages in guest memory. These pages would not be able to be altered by the software in the upper layers because of the hardware-enforced priority.
 
-COCONUT-SVSM utilizes this mechanism to load the vTPM into the VMPL0 layer and load the OS into the VMPL2 layer. The vTPM can then run without the interference of the OS, and the user can trust the vTPM attestation report because vTPM is running in VMPL0 and is backed by SEV-SNP. The COCONUT-SVSM team provides instructions on how to build the vTPM. The output of the build is a single IGVM file that can be used to boot CVMs with vTPM support. The instructions can be found [here](https://github.com/coconut-svsm/svsm/blob/main/Documentation/docs/installation/INSTALL.md#building-the-coconut-svsm).
+COCONUT-SVSM utilizes this mechanism to load the vTPM into the VMPL0 layer and load the OS into the VMPL2 layer. The vTPM can then run without the interference of the OS, and the user can trust the vTPM attestation report because vTPM is running in VMPL0 and is backed by SEV-SNP. The COCONUT-SVSM team provides instructions on how to build the vTPM. The output of the build is a single IGVM file that can be used to boot CVMs with vTPM support. The [build instructions](https://github.com/coconut-svsm/svsm/blob/main/Documentation/docs/installation/INSTALL.md#building-the-coconut-svsm) are available in the COCONUT-SVSM repository.
 
 ## Open Virtual Machine Firmware (OVMF)
 
@@ -46,11 +46,11 @@ Cocos configures Buildroot to incorporate support for WASM, Python, and Docker i
 
 HAL is made using the tool Buildroot. Buildroot is used to create efficient, embedded Linux systems, and we use it to create the compressed image of the kernel (bzImage) and the initial file system (initramfs). You can find the Buildroot configuration at the Cocos [repository](https://github.com/ultravioletrs/cocos/tree/main/hal/linux).
 
-HAL configuration for Buildroot also includes Python, WASM, and Docker runtime and the Agent software support. You can read more about the Agent software [here](agent.md).
+HAL configuration for Buildroot also includes Python, WASM, and Docker runtime and the Agent software support. You can read more about the [Agent software](agent.md).
 
 ## How does it work?
 
-HAL is combined with AMD SEV-SNP or Intel TDX to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the attestation process [here](attestation-introduction.mdx).
+HAL is combined with AMD SEV-SNP or Intel TDX to provide a fully encrypted VM that can be verified using remote attestation. You can read more about the [attestation process](attestation-introduction.mdx).
 
 ### AMD SEV-SNP
 
