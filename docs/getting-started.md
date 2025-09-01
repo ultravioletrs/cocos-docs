@@ -4,7 +4,7 @@
 
 Before proceeding, make sure you have the following installed:
 
-- [Golang](https://go.dev/doc/install) (version 1.24 or later)
+- [Golang](https://go.dev/doc/install) (version 1.25 or later)
 
 ## Getting COCOS AI
 
