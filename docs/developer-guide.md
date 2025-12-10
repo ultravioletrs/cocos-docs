@@ -14,7 +14,7 @@
 
 The project uses Go and Protocol Buffers. Make sure the following tools are installed:
 
-- [Go](https://go.dev/doc/install) 1.20 or later
+- [Go](https://go.dev/doc/install) 1.25 or later
 - [Protocol Buffers](https://grpc.io/docs/languages/go/quickstart/)
 - [GNU Make](https://www.gnu.org/software/make/)
 - [QEMU-KVM](https://www.qemu.org/) for running local VMs
@@ -37,7 +37,7 @@ The HAL is a minimal Linux distribution used inside the confidential VM. To buil
 ```shell
 git clone https://github.com/buildroot/buildroot.git
 cd buildroot
-git checkout 2024.11-rc2
+git checkout 2025.08-rc3
 make BR2_EXTERNAL=../cocos/hal/linux cocos_defconfig
 make menuconfig    # optional, for additional configuration
 make
