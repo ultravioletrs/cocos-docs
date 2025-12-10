@@ -78,23 +78,24 @@ More information on how to run algorithms can be found [here](algorithms.md).
 The Agent is implemented as a system service, automatically initiated upon CVM creation. Its behavior is configured through environment variables within the CVM. While these variables are automatically set, they can be manually overridden for specific deployments.
 The following table details the environment variables utilized by the Agent:
 
-| Variable                       | Description                                                                                                   | Default                                      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| AGENT_CVM_ID                   | ID of the CVM (UUID string)                                                                                   | ""                                           |
-| AGENT_LOG_LEVEL                | Log level for agent service (debug, info, warn, error)                                                        | debug                                        |
-| AGENT_VMPL                     | When AMD SEV-SNP is used, this variables set VM privilege level for the agent                                 | "2"                                          |
-| AGENT_CVM_GRPC_URL             | URL of the server which sends the computation manifest                                                        | "localhost:7001"                             |
-| AGENT_CVM_GRPC_TIMEOUT         | Timeout period for communication with the server                                                              | "60s"                                        |
-| AGENT_CVM_GRPC_CLIENT_CERT     | Path to the certificate file used by the agent for mTLS communication with the sever                          | ""                                           |
-| AGENT_CVM_GRPC_CLIENT_KEY      | Path to the key file used by the agent for mTLS communication with the sever                                  | ""                                           |
-| AGENT_CVM_GRPC_SERVER_CA_CERTS | Path to servers CA root certificate used by the agent for mTLS communication with the sever                   | ""                                           |
-| AGENT_CVM_CA_URL               | URL for CA service, if provided it will be used for certificate generation, used only with aTLS               | ""                                           |
-| AGENT_GRPC_HOST                | Agent service gRPC host, used for communication with CLI                                                      | ""                                           |
-| AGENT_GRPC_PORT                | Agent service gRPC port, used for communication with CLI                                                      | 7002                                         |
-| AGENT_MAA_URL                  | URL for Microsoft Azure Attestation service                                                                   | `"https://sharedeus2.eus2.attest.azure.net"` |
-| AGENT_OS_BUILD                 | Defines OS build for MAA service                                                                              | "UVC"                                        |
-| AGENT_OS_DISTRO                | Defines OS distro for MAA service                                                                             | "UVC"                                        |
-| AGENT_OS_TYPE                  | Defines OS type for MAA service                                                                               | "UVC"                                        |
+| Variable                       | Description                                                                                     | Default                                      |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| AGENT_CVM_ID                   | ID of the CVM (UUID string)                                                                     | ""                                           |
+| AGENT_LOG_LEVEL                | Log level for agent service (debug, info, warn, error)                                          | debug                                        |
+| AGENT_VMPL                     | When AMD SEV-SNP is used, this variables set VM privilege level for the agent                   | "2"                                          |
+| AGENT_CVM_GRPC_URL             | URL of the server which sends the computation manifest                                          | "localhost:7001"                             |
+| AGENT_CVM_GRPC_TIMEOUT         | Timeout period for communication with the server                                                | "60s"                                        |
+| AGENT_CVM_GRPC_CLIENT_CERT     | Path to the certificate file used by the agent for mTLS communication with the sever            | ""                                           |
+| AGENT_CVM_GRPC_CLIENT_KEY      | Path to the key file used by the agent for mTLS communication with the sever                    | ""                                           |
+| AGENT_CVM_GRPC_SERVER_CA_CERTS | Path to servers CA root certificate used by the agent for mTLS communication with the sever     | ""                                           |
+| AGENT_CVM_CA_URL               | URL for CA service, if provided it will be used for certificate generation, used only with aTLS | ""                                           |
+| AGENT_GRPC_HOST                | Agent service gRPC host, used for communication with CLI                                        | ""                                           |
+| AGENT_GRPC_PORT                | Agent service gRPC port, used for communication with CLI                                        | 7002                                         |
+| AGENT_MAA_URL                  | URL for Microsoft Azure Attestation service                                                     | `"https://sharedeus2.eus2.attest.azure.net"` |
+| AGENT_OS_BUILD                 | Defines OS build for MAA service                                                                | "UVC"                                        |
+| AGENT_OS_DISTRO                | Defines OS distro for MAA service                                                               | "UVC"                                        |
+| AGENT_OS_TYPE                  | Defines OS type for MAA service                                                                 | "UVC"                                        |
+| AGENT_CERTS_TOKEN              | Token used for certificate generation, used only with aTLS                                      | ""                                           |
 
 When started, the Agent first notifies the server.
 The server sends a run request which contains the computation manifest.
@@ -112,7 +113,7 @@ When establishing a communication channel with the CLI, a new certificate and ke
 If the CA URL and CVM ID are not specified, the agent will generate a self-signed certificate.
 If the CA URL and CVM ID are specified, the agent generate a CSR and use a CA to issue a certificate which will be used for aTLS communication.
 The URL of CA is configured through environment varibles (`AGENT_CVM_CA_URL`).
-By default the agent uses [Abstract Machine Certificate service](https://github.com/absmach/certs) as its CA.
+By default the agent uses [Abstract Machine Certificate service](https://github.com/absmach/certs) as its CA. An access token provisioned on the CA is required for certificate generation and is configured through the `AGENT_CERTS_TOKEN` environment variable.
 In both cases, the generated certificate will then be extended with the attestation report.
 
 ## Attestation
