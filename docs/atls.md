@@ -6,10 +6,10 @@ In the following text, the attestation report will be referred to as Evidence, a
 
 In Cocos, the CVM acts as the server, and the Agent uses standard X.509 certificates for its TLS connection. In order to bind the Evidence to the TLS connection, the Agent does the following:
 
- - Generates ephemeral public and private keys for every connection. Thus, ensuring that the Agent is the only one who has access to the private key. 
- - Generates a fresh X.509 certificate based on the ephemeral public and private keys.
- - Fetches the Evidence and embeds the public key and a cocos-cli-supplied nonce into the Evidence. The nonce is needed to ensure the Evidence's freshness.
- - Extends the X.509 certificate with the Evidence and self-signs the certificate.
+- Generates ephemeral public and private keys for every connection. Thus, ensuring that the Agent is the only one who has access to the private key.
+- Generates a fresh X.509 certificate based on the ephemeral public and private keys.
+- Fetches the Evidence and embeds the public key and a cocos-cli-supplied nonce into the Evidence. The nonce is needed to ensure the Evidence's freshness.
+- Extends the X.509 certificate with the Evidence and self-signs the certificate.
 
 By embedding the Evidence into the X.509 certificate, the TLS handshake remains unchanged, and cocos-cli needs to verify the Evidence extracted from the TLS certificate. Also, the relying party (the user of cocos-cli) can be assured that they are talking directly to the Agent inside the CVM. Because the Evidence is bound to the X.509 certificate, the Evidence is fresh, and the Agent is the only one with the private key of the X.509 certificate, the relying party has enough proof that it is talking to the Agent.
 
@@ -19,11 +19,11 @@ The entire process is illustrated in the picture below. The green color represen
 
 Attested TLS comes in three different forms:
 
- - Pre-handshake - the Evidence is fetched before the TLS handshake. The problem with this implementation is that the CVM cannot guarantee the Evidence's freshness.
- - Intra-handshake - the Evidence provided during the TLS handshake. Cocos implements this form of TLS.
- - Post-handshake - the Evidence is provided after the TLS handshake.
+- Pre-handshake - the Evidence is fetched before the TLS handshake. The problem with this implementation is that the CVM cannot guarantee the Evidence's freshness.
+- Intra-handshake - the Evidence provided during the TLS handshake. Cocos implements this form of TLS.
+- Post-handshake - the Evidence is provided after the TLS handshake.
 
-The next step is to learn how the cocos-cli transfers the random nonce to the Agent. Cocos uses the standard Go TLS library. The random nonce could be transported using custom TLS extensions, or the TLS random nonce could be extracted from the TLS handshake, but the standard Go TLS library does not allow either of those approaches. To solve this problem, Cosos uses the Server Name Indication (SNI) extension. The SNI is chosen because no servers are running besides the Agent in the CVM. Thus, the SNI was chosen to transport the cocos-cli random nonce needed for Evidence freshness. 
+The next step is to learn how the cocos-cli transfers the random nonce to the Agent. Cocos uses the standard Go TLS library. The random nonce could be transported using custom TLS extensions, or the TLS random nonce could be extracted from the TLS handshake, but the standard Go TLS library does not allow either of those approaches. To solve this problem, Cosos uses the Server Name Indication (SNI) extension. The SNI is chosen because no servers are running besides the Agent in the CVM. Thus, the SNI was chosen to transport the cocos-cli random nonce needed for Evidence freshness.
 
 The exact point at which the Agent certificate is sent during the TLS handshake process is shown below.
 
