@@ -2,13 +2,30 @@
 
 For the relying party to send confidential data or code to the Agent, a secure channel must be established between them. The secure channel is established using attested TLS, which is a TLS connection enriched with the attestation report of the Agent.
 
-In Cocos, the CVM acts as the server, and the Agent extends the X.509 certificate it uses for TLS with the attestation report. When generating the report, the Agent embeds the hash of its public key into the `report_data` field of the AMD SEV-SNP report. To maintain the freshness of the attestation report, a new certificate is regenerated with every connection, along with a fresh attestation report.
+In the following text, the attestation report will be referred to as Evidence, and it will include the SEV-SNP attestation report and the TDX Quote.
 
-By combining the TLS certificate along with the attestation report, the relying party (the user of cocos-cli) can be assured that he is talking directly to the Agent inside the TEE, because the attestation report is bound to the certificate and the report has the guarantee of freshness, the relying party knows that the other side of the TLS connection is inside the TEE.
+In Cocos, the CVM acts as the server, and the Agent uses standard X.509 certificates for its TLS connection. In order to bind the Evidence to the TLS connection, the Agent does the following:
+
+- Generates ephemeral public and private keys for every connection. Thus, ensuring that the Agent is the only one who has access to the private key.
+- Generates a fresh X.509 certificate based on the ephemeral public and private keys.
+- Fetches the Evidence and embeds the public key and a cocos-cli-supplied nonce into the Evidence. The nonce is needed to ensure the Evidence's freshness.
+- Extends the X.509 certificate with the Evidence and self-signs the certificate.
+
+By embedding the Evidence into the X.509 certificate, the TLS handshake remains unchanged, and cocos-cli needs to verify the Evidence extracted from the TLS certificate. Also, the relying party (the user of cocos-cli) can be assured that they are talking directly to the Agent inside the CVM. Because the Evidence is bound to the X.509 certificate, the Evidence is fresh, and the Agent is the only one with the private key of the X.509 certificate, the relying party has enough proof that it is talking to the Agent.
 
 The entire process is illustrated in the picture below. The green color represents the trusted part of the system, while the red represents the untrusted part.
 
-![Attested TLS](/img/attestation/atls.png)
+![Attested TLS - SEV-SNP](/img/attestation/atls_snp.png)
+
+![Attested TLS - TDX](/img/attestation/atls_tdx.png)
+
+Attested TLS comes in three different forms:
+
+- Pre-handshake - the Evidence is fetched before the TLS handshake. The problem with this implementation is that the CVM cannot guarantee the Evidence's freshness.
+- Intra-handshake - the Evidence provided during the TLS handshake. Cocos implements this form of TLS.
+- Post-handshake - the Evidence is provided after the TLS handshake.
+
+The next step is to learn how the cocos-cli transfers the random nonce to the Agent. Cocos uses the standard Go TLS library. The random nonce could be transported using custom TLS extensions, or the TLS random nonce could be extracted from the TLS handshake, but the standard Go TLS library does not allow either of those approaches. To solve this problem, Cosos uses the Server Name Indication (SNI) extension. The SNI is chosen because no servers are running besides the Agent in the CVM. Thus, the SNI was chosen to transport the cocos-cli random nonce needed for Evidence freshness.
 
 The exact point at which the Agent certificate is sent during the TLS handshake process is shown below.
 
@@ -71,8 +88,12 @@ One of the key components of the verification process is the attestation policy.
 }
 ```
 
-The relying party uses the Cocos CLI to verify the self-signed (or CA-signed) certificate and the attestation report that is part of it. Successful verification proves to the relying party that the CVM is in a good state and that the relying party is indeed communicating with the Agent.
+The relying party uses the Cocos CLI to verify the self-signed certificate and the attestation report that is part of it. Successful verification proves to the relying party that the CVM is in a good state and that the relying party is indeed communicating with the Agent. The Agent can be configured to generate X.509 certificates and have them be signed by the Prism CA.
 
 The array `pcr_values` represents the expected (golden) PCR values that must match the PCR values in the vTPM attestation report. The `policy` and `root_of_trust` sections describe the reference values for the fields in the SEV-SNP attestation report.
 
 It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS.
+
+## Potential problems if the user does not use aTLS
+
+One of the main reasons why attested TLS is important is that it combines TLS and the Evidence of the underlying TEE. By combining the said components, the cocos-cli user can be assured that the other end of the TLS connection is in the CVM. If the confidential computing solution does not implement attested TLS, it could potentially expose the user to the [Cuckoo attack](https://www.usenix.org/legacy/event/hotsec08/tech/full_papers/parno/parno.pdf). In the Cuckoo attack, a malicious administrator or hypervisor can boot two VMs, one CVM and one regular VM. If the Evidence is not bound to the TLS channel, the malicious hypervisor or administrator can direct traffic to the regular VM, and when the user wants to fetch the Evidence, the Evidence can be fetched from the CVM and returned to the user. Thus, the user thinks he is communicating with the CVM, when in fact he is communicating with a regular VM.
