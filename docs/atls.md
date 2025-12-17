@@ -15,7 +15,9 @@ By embedding the Evidence into the X.509 certificate, the TLS handshake remains 
 
 The entire process is illustrated in the picture below. The green color represents the trusted part of the system, while the red represents the untrusted part.
 
-![Attested TLS](/img/attestation/atls.png)
+![Attested TLS - SEV-SNP](/img/attestation/atls_snp.png)
+
+![Attested TLS - TDX](/img/attestation/atls_tdx.png)
 
 Attested TLS comes in three different forms:
 
@@ -91,3 +93,7 @@ The relying party uses the Cocos CLI to verify the self-signed certificate and t
 The array `pcr_values` represents the expected (golden) PCR values that must match the PCR values in the vTPM attestation report. The `policy` and `root_of_trust` sections describe the reference values for the fields in the SEV-SNP attestation report.
 
 It is also possible to use mutual attested TLS, which is a combination of mutual TLS and attested TLS.
+
+## Potential problems if the user does not use aTLS
+
+One of the main reasons why attested TLS is important is that it combines TLS and the Evidence of the underlying TEE. By combining the said components, the cocos-cli user can be assured that the other end of the TLS connection is in the CVM. If the confidential computing solution does not implement attested TLS, it could potentially expose the user to the [Cuckoo attack](https://www.usenix.org/legacy/event/hotsec08/tech/full_papers/parno/parno.pdf). In the Cuckoo attack, a malicious administrator or hypervisor can boot two VMs, one CVM and one regular VM. If the Evidence is not bound to the TLS channel, the malicious hypervisor or administrator can direct traffic to the regular VM, and when the user wants to fetch the Evidence, the Evidence can be fetched from the CVM and returned to the user. Thus, the user thinks he is communicating with the CVM, when in fact he is communicating with a regular VM.
