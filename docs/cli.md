@@ -2640,8 +2640,9 @@ The CLI implements graceful shutdown:
 - Policy-based connection acceptance
 - Measurement verification
 - Secure key exchange within TEE
-- 
+
 **maTLS (Attested TLS):**
+
 - Combines both mTLS + aTLS
 
 ### Performance Optimization
