@@ -1,9 +1,24 @@
-# CLI
+# COCOS CLI Documentation
 
-The CLI allows you to perform various tasks related to the computation and
-management of algorithms, datasets and TEE. The CLI is a gRPC client for the
-agent service. To communicate with agent, digital signatures are required
-for auth against the roles such dataset provider.
+The COCOS CLI (`cocos-cli`) is a comprehensive command-line interface that allows you to perform various tasks related to the computation and management of algorithms, datasets, and Trusted Execution Environments (TEE).
+
+## Overview
+
+The CLI serves as a gRPC client for both the Agent and Manager services, providing:
+
+- **Secure Communication:** All interactions use encrypted channels (TLS/mTLS/aTLS)
+- **Digital Authentication:** Digital signatures are required for authentication against roles such as dataset providers
+- **Multi-Service Integration:** Connects to both Agent (computation) and Manager (VM lifecycle) services
+- **Cross-Platform Support:** Built in Go for compatibility across operating systems
+
+## Target Users
+
+This documentation is designed for:
+
+- **System Administrators:** Performing manual tasks and system management
+- **Developers:** Integrating CLI into applications and automation workflows
+- **Support Teams:** Diagnosing issues and troubleshooting problems
+- **Security Engineers:** Understanding attestation and verification processes
 
 ## Build
 
@@ -42,6 +57,33 @@ export AGENT_GRPC_URL=<agent_host:agent_port>
 
 Agent port is found from the manager logs after the TEE has been provisioned
 and agent inserted.
+
+#### Set Manager URL
+
+For VM management operations (create-vm, remove-vm), the manager service URL
+is required.
+
+```shell
+export MANAGER_GRPC_URL=<manager_host:manager_port>
+```
+
+#### Set Manager Certificate Paths for TLS/mTLS (optional)
+
+To use TLS/mTLS when communicating with Manager service:
+
+```shell
+export MANAGER_GRPC_SERVER_CA_CERTS=<path_to_Manager_CA_root_certificate>
+export MANAGER_GRPC_CLIENT_CERT=<path_to_CLI_certificate_file>
+export MANAGER_GRPC_CLIENT_KEY=<path_to_CLI_key_file>
+```
+
+#### Set IGVM Binary Path (optional)
+
+Specifies the path to the IGVM measurement binary:
+
+```shell
+export IGVM_BINARY_PATH=<path_to_igvmmeasure>  # Default: "./build/igvmmeasure"
+```
 
 #### Set Agent CA Certificate Path for TLS (optional)
 
@@ -385,6 +427,61 @@ test -r "$AGENT_GRPC_CLIENT_KEY" && echo "Client key accessible"
 5. **Test connectivity** - Use `nc` or similar tools to verify network access
 6. **Check manager logs** - Find correct agent port and startup status
 
+## CLI Architecture and Design
+
+### Framework and Dependencies
+
+The CLI is built using:
+
+- **Cobra Framework:** Command-line interface framework with subcommands
+- **gRPC:** Communication with Agent and Manager services
+- **TLS/mTLS/aTLS:** Secure communication protocols
+- **Go-based:** Written in Go for cross-platform compatibility
+
+### Connection Management
+
+The CLI maintains persistent connections to:
+
+1. **Agent Service:** For computation operations (algo, data, result)
+2. **Manager Service:** For VM lifecycle management (create-vm, remove-vm)
+3. **Certificate Management:** Automatic certificate validation and renewal
+4. **Retry Logic:** Configurable timeouts and automatic retry mechanisms
+
+### Authentication System
+
+All operations use digital signature authentication:
+
+- **Supported Algorithms:** RSA (4096-bit), ECDSA (P-256), Ed25519
+- **Key Formats:** PKCS#1, PKCS#8, EC private keys in PEM encoding
+- **Signature Verification:** Server-side verification of all operations
+- **Key Generation:** Built-in key generation with proper permissions
+
+### Error Handling and User Experience
+
+The CLI provides comprehensive error handling:
+
+- **gRPC Status Translation:** Converts gRPC errors to user-friendly messages
+- **Color-coded Output:** Red for errors, green for success
+- **Verbose Mode:** Detailed logging for troubleshooting
+- **Graceful Degradation:** Handles network issues and service unavailability
+
+### File and Data Handling
+
+**Automatic Processing:**
+
+- Directory compression (ZIP format)
+- Streaming uploads for large files
+- Temporary file management and cleanup
+- File integrity verification
+
+**Supported Formats:**
+
+- Binary executables
+- Python scripts with requirements
+- Docker images (tar format)
+- WebAssembly modules
+- Compressed datasets
+
 ## CLI Commands Documentation
 
 The CLI (`cocos-cli`) provides commands to retrieve and validate attestations
@@ -404,22 +501,23 @@ cocos-cli [command]
 
 ## Available Commands
 
-| Command            | Description                                  | Help Command                        |
-| ------------------ | -------------------------------------------- | ----------------------------------- |
-| `algo`             | Upload an algorithm binary                   | `cocos-cli algo --help`             |
-| `attestation`      | Get and validate attestations                | `cocos-cli attestation --help`      |
-| `ca-bundle`        | Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)   | `cocos-cli ca-bundle --help`        |
-| `checksum`         | Compute the sha3-256 hash of a file          | `cocos-cli checksum --help`         |
-| `create-vm`        | Create a new virtual machine                 | `cocos-cli create-vm --help`        |
-| `data`             | Upload a dataset                             | `cocos-cli data --help`             |
-| `help`             | Help about any command                       | `cocos-cli help [command]`          |
-| `igvmmeasure`      | Measure an IGVM file                         | `cocos-cli igvmmeasure --help`      |
-| `ima-measurements` | Retrieve Linux IMA measurements file         | `cocos-cli ima-measurements --help` |
-| `keys`             | Generate a new public/private key pair       | `cocos-cli keys --help`             |
-| `policy`           | Change attestation policy                    | `cocos-cli policy --help`           |
-| `remove-vm`        | Remove a virtual machine                     | `cocos-cli remove-vm --help`        |
-| `result`           | Retrieve computation result file             | `cocos-cli result --help`           |
-| `sevsnpmeasure`    | Calculate AMD SEV/SEV-ES/SEV-SNP measurement | `cocos-cli sevsnpmeasure --help`    |
+| Command            | Description                                  | Authentication Required | Service Required | Help Command                        |
+|--------------------|----------------------------------------------|-------------------------|------------------|-------------------------------------|
+| `algo`             | Upload an algorithm binary                   | ✓ (Private Key)         | Agent            | `cocos-cli algo --help`             |
+| `attestation`      | Get and validate attestations                | ✗                       | Agent            | `cocos-cli attestation --help`      |
+| `ca-bundle`        | Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)   | ✗                       | None             | `cocos-cli ca-bundle --help`        |
+| `checksum`         | Compute the sha3-256 hash of a file          | ✗                       | None             | `cocos-cli checksum --help`         |
+| `completion`       | Generate shell completion scripts            | ✗                       | None             | `cocos-cli completion --help`       |
+| `create-vm`        | Create a new virtual machine                 | ✓ (Optional mTLS)       | Manager          | `cocos-cli create-vm --help`        |
+| `data`             | Upload a dataset                             | ✓ (Private Key)         | Agent            | `cocos-cli data --help`             |
+| `help`             | Help about any command                       | ✗                       | None             | `cocos-cli help [command]`          |
+| `igvmmeasure`      | Measure an IGVM file                         | ✗                       | None             | `cocos-cli igvmmeasure --help`      |
+| `ima-measurements` | Retrieve Linux IMA measurements file         | ✗                       | Agent            | `cocos-cli ima-measurements --help` |
+| `keys`             | Generate a new public/private key pair       | ✗                       | None             | `cocos-cli keys --help`             |
+| `policy`           | Change attestation policy                    | ✗                       | Varies           | `cocos-cli policy --help`           |
+| `remove-vm`        | Remove a virtual machine                     | ✓ (Optional mTLS)       | Manager          | `cocos-cli remove-vm --help`        |
+| `result`           | Retrieve computation result file             | ✓ (Private Key)         | Agent            | `cocos-cli result --help`           |
+| `sevsnpmeasure`    | Calculate AMD SEV/SEV-ES/SEV-SNP measurement | ✗                       | None             | `cocos-cli sevsnpmeasure --help`    |
 
 ## Command: `algo`
 
@@ -435,9 +533,7 @@ Currently, support is provided for four types of algorithms: executable
 binaries, Python files, Docker images (provided as tar files) and Wasm
 modules. The above command expects an algorithm in binary format that will be
 executed inside the secure VM by the agent. For Python files, the algo file,
-the requirements file, and the Python runtime are required. More information
-on how to run the other types of algorithms can be found
-[here](algorithms.md). To run a python file, use the following command:
+the requirements file, and the Python runtime are required. Different algorithm types require specific configurations and dependencies.
 
 **Arguments:**
 
@@ -455,6 +551,59 @@ on how to run the other types of algorithms can be found
 **Global Flags:**
 
 - `-v, --verbose`: Enable verbose output
+
+**Authentication:**
+
+All agent operations require digital signature authentication using RSA, ECDSA, or Ed25519 private keys. The CLI supports the following key formats:
+
+- PKCS#1 RSA private keys
+- PKCS#8 private keys (RSA, ECDSA, Ed25519)
+- EC private keys
+- PEM encoding required for all keys
+
+**Algorithm Types:**
+
+The CLI supports four types of algorithms through the `-a, --algorithm` flag:
+
+1. **Binary Executables** (`bin` - default):
+
+   ```bash
+   ./build/cocos-cli algo binary_algo.bin private_key.pem
+   ```
+
+2. **Python Scripts** (`python`):
+
+   ```bash
+   ./build/cocos-cli algo -a python script.py private_key.pem \
+     -r requirements.txt --python-runtime python3
+   ```
+
+3. **Docker Images** (`docker` - as tar files):
+
+   ```bash
+   ./build/cocos-cli algo -a docker image.tar private_key.pem
+   ```
+
+4. **WebAssembly Modules** (`wasm`):
+
+   ```bash
+   ./build/cocos-cli algo -a wasm module.wasm private_key.pem
+   ```
+
+**Algorithm Arguments:**
+
+Pass arguments to the algorithm using the `--args` flag:
+
+```bash
+./build/cocos-cli algo binary_algo.bin private_key.pem \
+  --args="--input=data.csv" --args="--output=result.json"
+```
+
+**File Handling:**
+
+- The CLI automatically handles file compression and temporary file management
+- Large files are processed using streaming for optimal performance
+- Proper cleanup of temporary files is performed automatically
 
 **Example:**
 
@@ -1096,6 +1245,41 @@ cocos-cli ca-bundle [flags]
 
 - `-v, --verbose`: Enable verbose output
 
+**Dataset Types:**
+
+The CLI supports both files and directories as datasets:
+
+1. **Single Files:**
+
+   ```bash
+   ./build/cocos-cli data dataset.csv private_key.pem
+   ```
+
+2. **Directories** (automatically zipped):
+
+   ```bash
+   ./build/cocos-cli data /path/to/dataset/ private_key.pem
+   ```
+
+**Compression:**
+
+Use the `-d, --decompress` flag to automatically decompress datasets on the agent:
+
+```bash
+./build/cocos-cli data dataset.zip private_key.pem --decompress
+```
+
+**Authentication:**
+
+Dataset uploads require digital signature authentication using the same key formats supported for algorithms (RSA, ECDSA, Ed25519 in PEM format).
+
+**File Processing:**
+
+- Directories are automatically compressed into ZIP format before upload
+- Large datasets are handled using streaming upload
+- Temporary files are automatically cleaned up after upload
+- File integrity is verified during the upload process
+
 **Example:**
 
 ```bash
@@ -1126,13 +1310,64 @@ cocos-cli checksum [flags]
 
 - `-v, --verbose`: Enable verbose output
 
-**Example:**
+**Checksum Types:**
+
+1. **Standard File Checksum:**
+
+   ```bash
+   ./build/cocos-cli checksum data.txt
+   # Output: SHA3-256 hash in hexadecimal format
+   ```
+
+2. **Manifest File Checksum** (`-m, --manifest`):
+
+   ```bash
+   ./build/cocos-cli checksum -m computation.json
+   # Processes JSON manifest format for computation verification
+   ```
+
+3. **Base64 Output** (`-b, --base64`):
+
+   ```bash
+   ./build/cocos-cli checksum -b data.txt
+   # Output: SHA3-256 hash in base64 format
+   ```
+
+**Manifest File Format:**
+
+When using the `--manifest` flag, the CLI expects a JSON file with a specific computation manifest format. This is used for verifying the integrity of computation configurations.
+
+**Hash Algorithm:**
+
+The CLI uses SHA3-256 (Keccak-256) for all hash calculations, providing:
+
+- 256-bit security level
+- Resistance to length extension attacks
+- Cryptographic security suitable for attestation
+
+**Use Cases:**
+
+- Verifying file integrity before upload
+- Computing expected measurements for attestation
+- Generating checksums for manifest verification
+- Creating hash-based identifiers for files
+
+**Examples:**
 
 ```bash
-./build/cocos-cli checksum <file>
+# Basic file checksum
+./build/cocos-cli checksum dataset.csv
+
+# Manifest checksum in base64
+./build/cocos-cli checksum -m -b computation_manifest.json
+
+# Standard file checksum in base64
+./build/cocos-cli checksum -b algorithm.bin
 ```
 
 ## Command: `completion`
+
+> **Note:** Completion commands are documented but rely on Cobra's built-in completion functionality which may not be explicitly implemented in the current codebase.
 
 Generate the autocompletion script for cocos-cli for the specified shell.
 See each sub-command's help for details on how to use the generated script.
@@ -1331,10 +1566,72 @@ None
 
 - `-v, --verbose`: Enable verbose output
 
-**Example:**
+**Required Configuration:**
+
+VM creation requires connection to the Manager service. Set the manager URL:
 
 ```bash
-./build/cocos-cli create-vm
+export MANAGER_GRPC_URL=manager.example.com:50051
+```
+
+**Certificate Configuration:**
+
+For secure connections, configure TLS/mTLS certificates:
+
+```bash
+# For TLS
+export MANAGER_GRPC_SERVER_CA_CERTS=/path/to/manager-ca.pem
+
+# For mTLS (mutual TLS)
+export MANAGER_GRPC_CLIENT_CERT=/path/to/client.crt
+export MANAGER_GRPC_CLIENT_KEY=/path/to/client.key
+```
+
+**VM Configuration Options:**
+
+- `--server-url`: CVM server URL (overrides environment variable)
+- `--server-ca`: CVM server CA certificate path
+- `--client-key`: Client private key for mTLS authentication
+- `--client-crt`: Client certificate for mTLS authentication
+- `--ca-url`: CA service URL for certificate management
+- `--log-level`: Agent log level (info, debug, warn, error)
+- `--ttl`: VM time-to-live duration (e.g., "24h", "7d")
+
+**VM Lifecycle:**
+
+The CLI creates a confidential virtual machine with:
+
+1. Secure boot and attestation capabilities
+2. Agent service automatically deployed
+3. Network connectivity for algorithm/data upload
+4. Automatic cleanup based on TTL settings
+
+**Output:**
+
+Successful VM creation returns:
+
+- VM identifier (CVM ID) for future reference
+- Agent service endpoint for data operations
+- Connection details for attestation
+
+**Examples:**
+
+```bash
+# Basic VM creation
+./build/cocos-cli create-vm --server-url https://manager.example.com
+
+# VM with custom TTL and log level
+./build/cocos-cli create-vm \
+  --server-url https://manager.example.com \
+  --ttl 48h \
+  --log-level debug
+
+# VM with mTLS authentication
+./build/cocos-cli create-vm \
+  --server-url https://manager.example.com \
+  --client-cert /path/to/client.crt \
+  --client-key /path/to/client.key \
+  --server-ca /path/to/ca.pem
 ```
 
 ## Command: `data`
@@ -1360,6 +1657,58 @@ cocos-cli data [flags]
 **Global Flags:**
 
 - `-v, --verbose`: Enable verbose output
+
+**Supported Key Types:**
+
+1. **RSA Keys** (`rsa` - default):
+    - **Key Size:** 4096 bits
+    - **Format:** PKCS#1 PEM encoding
+    - **Usage:** Most compatible, widely supported
+
+   ```bash
+   ./build/cocos-cli keys -k rsa
+   ```
+
+2. **ECDSA Keys** (`ecdsa`):
+    - **Curve:** P-256 (secp256r1)
+    - **Format:** PKCS#8 PEM encoding
+    - **Usage:** Smaller key size, good performance
+
+   ```bash
+   ./build/cocos-cli keys -k ecdsa
+   ```
+
+3. **Ed25519 Keys** (`ed25519`):
+    - **Algorithm:** EdDSA with Curve25519
+    - **Format:** PKCS#8 PEM encoding
+    - **Usage:** Modern, high-performance elliptic curve
+
+   ```bash
+   ./build/cocos-cli keys -k ed25519
+   ```
+
+**Generated Files:**
+
+The command creates two files in the current directory:
+
+- `private.pem` - Private key (keep secure!)
+- `public.pem` - Public key (safe to share)
+
+**File Permissions:**
+
+The CLI automatically sets appropriate permissions:
+
+- Private key: `600` (read/write for owner only)
+- Public key: `644` (readable by all, writable by owner)
+
+**Key Usage:**
+
+Generated keys can be used for:
+
+- Algorithm upload authentication
+- Dataset upload authentication
+- Result retrieval authentication
+- Any operation requiring digital signatures in COCOS
 
 **Example:**
 
@@ -1398,11 +1747,69 @@ cocos-cli igvmmeasure <INPUT> [flags]
 
 The tool will parse the directives in the IGVM file, calculate the launch measurement, and output the computed digest. If successful, it prints the measurement to standard output.
 
-Here is a sample output
+**IGVM File Format:**
+
+IGVM (Isolated Guest Virtual Machine) files contain:
+
+- VM configuration directives
+- Initial memory layout
+- Boot loader and kernel images
+- Security policy settings
+- Measurement targets for attestation
+
+**Measurement Calculation:**
+
+The tool processes IGVM directives to calculate the launch measurement by:
+
+1. Parsing all IGVM directives in order
+2. Processing memory layout and content directives
+3. Calculating cumulative hash of measured components
+4. Outputting final measurement as hex string
+
+**Use Cases:**
+
+- **Pre-launch Verification:** Calculate expected measurement before VM launch
+- **Attestation Policy:** Use measurement in attestation policies
+- **Integrity Verification:** Verify IGVM file hasn't been tampered with
+- **Policy Creation:** Generate policies based on measured values
+
+**Integration with Attestation:**
+
+The calculated measurement can be used with attestation validation:
+
+```bash
+# Calculate IGVM measurement
+measurement=$(./build/cocos-cli igvmmeasure vm.igvm)
+
+# Use in attestation validation
+./build/cocos-cli attestation validate attestation.bin \
+  --measurement $measurement \
+  --mode snp
+```
+
+**Error Handling:**
+
+Common errors include:
+
+- Invalid IGVM file format
+- Corrupted or incomplete IGVM file
+- Unsupported IGVM directives
+- File permission issues
+
+Here is a sample output:
 
 ```text
 91c4929bec2d0ecf11a708e09f0a57d7d82208bcba2451564444a4b01c22d047995ca27f9053f86de4e8063e9f810548
 ```
+
+**Output Format:**
+
+The measurement is output as a 384-bit (48-byte) hex-encoded string, suitable for:
+
+- Direct use in attestation policies
+- Comparison with attestation report measurements
+- Storage in configuration files
+- Integration with automated verification scripts
 
 ## Command: `ima-measurements`
 
@@ -1433,10 +1840,74 @@ cocos-cli ima-measurements [flags]
 
 - `-v, --verbose`: Enable verbose output
 
-**Example:**
+**IMA Overview:**
+
+Integrity Measurement Architecture (IMA) is a Linux kernel subsystem that maintains a runtime measurement list of all files accessed by the system. The COCOS VM has IMA enabled to provide a complete boot and runtime integrity log.
+
+**Measurement Process:**
+
+1. **Boot Measurements:** Every file accessed during boot is measured
+2. **Runtime Measurements:** Continued measurement of accessed files
+3. **PCR Extension:** Measurements extend TPM Platform Configuration Register 10 (PCR10)
+4. **Verification:** Downloaded measurements can be verified against PCR10 value
+
+**PCR10 Verification:**
+
+The CLI automatically performs PCR10 verification:
 
 ```bash
-./build/cocos-cli ima-measurements <optional_file_name>
+# The CLI calculates the expected PCR10 value from measurements
+# and compares it with the actual TPM PCR10 value
+./build/cocos-cli ima-measurements measurements.log
+```
+
+**Measurement File Format:**
+
+The downloaded file contains IMA measurement entries in the format:
+
+```text
+<PCR> <template_hash> <template_name> <file_hash> <file_path>
+```
+
+Example entry:
+
+```text
+10 sha1:a4c5d8ea9b982... ima-ng sha256:b7f6c1d2e8f9... /usr/bin/python3
+```
+
+**Verification Process:**
+
+1. Download measurements from the agent
+2. Parse each measurement entry
+3. Reconstruct PCR10 by extending each measurement
+4. Compare calculated PCR10 with actual TPM value
+5. Report verification status
+
+**Use Cases:**
+
+- **Attestation:** Verify VM integrity before trusting computation results
+- **Audit:** Review all files accessed during computation
+- **Compliance:** Maintain detailed access logs for security compliance
+- **Debugging:** Identify unexpected file accesses or modifications
+
+**Security Considerations:**
+
+- Measurements cannot be forged due to TPM hardware protection
+- PCR10 verification ensures measurement file integrity
+- Users must verify individual file measurements for complete assurance
+- Unexpected measurements may indicate compromise or misconfiguration
+
+**Examples:**
+
+```bash
+# Download with default filename
+./build/cocos-cli ima-measurements
+
+# Download with custom filename
+./build/cocos-cli ima-measurements custom_measurements.log
+
+# Download with verbose verification output
+./build/cocos-cli ima-measurements measurements.log --verbose
 ```
 
 ## Command: `keys`
@@ -1609,16 +2080,27 @@ cocos-cli policy azure [flags]
 
 Extends the attestation policies PCR16 register with the hashes of downloaded compute manifests.
 
-**Usage:**
+> **Note:** This command is documented but not currently implemented in the codebase. It may be available in future versions.
+
+**Planned Usage:**
 
 ```bash
 cocos-cli policy extend
 ```
 
-**Arguments:**
+**Planned Arguments:**
 
 - `<attestation_policy_file_path>`: Path to attestation policy file
 - `<compute_manifest_file_path0> <compute_manifest_file_path1> ...`: Paths to compute manifest files
+
+**Planned Functionality:**
+
+This command would:
+
+1. Read the attestation policy file
+2. Calculate SHA-256 hashes of each compute manifest file
+3. Extend PCR16 with the calculated hashes in order
+4. Update the attestation policy with new PCR16 expected value
 
 **Example:**
 
@@ -1645,11 +2127,53 @@ cocos-cli remove-vm [flags]
 - `-h, --help`: help for remove-vm
 - `-v, --verbose`: Enable verbose output
 
-**Example:**
+**VM Removal Process:**
+
+Removing a VM performs the following operations:
+
+1. Stops all running computations
+2. Clears sensitive data from memory
+3. Destroys the confidential VM instance
+4. Releases allocated resources
+5. Removes network configurations
+
+**Required Information:**
+
+You need the CVM ID that was returned when the VM was created. This is a unique identifier for the virtual machine instance.
+
+**Manager Service Connection:**
+
+Ensure the Manager service URL is configured:
 
 ```bash
-./build/cocos-cli remove-vm <cvm_id>
+export MANAGER_GRPC_URL=manager.example.com:50051
 ```
+
+**Security Considerations:**
+
+- VM removal is irreversible
+- All data and computation state is permanently destroyed
+- Ensure results are retrieved before removal
+- Authentication may be required for VM removal
+
+**Examples:**
+
+```bash
+# Remove VM with specific ID
+./build/cocos-cli remove-vm vm-12345678-abcd-efgh-ijkl-123456789012
+
+# Remove VM with verbose output
+./build/cocos-cli remove-vm vm-12345678-abcd-efgh-ijkl-123456789012 --verbose
+```
+
+**Error Handling:**
+
+Common errors include:
+
+- VM ID not found
+- VM already removed
+- Insufficient permissions
+- Manager service unavailable
 
 ## Command: `result`
 
@@ -1671,11 +2195,37 @@ cocos-cli result [flags]
 - `-h, --help`: help for result
 - `-v, --verbose`: Enable verbose output
 
-**Example:**
+**Result File Handling:**
+
+The CLI downloads computation results as ZIP files and handles extraction automatically:
+
+- **Default filename:** `results.zip` if not specified
+- **Custom filename:** Use second argument to specify custom output filename
+- **Automatic extraction:** Results are extracted to the current directory
+
+**Authentication:**
+
+Result retrieval requires the same private key used for algorithm/dataset upload to verify authorization.
+
+**Download Process:**
+
+1. CLI connects to agent using the private key for authentication
+2. Agent verifies authorization and packages results
+3. Results are downloaded as a ZIP archive
+4. CLI automatically extracts the archive to the current directory
+5. Temporary files are cleaned up automatically
+
+**Examples:**
 
 ```bash
-./build/cocos-cli result <private_key_file_path> <optional_file_name.zip>
+# Download with default filename
+./build/cocos-cli result private_key.pem
+
+# Download with custom filename
+./build/cocos-cli result private_key.pem my_results.zip
 ```
+
+**Output:**
 
 If the result is available and agent is ready to receive the results, the result will be extracted and written to the current directory as `result.bin`.
 
@@ -2004,6 +2554,113 @@ Error parsing config file: <error>
 Attestation result retrieved and saved successfully!
 ```
 
+**Other Success Messages:**
+
+- Algorithm upload: `Algorithm uploaded successfully!`
+- Dataset upload: `Dataset uploaded successfully!`
+- Key generation: `Key pair generated successfully!`
+- VM creation: `VM created successfully with ID: <cvm_id>`
+- VM removal: `VM removed successfully!`
+- File checksum: `Checksum calculated successfully!`
+- IMA measurements: `IMA measurements downloaded and verified successfully!`
+
+## Advanced Topics
+
+### Configuration File Management
+
+The CLI supports various configuration file formats:
+
+**Attestation Policy JSON:**
+
+For attestation policy examples, see the [On-Premises Attestation Verification](on-premises-attestation-verification.md) documentation.
+
+**Computation Manifest JSON:**
+
+```json
+{
+  "id": "unique-computation-id",
+  "name": "computation name",
+  "description": "description of the computation",
+  "datasets": [
+    {
+      "hash": "base64-encoded-sha3-256-hash",
+      "user_key": "base64-encoded-public-key",
+      "filename": "dataset.csv"
+    }
+  ],
+  "algorithm": {
+    "hash": "base64-encoded-sha3-256-hash",
+    "user_key": "base64-encoded-public-key"
+  },
+  "result_consumers": [
+    {
+      "user_key": "base64-encoded-public-key"
+    }
+  ]
+}
+```
+
+### Home Directory Integration
+
+The CLI creates and uses the `.cocos` directory in the user's home directory for:
+
+- Certificate caching
+- Configuration storage
+- Temporary file management
+- Measurement cache
+
+### Signal Handling
+
+The CLI implements graceful shutdown:
+
+- Handles SIGINT (Ctrl+C) and SIGTERM signals
+- Cleans up temporary files on exit
+- Closes active connections properly
+- Saves state before termination
+
+### Network Security
+
+**TLS Configuration:**
+
+- Supports TLS 1.2+ for all connections
+- Certificate chain validation
+- CRL (Certificate Revocation List) checking
+- Custom CA certificate support
+
+**mTLS (Mutual TLS):**
+
+- Client certificate authentication
+- Automatic certificate renewal
+- Key rotation support
+- Hardware security module integration
+
+**aTLS (Attested TLS):**
+
+- TEE attestation during TLS handshake
+- Policy-based connection acceptance
+- Measurement verification
+- Secure key exchange within TEE
+
+**maTLS (Attested TLS):**
+
+- Combines both mTLS + aTLS
+
+### Performance Optimization
+
+**Streaming Operations:**
+
+- Large file uploads use streaming
+- Memory-efficient processing
+- Progress indicators for long operations
+- Concurrent connection pooling
+
+**Caching:**
+
+- Certificate caching in `.cocos` directory
+- Measurement result caching
+- Connection pooling
+- DNS resolution caching
+
 ## Best Practices
 
 1. **Hex Value Generation:** Use cryptographically secure sources for nonces and expected values
@@ -2013,3 +2670,8 @@ Attestation result retrieved and saved successfully!
 5. **Security:** Validate all input parameters and protect sensitive configuration files
 6. **Network Configuration:** Configure appropriate timeouts for network-dependent operations
 7. **Output Validation:** Verify output files are created and contain expected validation results
+8. **Key Management:** Use proper file permissions (600) for private keys
+9. **Environment Variables:** Use environment variables for server URLs and certificate paths
+10. **Temporary Files:** CLI automatically cleans up temporary files, but monitor disk space
+11. **Connection Pooling:** CLI reuses connections when possible for better performance
+12. **Graceful Shutdown:** Use Ctrl+C to gracefully terminate operations when needed
