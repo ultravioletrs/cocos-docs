@@ -502,22 +502,22 @@ cocos-cli [command]
 ## Available Commands
 
 | Command            | Description                                  | Authentication Required | Service Required | Help Command                        |
-| ------------------ | -------------------------------------------- | ---------------------- | ---------------- | ----------------------------------- |
+|--------------------|----------------------------------------------|-------------------------|------------------|-------------------------------------|
 | `algo`             | Upload an algorithm binary                   | ✓ (Private Key)         | Agent            | `cocos-cli algo --help`             |
-| `attestation`      | Get and validate attestations                | ✗                      | Agent            | `cocos-cli attestation --help`      |
-| `ca-bundle`        | Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)   | ✗                      | None             | `cocos-cli ca-bundle --help`        |
-| `checksum`         | Compute the sha3-256 hash of a file          | ✗                      | None             | `cocos-cli checksum --help`         |
-| `completion`       | Generate shell completion scripts             | ✗                      | None             | `cocos-cli completion --help`       |
+| `attestation`      | Get and validate attestations                | ✗                       | Agent            | `cocos-cli attestation --help`      |
+| `ca-bundle`        | Fetch AMD SEV-SNPs CA Bundle (ASK and ARK)   | ✗                       | None             | `cocos-cli ca-bundle --help`        |
+| `checksum`         | Compute the sha3-256 hash of a file          | ✗                       | None             | `cocos-cli checksum --help`         |
+| `completion`       | Generate shell completion scripts            | ✗                       | None             | `cocos-cli completion --help`       |
 | `create-vm`        | Create a new virtual machine                 | ✓ (Optional mTLS)       | Manager          | `cocos-cli create-vm --help`        |
 | `data`             | Upload a dataset                             | ✓ (Private Key)         | Agent            | `cocos-cli data --help`             |
-| `help`             | Help about any command                       | ✗                      | None             | `cocos-cli help [command]`          |
-| `igvmmeasure`      | Measure an IGVM file                         | ✗                      | None             | `cocos-cli igvmmeasure --help`      |
-| `ima-measurements` | Retrieve Linux IMA measurements file         | ✗                      | Agent            | `cocos-cli ima-measurements --help` |
-| `keys`             | Generate a new public/private key pair       | ✗                      | None             | `cocos-cli keys --help`             |
-| `policy`           | Change attestation policy                    | ✗                      | Varies           | `cocos-cli policy --help`           |
+| `help`             | Help about any command                       | ✗                       | None             | `cocos-cli help [command]`          |
+| `igvmmeasure`      | Measure an IGVM file                         | ✗                       | None             | `cocos-cli igvmmeasure --help`      |
+| `ima-measurements` | Retrieve Linux IMA measurements file         | ✗                       | Agent            | `cocos-cli ima-measurements --help` |
+| `keys`             | Generate a new public/private key pair       | ✗                       | None             | `cocos-cli keys --help`             |
+| `policy`           | Change attestation policy                    | ✗                       | Varies           | `cocos-cli policy --help`           |
 | `remove-vm`        | Remove a virtual machine                     | ✓ (Optional mTLS)       | Manager          | `cocos-cli remove-vm --help`        |
 | `result`           | Retrieve computation result file             | ✓ (Private Key)         | Agent            | `cocos-cli result --help`           |
-| `sevsnpmeasure`    | Calculate AMD SEV/SEV-ES/SEV-SNP measurement | ✗                      | None             | `cocos-cli sevsnpmeasure --help`    |
+| `sevsnpmeasure`    | Calculate AMD SEV/SEV-ES/SEV-SNP measurement | ✗                       | None             | `cocos-cli sevsnpmeasure --help`    |
 
 ## Command: `algo`
 
