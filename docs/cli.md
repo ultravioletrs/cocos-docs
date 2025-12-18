@@ -77,14 +77,6 @@ export MANAGER_GRPC_CLIENT_CERT=<path_to_CLI_certificate_file>
 export MANAGER_GRPC_CLIENT_KEY=<path_to_CLI_key_file>
 ```
 
-#### Set Agent Log Level (optional)
-
-Configures the log level for agent operations:
-
-```shell
-export AGENT_LOG_LEVEL=<log_level>  # Default: "info"
-```
-
 #### Set IGVM Binary Path (optional)
 
 Specifies the path to the IGVM measurement binary:
@@ -2580,42 +2572,31 @@ The CLI supports various configuration file formats:
 
 **Attestation Policy JSON:**
 
-```json
-{
-  "rootOfTrust": {
-    "product": "Milan",
-    "cabundlePaths": ["/path/to/ask.pem", "/path/to/ark.pem"],
-    "checkCrl": true
-  },
-  "policy": {
-    "reportData": "base64_encoded_64_bytes",
-    "measurement": "base64_encoded_48_bytes",
-    "minimumGuestSvn": 1,
-    "requireAuthorKey": true
-  }
-}
-```
+For attestation policy examples, see the [On-Premises Attestation Verification](on-premises-attestation-verification.md) documentation.
 
 **Computation Manifest JSON:**
 
 ```json
 {
-  "algorithm": {
-    "type": "python",
-    "file": "algorithm.py",
-    "requirements": "requirements.txt",
-    "args": ["--input=data.csv"]
-  },
+  "id": "unique-computation-id",
+  "name": "computation name",
+  "description": "description of the computation",
   "datasets": [
     {
-      "path": "/data/input.csv",
-      "compressed": false
+      "hash": "base64-encoded-sha3-256-hash",
+      "user_key": "base64-encoded-public-key",
+      "filename": "dataset.csv"
     }
   ],
-  "expectedResults": {
-    "files": ["output.json"],
-    "checksum": "sha3-256-hash"
-  }
+  "algorithm": {
+    "hash": "base64-encoded-sha3-256-hash",
+    "user_key": "base64-encoded-public-key"
+  },
+  "result_consumers": [
+    {
+      "user_key": "base64-encoded-public-key"
+    }
+  ]
 }
 ```
 
@@ -2659,6 +2640,9 @@ The CLI implements graceful shutdown:
 - Policy-based connection acceptance
 - Measurement verification
 - Secure key exchange within TEE
+- 
+**maTLS (Attested TLS):**
+- Combines both mTLS + aTLS
 
 ### Performance Optimization
 
