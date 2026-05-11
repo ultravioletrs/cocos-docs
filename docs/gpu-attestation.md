@@ -1,0 +1,237 @@
+# GPU Attestation
+
+COCOS AI can attach NVIDIA GPU attestation evidence to the attestation token returned by the `attestation-service`. This allows a relying party to verify that a confidential workload is not only running in an attested CPU TEE, but is also using a supported NVIDIA GPU whose firmware, driver, and security state satisfy policy.
+
+GPU attestation is implemented as an optional extension to the normal COCOS attestation flow. If GPU collection is not configured, or if the platform does not expose a supported confidential-computing-capable GPU, COCOS still returns the root attestation evidence.
+
+## Components
+
+The GPU attestation path is split across three implementation areas:
+
+- [`cmd/attestation-service`](https://github.com/ultravioletrs/cocos/tree/main/cmd/attestation-service) starts the attestation gRPC service, collects root attestation evidence, invokes GPU evidence collection when configured, and embeds GPU evidence into the generated EAT token.
+- [`pkg/attestation/gpu`](https://github.com/ultravioletrs/cocos/tree/main/pkg/attestation/gpu) contains the Go collector and verifier wrappers. These wrappers call an external helper through a JSON stdin/stdout protocol.
+- [`tools/nvidia-attestation-helper`](https://github.com/ultravioletrs/cocos/tree/main/tools/nvidia-attestation-helper) is a Rust helper around NVIDIA's attestation SDK. It collects GPU evidence through NVML and verifies evidence with NVIDIA's local verifier, RIM service, and OCSP checks.
+
+## Evidence Collection Flow
+
+```text
+Attestation request
+        |
+        v
+attestation-service
+        |
+        |-- collect root attestation evidence
+        |
+        |-- derive GPU nonce from session nonce
+        |
+        |-- call nvidia-attestation-helper in collect mode
+        |
+        v
+EAT token with x-cocos-gpu and submods.gpu
+```
+
+When `ATTESTATION_GPU_HELPER_PATH` is configured, the attestation service creates a GPU collector. For supported platform types, the service derives a component-specific GPU nonce:
+
+```text
+gpu_nonce = SHA-256(session_nonce || ":gpu")
+```
+
+The session nonce is taken from the attestation request `nonce` when present, otherwise from `report_data`. The derived GPU nonce is sent to the helper as hex. The helper collects live GPU evidence and returns NVIDIA evidence JSON. COCOS then embeds the result in the EAT token.
+
+GPU evidence is collected for these root platform types:
+
+- `SNP`
+- `SNP-vTPM`
+- `TDX`
+- `Azure`
+
+GPU evidence is not collected for vTPM-only or non-confidential sample platforms.
+
+## EAT Claims
+
+GPU evidence is stored as a COCOS EAT extension and as an EAT submodule:
+
+```json
+{
+  "x-cocos-gpu": {
+    "vendor": "nvidia",
+    "evidence_format": "nvat-json",
+    "nonce": "<binary GPU nonce>",
+    "evidence_json": "<NVIDIA evidence JSON>"
+  },
+  "submods": {
+    "gpu": {
+      "vendor": "nvidia",
+      "evidence_format": "nvat-json",
+      "nonce": "<binary GPU nonce>",
+      "evidence_json": "<NVIDIA evidence JSON>"
+    }
+  }
+}
+```
+
+The GPU evidence format is `nvat-json`, which is the JSON emitted by NVIDIA's `GpuEvidence::to_json()` API.
+
+## Helper Protocol
+
+The helper reads one JSON object from standard input and writes one JSON object to standard output.
+
+Collection request:
+
+```json
+{
+  "mode": "collect",
+  "nonce_hex": "aabbccdd"
+}
+```
+
+Collection response:
+
+```json
+{
+  "vendor": "nvidia",
+  "evidence_format": "nvat-json",
+  "evidence_json": [{ "...": "..." }]
+}
+```
+
+Verification request:
+
+```json
+{
+  "mode": "verify",
+  "nonce_hex": "aabbccdd",
+  "evidence_json": [{ "...": "..." }]
+}
+```
+
+Verification response:
+
+```json
+{
+  "claims_json": {
+    "GPU-0": {
+      "secboot": true,
+      "dbgstat": "disabled",
+      "measres": "success"
+    }
+  },
+  "detached_eat_json": { "...": "..." }
+}
+```
+
+## Verification Flow
+
+During aTLS verification, COCOS decodes the EAT token and verifies the root attestation evidence first. If the token contains `x-cocos-gpu`, COCOS verifies the GPU evidence as part of the same policy check.
+
+```text
+Decode EAT token
+        |
+        v
+Verify root evidence against CoRIM policy
+        |
+        v
+Check GPU nonce binding
+        |
+        v
+Call nvidia-attestation-helper in verify mode
+        |
+        v
+Appraise NVIDIA GPU claims
+        |
+        v
+Optionally match GPU identity against CoRIM reference values
+```
+
+COCOS performs two nonce checks before accepting GPU evidence:
+
+- The EAT `x-cocos-gpu.nonce` must equal `SHA-256(eat_nonce || ":gpu")`.
+- The inner NVIDIA evidence JSON nonce must match the same derived nonce in hex.
+
+These checks prevent replaying a stale GPU evidence blob into a fresh root attestation token.
+
+## Required GPU Claims
+
+After NVIDIA verification succeeds, COCOS appraises the per-device claims returned by the helper. Every GPU device in the evidence must satisfy these checks:
+
+| Claim | Required value |
+| --- | --- |
+| `secboot` | `true` |
+| `dbgstat` | `disabled` |
+| `measres` | `success` |
+| `x-nvidia-gpu-attestation-report-nonce-match` | `true` |
+| `x-nvidia-gpu-attestation-report-signature-verified` | `true` |
+| `x-nvidia-gpu-attestation-report-cert-chain-fwid-match` | `true` |
+| `x-nvidia-gpu-arch-check` | `true` |
+| `x-nvidia-gpu-driver-rim-signature-verified` | `true` |
+| `x-nvidia-gpu-vbios-rim-signature-verified` | `true` |
+| `x-nvidia-gpu-driver-rim-version-match` | `true` |
+| `x-nvidia-gpu-vbios-rim-version-match` | `true` |
+| `x-nvidia-attestation-warning` | must be absent or `null` |
+
+If any device fails one of these checks, GPU attestation verification fails.
+
+## CoRIM Policy Matching
+
+COCOS can also compare GPU identity against CoRIM reference values. For each verified GPU device, COCOS builds this identity string:
+
+```text
+hwmodel|x-nvidia-gpu-driver-version|x-nvidia-gpu-vbios-version
+```
+
+It hashes the identity with SHA-256 and compares the digest to reference-value digests in the CoRIM manifest. If the manifest contains GPU digest entries, each GPU must match one of them. If the manifest has no digest entries, COCOS treats that as no GPU policy configured and relies on the mandatory claim checks above.
+
+## Configuration
+
+Build the helper from the COCOS repository:
+
+```bash
+cd tools/nvidia-attestation-helper
+export NVAT_USE_SYSTEM_LIB=1
+cargo build --release
+```
+
+The helper requires:
+
+- Rust 1.80 or later
+- `libnvat.so.1`
+- Clang/LLVM
+- NVIDIA GPU driver with NVML support
+
+Enable GPU evidence collection in the attestation service:
+
+```bash
+export ATTESTATION_GPU_HELPER_PATH=/path/to/nvidia-attestation-helper
+export ATTESTATION_GPU_HELPER_TIMEOUT=30s
+```
+
+Enable GPU evidence verification for aTLS:
+
+```bash
+export ATLS_GPU_VERIFIER_PATH=/path/to/nvidia-attestation-helper
+export ATLS_GPU_VERIFIER_TIMEOUT=30s
+```
+
+If `ATLS_GPU_VERIFIER_PATH` is not set, COCOS falls back to `ATTESTATION_GPU_HELPER_PATH`.
+
+## Failure Behavior
+
+GPU collection is opportunistic. If collection fails, the attestation service logs a warning and returns the root EAT token without GPU evidence. This avoids breaking CPU TEE attestation on hosts that do not have a supported GPU or where the NVIDIA helper is unavailable.
+
+GPU verification is strict. If an EAT token contains GPU evidence, the verifier must be able to validate the NVIDIA evidence, confirm nonce binding, and appraise all required GPU claims. Any failure rejects the attestation result.
+
+## Troubleshooting
+
+If GPU evidence is missing from the EAT token:
+
+- Confirm `ATTESTATION_GPU_HELPER_PATH` points to the helper binary.
+- Confirm the helper can run on the host and can load `libnvat.so.1`.
+- Confirm the NVIDIA driver exposes NVML.
+- Check attestation-service logs for `Skipping optional GPU evidence collection`.
+
+If GPU verification fails:
+
+- Confirm `ATLS_GPU_VERIFIER_PATH` or `ATTESTATION_GPU_HELPER_PATH` points to the same compatible helper.
+- Confirm the verifier host can reach NVIDIA RIM and OCSP services.
+- Check for nonce mismatch errors, which indicate stale or incorrectly bound GPU evidence.
+- Check NVIDIA claim failures such as secure boot disabled, debug enabled, failed measurement result, RIM mismatch, VBIOS mismatch, or attestation warnings.

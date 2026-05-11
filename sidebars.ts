@@ -65,6 +65,7 @@ const sidebars: SidebarsConfig = {
               'public-cloud-attestation-verification',
             ],
           },
+          'gpu-attestation',
         ],
       },
     ],
