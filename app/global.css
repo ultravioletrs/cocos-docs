@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-accent-bright: hsl(152 88% 50%);
+
+  /* All three font tokens resolve to JetBrains Mono — the site uses one mono family
+     everywhere, with size/weight/tracking carrying the hierarchy. */
+  --font-sans: var(--font-mono), "SF Mono", Menlo, Consolas, monospace;
+  --font-display: var(--font-mono), "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: var(--font-mono), "SF Mono", Menlo, Consolas, monospace;
+
+  --animate-ticker-left: ticker-left linear infinite;
+  --animate-ticker-right: ticker-right linear infinite;
+
+  @keyframes ticker-left {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes ticker-right {
+    0% {
+      transform: translateX(-50%);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+}
+
+@layer base {
+  .container {
+    @apply mx-auto px-4;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 17px;
+    }
+  }
+
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 180 10% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 180 10% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 180 10% 8%;
+
+    --primary: 152 78% 30%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 8% 96%;
+    --secondary-foreground: 180 10% 8%;
+
+    --muted: 180 8% 96%;
+    --muted-foreground: 180 6% 38%;
+
+    --accent: 152 78% 30%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 75% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 180 6% 88%;
+    --input: 180 6% 88%;
+    --ring: 152 78% 30%;
+
+    --radius: 0.25rem;
+
+    --grid-line: 180 6% 88%;
+  }
+
+  .dark {
+    --background: 180 6% 6%;
+    --foreground: 160 8% 92%;
+
+    --card: 180 6% 8%;
+    --card-foreground: 160 8% 92%;
+
+    --popover: 180 6% 8%;
+    --popover-foreground: 160 8% 92%;
+
+    --primary: 152 88% 50%;
+    --primary-foreground: 180 10% 6%;
+
+    --secondary: 180 6% 12%;
+    --secondary-foreground: 160 8% 92%;
+
+    --muted: 180 5% 14%;
+    --muted-foreground: 170 6% 60%;
+
+    --accent: 152 88% 50%;
+    --accent-foreground: 180 10% 6%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 180 5% 18%;
+    --input: 180 5% 18%;
+    --ring: 152 88% 50%;
+
+    --grid-line: 180 5% 18%;
+  }
+
+  /* Code block overflow */
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre;
+    word-wrap: normal;
+  }
+
+  .prose pre,
+  [data-rehype-pretty-code-fragment] pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@layer components {
+  /* Mono uppercase eyebrow label, used for section kickers / tags */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .eyebrow-accent {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+  }
+
+  /* Schematic grid background — used behind hero/architecture sections */
+  .grid-bg {
+    background-image:
+      linear-gradient(
+        to right,
+        hsl(var(--grid-line) / 0.6) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        hsl(var(--grid-line) / 0.6) 1px,
+        transparent 1px
+      );
+    background-size: 48px 48px;
+  }
+
+  .grid-bg-fade {
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      black 30%,
+      transparent 75%
+    );
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  /* Terminal-style code block container */
+  .terminal {
+    position: relative;
+    background-color: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    padding: 2.25rem 1rem 1rem;
+  }
+
+  .terminal::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1.5rem;
+    background-color: hsl(var(--background));
+    border-bottom: 1px solid hsl(var(--border));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .terminal::after {
+    content: "● ● ●";
+    position: absolute;
+    top: 0.35rem;
+    left: 0.6rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: hsl(var(--muted-foreground));
+  }
+}

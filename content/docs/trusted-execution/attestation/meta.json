@@ -1,0 +1,9 @@
+{
+  "attestation-introduction": "Introduction",
+  "attestation-attestation-report": "Attestation Report",
+  "attestation-measured-boot": "Measured Boot",
+  "atls": "Attested TLS",
+  "public-cloud-attestation-framework": "Public Cloud Attestation Framework",
+  "verification": "Verification",
+  "gpu-attestation": "GPU Attestation"
+}

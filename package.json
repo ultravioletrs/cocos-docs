@@ -3,49 +3,46 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
-    "serve": "docusaurus serve",
-    "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "build": "next build && node scripts/nest-static-export.mjs",
+    "dev": "next dev",
+    "start": "serve out",
+    "deploy": "pnpm run build && wrangler deploy",
+    "upload": "pnpm run build && wrangler versions upload",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "postinstall": "fumadocs-mdx",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "lint:fix": "biome check --write",
+    "lint:md": "markdownlint --disable MD013 MD033 MD007 MD029 MD059 MD024 MD025 MD046 -- \"content/docs/**/*.mdx\""
   },
   "dependencies": {
-    "@docusaurus/core": "^3.7.0",
-    "@docusaurus/preset-classic": "^3.7.0",
-    "@docusaurus/theme-mermaid": "^3.8.1",
-    "@mdx-js/react": "^3.0.0",
-    "clsx": "^2.0.0",
-    "katex": "^0.16.22",
-    "prism-react-renderer": "^2.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "@orama/orama": "^3.1.18",
+    "clsx": "^2.1.1",
+    "fumadocs-core": "16.5.2",
+    "fumadocs-mdx": "^14.2.7",
+    "fumadocs-ui": "16.5.2",
+    "katex": "^0.16.28",
+    "mermaid": "^11.13.0",
+    "next": "16.1.6",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.7.0",
-    "@docusaurus/tsconfig": "^3.7.0",
-    "@docusaurus/types": "^3.7.0",
-    "typescript": "~5.6.2"
+    "@biomejs/biome": "2.4.16",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.2.1",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "markdownlint-cli": "^0.44.0",
+    "postcss": "^8.5.6",
+    "serve": "^14.2.5",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.81.1"
   },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 3 chrome version",
-      "last 3 firefox version",
-      "last 5 safari version"
-    ]
-  },
-  "engines": {
-    "node": ">=18.0"
-  }
+  "packageManager": "pnpm@11.5.2"
 }

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://www.ultraviolet.rs/docs/cocos-ai/sitemap.xml
