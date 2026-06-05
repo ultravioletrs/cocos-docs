@@ -1,0 +1,8 @@
+{
+  "architecture": "Architecture",
+  "computation": "Computation",
+  "agent": "Agent",
+  "manager": "CVM Manager",
+  "cli": "CLI",
+  "hal": "Hardware Abstraction Layer"
+}
