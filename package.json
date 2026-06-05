@@ -16,6 +16,7 @@
     "lint:md": "markdownlint --disable MD013 MD033 MD007 MD029 MD059 MD024 MD025 MD046 -- \"content/docs/**/*.mdx\""
   },
   "dependencies": {
+    "@orama/orama": "^3.1.18",
     "clsx": "^2.1.1",
     "fumadocs-core": "16.5.2",
     "fumadocs-mdx": "^14.2.7",
