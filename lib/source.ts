@@ -7,7 +7,6 @@ export const source = loader({
   plugins: [],
 });
 
-
 export async function getLLMText(page: InferPageType<typeof source>) {
   const processed = await page.data.getText("processed");
 
