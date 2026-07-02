@@ -27,3 +27,7 @@ next-env.d.ts
 
 # temp files
 *.temp
+
+.claude
+.wolf
+CLAUDE.md
