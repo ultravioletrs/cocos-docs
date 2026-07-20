@@ -26,9 +26,12 @@ export function toSiteUrl(path: string) {
     process.env.NEXT_PUBLIC_BASE_URL ||
     "https://www.ultraviolet.rs/docs/cocos-ai";
   const normalizedBase = base.replace(/\/$/, "");
+  let url: string;
   if (path.startsWith(BASE_PATH)) {
-    return new URL(path, new URL(base).origin).toString();
+    url = new URL(path, new URL(base).origin).toString();
+  } else {
+    url = `${normalizedBase}${path.startsWith("/") ? path : `/${path}`}`;
   }
 
-  return `${normalizedBase}${path.startsWith("/") ? path : `/${path}`}`;
+  return url.endsWith("/") ? url : `${url}/`;
 }
