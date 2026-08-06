@@ -19,6 +19,14 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
+    // Content images (content/docs/**/*.mdx) are served at runtime from R2
+    // via worker/index.ts (see scripts/README.md), not committed to this
+    // repo. fumadocs-mdx's remarkImage plugin statically imports every
+    // markdown image at build time, which requires the file to exist on
+    // disk -- exactly what we're avoiding -- so it's disabled here.
+    // mdx-components.tsx's `img:` override renders the resulting `<img>`
+    // tag as a plain, zoomable image instead.
+    remarkImageOptions: false,
     remarkPlugins: [remarkMdxMermaid],
     rehypeCodeOptions: {
       themes: {

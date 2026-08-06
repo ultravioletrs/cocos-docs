@@ -24,9 +24,13 @@ yarn-error.log*
 .env*.local
 .vercel
 next-env.d.ts
+worker-configuration.d.ts
 
 # temp files
 *.temp
+
+# maintainer-only credentials for scripts/publish-image.mjs
+scripts/.env.publish-image
 
 .claude
 .wolf
