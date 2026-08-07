@@ -59,8 +59,18 @@ The build exports static assets to `out/`, then nests the export under `out/docs
 - `content/docs/`: Documentation content in Markdown and MDX.
 - `lib/`: Utility functions and Fumadocs configuration.
 - `public/`: Static assets, Cloudflare `_headers`, `_redirects`, and `robots.txt`.
+- `worker/`: Cloudflare Worker script that proxies `/img/...` requests to R2; runs only for
+  requests that don't match a static file. See [scripts/README.md](scripts/README.md).
 - `scripts/nest-static-export.mjs`: Moves the static export under `out/docs/cocos-ai`.
-- `wrangler.jsonc`: Cloudflare Workers assets deployment config.
+- `scripts/publish-image.mjs`: Maintainer-only image publishing tool. See
+  [scripts/README.md](scripts/README.md).
+- `wrangler.jsonc`: Cloudflare Workers assets + Worker deployment config.
+
+## Images
+
+Images are served from Cloudflare R2 (not committed to this repo) via
+`worker/index.ts`, which keeps existing `/img/...` URLs working unchanged.
+Maintainers publishing new/updated images: see [scripts/README.md](scripts/README.md).
 
 ## Deploy
 
