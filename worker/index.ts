@@ -1,4 +1,4 @@
-import { type R2Bucket, serveFromR2 } from "./r2-proxy";
+import { type ExecutionContext, type R2Bucket, serveFromR2 } from "./r2-proxy";
 
 // Same reasoning as r2-proxy.ts: defined locally rather than relying on the
 // gitignored, wrangler-generated worker-configuration.d.ts, which isn't
@@ -34,12 +34,22 @@ const IMG_PREFIX = `${BASE_PATH}/img/`;
 const R2_KEY_PREFIX = "cocos-docs";
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     const { pathname } = new URL(request.url);
 
     if (pathname.startsWith(IMG_PREFIX)) {
       const restPath = pathname.slice(IMG_PREFIX.length);
-      return serveFromR2(env.IMAGES_BUCKET, R2_KEY_PREFIX, restPath);
+      return serveFromR2(
+        request,
+        env.IMAGES_BUCKET,
+        R2_KEY_PREFIX,
+        restPath,
+        ctx,
+      );
     }
 
     return env.ASSETS.fetch(request);
